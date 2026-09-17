@@ -1,0 +1,53 @@
+name: Contour Analysis (CI Action Mode)
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  analyze:
+    name: Analyze PR with Contour
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build packages
+        run: pnpm build --filter=@contour/shared --filter=@contour/renderer --filter=@contour/worker
+
+      - name: Run Contour analysis
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ANTHROPIC_API_KEY: ${{ secrets.CONTOUR_ANTHROPIC_API_KEY }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPO_FULL_NAME: ${{ github.repository }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          node -e "
+          const { processJob } = require('./packages/worker/dist/index.js');
+          processJob({
+            jobId: 'ci-\${Date.now()}',
+            installationId: 0,
+            repoFullName: process.env.REPO_FULL_NAME,
+            prNumber: parseInt(process.env.PR_NUMBER),
+            headSha: process.env.HEAD_SHA,
+            deliveryId: 'ci-action',
+          }).catch(console.error);
+          "

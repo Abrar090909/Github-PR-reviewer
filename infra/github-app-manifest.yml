@@ -1,0 +1,20 @@
+name: Contour GitHub App
+url: https://contour.dev
+hook_url: https://contour.dev/api/webhooks/github
+hook_attributes:
+  url: https://contour.dev/api/webhooks/github
+  content_type: json
+  active: true
+redirect_url: https://contour.dev/dashboard
+description: Risk-scored architecture diagrams for every pull request. See what changed, what could break, and what's untested — directly inside GitHub.
+public: true
+default_events:
+  - pull_request
+  - installation
+  - installation_repositories
+default_permissions:
+  contents: read
+  metadata: read
+  pull_requests: write
+  issues: write
+  checks: read
