@@ -1,0 +1,143 @@
+name: Contour
+description: Post the animated architecture and data flow of a pull request as diagrams in its comments, using your own model key.
+author: Contour
+
+branding:
+  icon: git-pull-request
+  color: purple
+
+inputs:
+  api-key:
+    description: Key for the model provider. It is passed to the CLI through the environment and never appears in a command line.
+    required: true
+  provider:
+    description: >-
+      gemini, openai, or openai-compatible for anything else speaking
+      /chat/completions (which then needs base-url).
+    default: gemini
+  model:
+    description: Model to ask. Required when provider is openai-compatible, since the endpoint decides which names exist.
+    default: ""
+  base-url:
+    description: Provider endpoint, for a compatible or self-hosted server.
+    default: ""
+  lens:
+    description: Comma-separated lenses to render. Defaults to both.
+    default: ""
+  branding:
+    description: Show the "Rendered by PR Lens" footer.
+    default: "true"
+  comment:
+    description: Post the comment. Set false to render and publish the SVGs without commenting.
+    default: "true"
+  data-branch:
+    description: Orphan branch the rendered SVGs are committed to. It holds no code and is never merged.
+    default: pr-lens
+  cli-version:
+    description: Version of @coldtea/pr-lens-cli to run.
+    default: 0.5.0
+  comment-author:
+    description: >-
+      Login that owns the PR Lens comment. Only a comment posted by this
+      account is ever updated, so nobody else can put the marker on a comment
+      of their own and have this Action edit it. Change it when github-token
+      belongs to another identity.
+    default: github-actions[bot]
+  github-token:
+    description: Token used to publish the SVGs and post the comment.
+    default: ${{ github.token }}
+
+outputs:
+  graph:
+    description: Path of the graph document that was produced.
+    value: ${{ steps.analyze.outputs.graph }}
+  assets-url:
+    description: Base URL the rendered SVGs are published at.
+    value: ${{ steps.publish.outputs.assets-url }}
+
+runs:
+  using: composite
+  steps:
+    - name: Check the run has what it needs
+      shell: bash
+      run: |
+        set -euo pipefail
+        if [ -z "${PR_NUMBER}" ]; then
+          echo "::error::PR Lens runs on pull_request events — there is no pull request in this one."
+          exit 1
+        fi
+        for SHA in "${BASE_SHA}" "${HEAD_SHA}"; do
+          if ! git cat-file -e "${SHA}^{commit}" 2>/dev/null; then
+            echo "::error::${SHA} is not in this checkout. PR Lens diffs two commits, so check out with fetch-depth: 0."
+            exit 1
+          fi
+        done
+      env:
+        BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        PR_NUMBER: ${{ github.event.pull_request.number }}
+
+    - uses: actions/setup-node@v4
+      with:
+        node-version: 20
+
+    - name: Analyze the diff
+      id: analyze
+      shell: bash
+      run: |
+        set -euo pipefail
+        npx --yes "@coldtea/pr-lens-cli@${CLI_VERSION}" analyze \
+          --base "${BASE_SHA}" \
+          --head "${HEAD_SHA}" \
+          --pr "${PR_NUMBER}" \
+          --provider "${PROVIDER}" \
+          --api-key-env PR_LENS_API_KEY \
+          ${MODEL:+--model "${MODEL}"} \
+          ${BASE_URL:+--base-url "${BASE_URL}"} \
+          ${LENS:+--lens "${LENS}"} \
+          --out "${RUNNER_TEMP}/pr-lens/graph.json"
+        echo "graph=${RUNNER_TEMP}/pr-lens/graph.json" >> "${GITHUB_OUTPUT}"
+      env:
+        CLI_VERSION: ${{ inputs.cli-version }}
+        BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        PR_NUMBER: ${{ github.event.pull_request.number }}
+        PROVIDER: ${{ inputs.provider }}
+        MODEL: ${{ inputs.model }}
+        BASE_URL: ${{ inputs.base-url }}
+        LENS: ${{ inputs.lens }}
+        PR_LENS_API_KEY: ${{ inputs.api-key }}
+
+    # Corrections are applied here, so this writes the document the diagrams
+    # actually show alongside them, and the comment is composed from that one.
+    - name: Render the diagrams
+      shell: bash
+      run: |
+        set -euo pipefail
+        npx --yes "@coldtea/pr-lens-cli@${CLI_VERSION}" render "${RUNNER_TEMP}/pr-lens/graph.json" \
+          --out "${RUNNER_TEMP}/pr-lens/assets"
+      env:
+        CLI_VERSION: ${{ inputs.cli-version }}
+
+    - name: Publish the SVGs
+      id: publish
+      shell: bash
+      run: bash "${GITHUB_ACTION_PATH}/scripts/publish.sh"
+      env:
+        DATA_BRANCH: ${{ inputs.data-branch }}
+        GITHUB_TOKEN: ${{ inputs.github-token }}
+        HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        PR_NUMBER: ${{ github.event.pull_request.number }}
+
+    - name: Post the comment
+      if: inputs.comment == 'true'
+      shell: bash
+      run: bash "${GITHUB_ACTION_PATH}/scripts/comment.sh"
+      env:
+        CLI_VERSION: ${{ inputs.cli-version }}
+        ASSETS_URL: ${{ steps.publish.outputs.assets-url }}
+        BRANDING_OFF: ${{ inputs.branding == 'false' && '1' || '' }}
+        COMMENT_AUTHOR: ${{ inputs.comment-author }}
+        GH_TOKEN: ${{ inputs.github-token }}
+        HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        PR_NUMBER: ${{ github.event.pull_request.number }}

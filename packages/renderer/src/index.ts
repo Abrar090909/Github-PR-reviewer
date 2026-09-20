@@ -1,4 +1,36 @@
-export { render, renderLight, renderDark, renderBothThemes } from "./render.js";
-export type { RenderOptions, RenderedSvg, RenderedPair, RenderAtlas, Theme, Palette } from "./render.js";
-export { ContourRenderError } from "./errors.js";
-export { paletteFor, THEMES } from "./theme.js";
+export { RENDERER_NAME, RENDERER_VERSION } from "./version.js";
+
+export {
+  render,
+  renderLight,
+  renderDark,
+  renderAll,
+  type RenderAllOptions,
+  type RenderAllResult,
+  type RenderedAsset,
+  type RenderedSvg,
+  type RenderOptions,
+} from "./render.js";
+
+export { emptyAtlas, type RenderAtlas } from "./atlas.js";
+
+export { PrLensRenderError, type RenderErrorCode } from "./errors.js";
+
+export type { Box } from "./geometry.js";
+
+export { paletteFor, THEMES, type Palette, type Theme } from "./theme.js";
+
+export {
+  buildManifest,
+  canonicalJson,
+  contentHash,
+  CONTENT_HASH_LENGTH,
+  graphContentHash,
+  renderAssetFileName,
+  renderAssetId,
+  type AssetAddress,
+} from "./manifest.js";
+
+export { applyCorrections } from "./corrections.js";
+
+export { findView, flattenViews, resolveScope, type ScopedGraph } from "./scope.js";

@@ -1,6 +1,5 @@
-import type { GraphEdge, GraphNode } from "@contour/shared";
-import type { LayoutHints } from "../layout/architecture.js";
-
+import type { GraphEdge, GraphNode, LayoutHints } from "@contour/schema";
+import { assertNever } from "@contour/schema";
 import {
   BADGE_GAP,
   BADGE_HEIGHT,
@@ -88,7 +87,7 @@ const cardOutlineClass = (node: GraphNode): string => {
     case "unchanged":
       return "card";
     default:
-      return (() => { throw new Error("Unhandled delta: " + String(node.delta)); })();
+      return assertNever(node.delta, "Unhandled delta");
   }
 };
 
@@ -96,7 +95,7 @@ export const paintCard = (placed: PlacedNode): string => {
   const { node, box, showIcon, titleSize } = placed;
   const textX = box.x + CARD_PADDING_X + (showIcon ? ICON_CHIP_SIZE + ICON_CHIP_GAP : 0);
   const textWidth = cardTextWidth(box.width, showIcon);
-  const hasSubtitle = (node as any).subtitle !== undefined;
+  const hasSubtitle = node.subtitle !== undefined;
   const titleBaseline = box.y + (hasSubtitle ? 27 : 31);
 
   const chip = showIcon
@@ -126,11 +125,11 @@ export const paintCard = (placed: PlacedNode): string => {
   );
 
   const subtitle =
-    (node as any).subtitle === undefined
+    node.subtitle === undefined
       ? ""
       : textNode(
           { class: "nsub", x: coord(textX), y: coord(box.y + 45) },
-          truncate((node as any).subtitle, "mono", SUBTITLE_SIZE, textWidth),
+          truncate(node.subtitle, "mono", SUBTITLE_SIZE, textWidth),
         );
 
   const groupClass =
@@ -160,8 +159,8 @@ const pulses = (edge: GraphEdge, path: string, palette: Palette): string =>
   edge.animated
     ? travellingPulses({
         path,
-        colour: toneColour(palette, toneFor(edge.delta ?? "unchanged")),
-        count: ((edge as any).emphasis ?? "normal") === "hero" ? HERO_PULSE_COUNT : 1,
+        colour: toneColour(palette, toneFor(edge.delta)),
+        count: edge.emphasis === "hero" ? HERO_PULSE_COUNT : 1,
         lag: 0,
       })
     : "";
@@ -182,14 +181,13 @@ const paintEdge = (
   label: Box | undefined,
 ): { markup: string; pill: string } => {
   const { edge, path } = routed;
-  const tone = toneFor(edge.delta ?? "unchanged");
-  const emphasis = (edge as any).emphasis ?? "normal";
-  const hero = emphasis === "hero";
+  const tone = toneFor(edge.delta);
+  const hero = edge.emphasis === "hero";
 
   const classes = ["edge", `edge-${tone}`];
   if (hero) classes.push("hero");
-  if (emphasis === "muted") classes.push("faded");
-  if ((edge.delta ?? "unchanged") === "unchanged") classes.push("context");
+  if (edge.emphasis === "muted") classes.push("faded");
+  if (edge.delta === "unchanged") classes.push("context");
 
   const glow = hero
     ? tag("path", { class: "glow", stroke: toneColour(palette, tone), d: path })
@@ -253,7 +251,7 @@ export const paintArchitecture = (
   const edgeMarkup: string[] = [];
   const pillMarkup: string[] = [];
   for (const edge of routed) {
-    const label = pills.get(edge.edge.id!);
+    const label = pills.get(edge.edge.id);
     const { markup, pill } = paintEdge(edge, palette, label);
     edgeMarkup.push(markup);
     pillMarkup.push(pill);
@@ -310,7 +308,7 @@ export const paintArchitecture = (
         canvas,
       ),
       edges: atlasBoxes(
-        routed.map(({ edge, curve }) => ({ id: edge.id ?? "edge", box: curveBounds(curve) })),
+        routed.map(({ edge, curve }) => ({ id: edge.id, box: curveBounds(curve) })),
         canvas,
       ),
     },

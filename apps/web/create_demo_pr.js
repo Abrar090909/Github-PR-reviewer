@@ -1,11 +1,10 @@
+const path = require('path');
 const { createAppAuth } = require('@octokit/auth-app');
 const { Octokit } = require('octokit');
 const fs = require('fs');
-const path = require('path');
 
-const envPath = fs.existsSync(path.resolve(__dirname, '.env.local'))
-  ? path.resolve(__dirname, '.env.local')
-  : path.resolve(__dirname, '../.env.local');
+// Read .env.local from project root (two levels up from apps/web)
+const envPath = path.resolve(__dirname, '..', '..', '.env.local');
 const lines = fs.readFileSync(envPath, 'utf-8').split('\n');
 const env = {};
 for (const line of lines) {
@@ -29,7 +28,7 @@ const instOctokit = new Octokit({
 async function main() {
   const owner = 'Abrar090909';
   const repo = 'Blynkpage';
-  const branchName = 'feature/billing-webhook-' + Date.now().toString().slice(-6);
+  const branchName = 'feature/pr-lens-svg-comment-' + Date.now().toString().slice(-6);
 
   console.log(`Connecting to ${owner}/${repo}...`);
   const mainRef = await instOctokit.request('GET /repos/{owner}/{repo}/git/ref/{ref}', {
@@ -46,10 +45,10 @@ async function main() {
   });
   console.log('Branch created:', branchName);
 
-  // 2. Create files
+  // 2. Create two files to trigger a meaningful diff
   const webhookCode = [
     'import json',
-    'import logging',
+    'import hmac, hashlib, logging',
     'from django.http import JsonResponse, HttpResponseBadRequest',
     'from django.views.decorators.csrf import csrf_exempt',
     'from .events import dispatch_payment_event',
@@ -61,10 +60,17 @@ async function main() {
     '    """Ingests Stripe webhook notifications and dispatches domain events."""',
     '    if request.method != "POST":',
     '        return HttpResponseBadRequest("Method not allowed")',
+    '',
+    '    # Verify Stripe signature',
+    '    sig = request.headers.get("Stripe-Signature", "")',
+    '    secret = settings.STRIPE_WEBHOOK_SECRET',
     '    try:',
-    '        payload = json.loads(request.body.decode("utf-8"))',
+    '        payload = json.loads(request.body)',
+    '        mac = hmac.new(secret.encode(), request.body, hashlib.sha256).hexdigest()',
+    '        if not hmac.compare_digest(mac, sig.split(",")[1].split("=")[1]):',
+    '            return HttpResponseBadRequest("Invalid signature")',
     '    except Exception:',
-    '        return HttpResponseBadRequest("Malformed JSON")',
+    '        return HttpResponseBadRequest("Malformed payload")',
     '',
     '    event_type = payload.get("type")',
     '    logger.info(f"Received billing webhook: {event_type}")',
@@ -75,6 +81,9 @@ async function main() {
     '    elif event_type == "customer.subscription.deleted":',
     '        data = payload.get("data", {}).get("object", {})',
     '        dispatch_payment_event(data.get("customer"), 0, "canceled")',
+    '    elif event_type == "invoice.payment_failed":',
+    '        data = payload.get("data", {}).get("object", {})',
+    '        dispatch_payment_event(data.get("customer"), 0, "failed")',
     '',
     '    return JsonResponse({"status": "received"})',
     '',
@@ -82,12 +91,33 @@ async function main() {
 
   const eventsCode = [
     'import logging',
+    'from django.conf import settings',
+    'from .tasks import send_billing_notification',
     '',
     'logger = logging.getLogger(__name__)',
     '',
     'def dispatch_payment_event(customer_id: str, amount: int, status: str) -> None:',
     '    """Publishes billing events to asynchronous worker queues."""',
-    '    logger.info(f"Billing event dispatched: customer={customer_id} status={status} amount=${amount/100:.2f}")',
+    '    logger.info(f"Billing event: customer={customer_id} status={status} amount=${amount/100:.2f}")',
+    '    # Enqueue async notification task',
+    '    send_billing_notification.delay(customer_id, status, amount)',
+    '',
+  ].join('\n');
+
+  const tasksCode = [
+    'from celery import shared_task',
+    'import logging',
+    '',
+    'logger = logging.getLogger(__name__)',
+    '',
+    '@shared_task(bind=True, max_retries=3)',
+    'def send_billing_notification(self, customer_id: str, status: str, amount: int) -> None:',
+    '    """Celery task: sends billing notification emails via SES."""',
+    '    try:',
+    '        from .email import send_billing_email',
+    '        send_billing_email(customer_id, status, amount)',
+    '    except Exception as exc:',
+    '        raise self.retry(exc=exc, countdown=60)',
     '',
   ].join('\n');
 
@@ -99,25 +129,16 @@ async function main() {
     owner, repo,
     base_tree: baseCommit.data.tree.sha,
     tree: [
-      {
-        path: 'backend/apps/billing/webhook_dispatcher.py',
-        mode: '100644',
-        type: 'blob',
-        content: webhookCode,
-      },
-      {
-        path: 'backend/apps/billing/events.py',
-        mode: '100644',
-        type: 'blob',
-        content: eventsCode,
-      },
+      { path: 'backend/apps/billing/webhook.py',    mode: '100644', type: 'blob', content: webhookCode },
+      { path: 'backend/apps/billing/events.py',     mode: '100644', type: 'blob', content: eventsCode },
+      { path: 'backend/apps/billing/tasks.py',      mode: '100644', type: 'blob', content: tasksCode },
     ],
   });
 
   // 3. Commit
   const newCommit = await instOctokit.request('POST /repos/{owner}/{repo}/git/commits', {
     owner, repo,
-    message: 'feat(billing): add stripe webhook dispatcher and payment event publisher',
+    message: 'feat(billing): add Stripe webhook with HMAC validation, payment events, and Celery async notifications',
     tree: tree.data.sha,
     parents: [baseSha],
   });
@@ -128,33 +149,40 @@ async function main() {
     ref: 'heads/' + branchName,
     sha: newCommit.data.sha,
   });
-  console.log('Committed to branch:', newCommit.data.sha);
+  console.log('Committed:', newCommit.data.sha);
 
   // 5. Open Pull Request
   const pr = await instOctokit.request('POST /repos/{owner}/{repo}/pulls', {
     owner, repo,
-    title: 'feat(billing): Stripe webhook dispatcher & payment event pipeline',
+    title: 'feat(billing): Stripe webhook — HMAC validation + payment events + async Celery tasks',
     head: branchName,
     base: 'main',
     body: [
-      '## Architecture & Purpose',
+      '## What this PR does',
       '',
-      'Adds automated ingestion for Stripe webhook notifications (checkout completed, subscription canceled) and dispatches asynchronous domain events to downstream worker tasks.',
+      'Adds the full billing event pipeline:',
       '',
-      '### Changes',
-      '- Added `backend/apps/billing/webhook_dispatcher.py`: Entrypoint endpoint with signature and payload validation',
-      '- Added `backend/apps/billing/events.py`: Decoupled payment event publisher',
+      '- **`webhook.py`** — Stripe webhook endpoint with HMAC-SHA256 signature validation',
+      '- **`events.py`** — Domain event dispatcher (`paid`, `canceled`, `failed`)',
+      '- **`tasks.py`** — Celery async task for billing email notifications via SES',
+      '',
+      '### Architecture impact',
+      '- New async path: `Stripe → webhook.py → events.py → tasks.py → SES`',
+      '- Adds `invoice.payment_failed` handling (new event type)',
+      '- All Stripe webhooks now signature-verified before dispatch',
     ].join('\n'),
   });
 
   console.log('\n========================================');
-  console.log('Pull Request successfully created!');
+  console.log('Pull Request created!');
   console.log(`PR Number: #${pr.data.number}`);
   console.log(`URL: ${pr.data.html_url}`);
   console.log('========================================\n');
+  console.log('The Contour GitHub App will now analyze this PR and post');
+  console.log('an animated SVG architecture diagram directly as a PR comment.');
 }
 
 main().catch((err) => {
-  console.error('Error creating PR:', err.message || err);
+  console.error('Error:', err.message || err);
   process.exit(1);
 });

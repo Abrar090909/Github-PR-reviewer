@@ -2,15 +2,22 @@ import { HERO_PULSE_DURATION, PULSE_DURATION } from "../design.js";
 import { coord } from "../geometry.js";
 import { lines, tag, wrap } from "./primitives.js";
 
+/**
+ * The travelling pulse: the mark that says a connection carries traffic
+ * rather than merely existing. Both lenses draw it from here, because a
+ * reader moving between them is reading one language — an architecture edge
+ * and a sequence message differ in what they connect, not in how they live.
+ *
+ * A line running behind the drawing's clock says so with a negative `begin`,
+ * which starts its motion that far into its own turn. A positive delay would
+ * describe the same steady state and lie for the seconds after load: an
+ * animation has no effect before it begins, so the dot waiting for its turn
+ * would sit at the canvas origin, in the corner, in full view.
+ */
 /** The dot itself, so both lenses draw the same mark whatever clock moves it. */
 export const PULSE_RADIUS = 2.6;
 export const TRAIN_RADIUS = 3;
 
-/**
- * The travelling pulse: the mark that says a connection carries traffic
- * rather than merely existing. Uses SVG animateMotion to ride a dot along
- * an arbitrary path at a fixed speed, looping indefinitely.
- */
 export const travellingPulses = (pulse: {
   path: string;
   colour: string;

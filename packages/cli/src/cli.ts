@@ -1,0 +1,132 @@
+import { assertNever } from "@contour/schema";
+
+import { CLI_VERSION } from "./version.js";
+import type { Terminal } from "./terminal.js";
+import { formatError, PrLensCliError } from "./errors.js";
+import { skillCommand, USAGE as SKILL_USAGE } from "./commands/skill.js";
+import { exportCommand, USAGE as EXPORT_USAGE } from "./commands/export.js";
+import { canvasCommand, USAGE as CANVAS_USAGE } from "./commands/canvas.js";
+import { renderCommand, USAGE as RENDER_USAGE } from "./commands/render.js";
+import { analyzeCommand, USAGE as ANALYZE_USAGE } from "./commands/analyze.js";
+import { commentCommand, USAGE as COMMENT_USAGE } from "./commands/comment.js";
+import { USAGE as VALIDATE_USAGE, validateCommand } from "./commands/validate.js";
+
+const COMMANDS = ["analyze", "render", "comment", "validate", "export", "canvas", "skill"] as const;
+type CommandName = (typeof COMMANDS)[number];
+
+const isCommand = (value: string): value is CommandName =>
+  COMMANDS.some((command) => command === value);
+
+const HELP = `contour — review what actually matters
+
+  contour analyze   --base <ref>            a diff, read by your own model, as a graph document
+  contour render    <graph.json>            that document, as light and dark SVGs
+  contour comment   --graph --manifest      the pull request comment, as markdown
+  contour validate  <file...>               any Contour document, checked against the contract
+  contour export    <graph.json>            the merged state, as a map worth committing
+  contour canvas    push | pull | rotate | delete    that document, kept on contour.dev as a page and an embed
+  contour skill                             diagram instructions for coding agents
+
+  contour <command> --help                  what a command takes
+  contour --version
+
+Your model key is read from the environment and goes only to the provider you name.`;
+
+const usageFor = (command: CommandName): string => {
+  switch (command) {
+    case "analyze":
+      return ANALYZE_USAGE;
+    case "render":
+      return RENDER_USAGE;
+    case "comment":
+      return COMMENT_USAGE;
+    case "validate":
+      return VALIDATE_USAGE;
+    case "export":
+      return EXPORT_USAGE;
+    case "canvas":
+      return CANVAS_USAGE;
+    case "skill":
+      return SKILL_USAGE;
+    default:
+      return assertNever(command, "Unhandled command");
+  }
+};
+
+const dispatch = (
+  command: CommandName,
+  args: readonly string[],
+  terminal: Terminal,
+  env: Record<string, string | undefined>,
+): Promise<void> => {
+  switch (command) {
+    case "analyze":
+      return analyzeCommand(args, terminal, env);
+    case "render":
+      return renderCommand(args, terminal);
+    case "comment":
+      return commentCommand(args, terminal);
+    case "validate":
+      return validateCommand(args, terminal);
+    case "export":
+      return exportCommand(args, terminal);
+    case "canvas":
+      return canvasCommand(args, terminal, env);
+    case "skill":
+      return skillCommand(args, terminal);
+    default:
+      return assertNever(command, "Unhandled command");
+  }
+};
+
+const EXIT_OK = 0;
+const EXIT_FAILED = 1;
+const EXIT_MISUSED = 2;
+
+export const run = async (
+  argv: readonly string[],
+  terminal: Terminal,
+  env: Record<string, string | undefined>,
+): Promise<number> => {
+  const [name, ...args] = argv;
+
+  if (name === undefined) {
+    terminal.err(HELP);
+    return EXIT_MISUSED;
+  }
+
+  if (name === "--help" || name === "-h" || name === "help") {
+    terminal.out(HELP);
+    return EXIT_OK;
+  }
+
+  if (name === "--version" || name === "-v") {
+    terminal.out(CLI_VERSION);
+    return EXIT_OK;
+  }
+
+  if (!isCommand(name)) {
+    terminal.err(formatError(new PrLensCliError("USAGE", `unknown command ${JSON.stringify(name)}`)));
+    terminal.err(HELP);
+    return EXIT_MISUSED;
+  }
+
+  if (args.includes("--help") || args.includes("-h")) {
+    terminal.out(usageFor(name));
+    return EXIT_OK;
+  }
+
+  try {
+    await dispatch(name, args, terminal, env);
+    return EXIT_OK;
+  } catch (error) {
+    if (!(error instanceof PrLensCliError)) throw error;
+
+    terminal.err(formatError(error));
+    if (error.code !== "USAGE") return EXIT_FAILED;
+
+    terminal.err("");
+    terminal.err(usageFor(name));
+    return EXIT_MISUSED;
+  }
+};

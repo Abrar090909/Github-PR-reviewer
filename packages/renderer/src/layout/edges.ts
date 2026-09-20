@@ -1,5 +1,5 @@
-import type { GraphEdge } from "@contour/shared";
-
+import type { GraphEdge } from "@contour/schema";
+import { assertNever } from "@contour/schema";
 import {
   BEND_RADIUS_MAX,
   PORT_INSET,
@@ -45,7 +45,7 @@ const pointOnSegment = (from: Point, segment: Segment, t: number): Point => {
       };
     }
     default:
-      return (() => { throw new Error("Unhandled path segment: " + String(segment)); })();
+      return assertNever(segment, "Unhandled path segment");
   }
 };
 
@@ -73,7 +73,7 @@ const pathOf = (curve: Curve): string =>
             ` ${coord(segment.to.x)},${coord(segment.to.y)}`
           );
         default:
-          return (() => { throw new Error("Unhandled path segment: " + String(segment)); })();
+          return assertNever(segment, "Unhandled path segment");
       }
     })
     .join("");
@@ -95,7 +95,7 @@ export const curveBounds = (curve: Curve): Box => {
         points.push(segment.first, segment.second, segment.to);
         break;
       default:
-        (() => { throw new Error("Unhandled path segment: " + String(segment)); })();
+        assertNever(segment, "Unhandled path segment");
     }
   }
 
@@ -405,7 +405,7 @@ const sideAxis = (side: Side): "x" | "y" => {
     case "right":
       return "y";
     default:
-      return (() => { throw new Error("Unhandled side: " + String(side)); })();
+      return assertNever(side, "Unhandled side");
   }
 };
 
@@ -418,7 +418,7 @@ const faceSpan = (box: Box, side: Side): { from: number; to: number } => {
     case "right":
       return { from: box.y, to: box.y + box.height };
     default:
-      return (() => { throw new Error("Unhandled side: " + String(side)); })();
+      return assertNever(side, "Unhandled side");
   }
 };
 
@@ -433,7 +433,7 @@ const portPoint = (box: Box, side: Side, along: number): Point => {
     case "right":
       return { x: box.x + box.width, y: along };
     default:
-      return (() => { throw new Error("Unhandled side: " + String(side)); })();
+      return assertNever(side, "Unhandled side");
   }
 };
 
@@ -462,7 +462,7 @@ const channelSpan = (grid: LayoutGrid, channel: Channel): ChannelSpan => {
     case "band":
       return bandSpan(grid, channel.index);
     default:
-      return (() => { throw new Error("Unhandled channel: " + String(channel)); })();
+      return assertNever(channel, "Unhandled channel");
   }
 };
 
@@ -501,7 +501,7 @@ const buildPoints = (
         y = trackOf(index);
         break;
       default:
-        (() => { throw new Error("Unhandled channel: " + String(channel)); })();
+        assertNever(channel, "Unhandled channel");
     }
     points.push({ x, y });
   });
@@ -632,7 +632,7 @@ export const channelTraffic = (
           bands.set(channel.index, (bands.get(channel.index) ?? 0) + 1);
           break;
         default:
-          (() => { throw new Error("Unhandled channel: " + String(channel)); })();
+          assertNever(channel, "Unhandled channel");
       }
   return { corridors, bands };
 };
@@ -720,7 +720,7 @@ const routePass = (
     }
 
     const curve = curveThrough(points);
-    routedById.set(route.edge.id!, {
+    routedById.set(route.edge.id, {
       edge: route.edge,
       path: pathOf(curve),
       curve,
@@ -729,7 +729,7 @@ const routePass = (
   }
 
   const routed = drawable.map(({ edge, from }) => {
-    const known = routedById.get(edge.id!);
+    const known = routedById.get(edge.id);
     if (known !== undefined) return known;
     const curve = selfLoop(from.box);
     return {
@@ -837,7 +837,7 @@ const opposedSide = (side: Side): Side => {
     case "right":
       return "left";
     default:
-      return (() => { throw new Error("Unhandled side: " + String(side)); })();
+      return assertNever(side, "Unhandled side");
   }
 };
 
@@ -949,7 +949,7 @@ const buildApprox = (
         y = channelSpan(grid, channel).centre;
         break;
       default:
-        (() => { throw new Error("Unhandled channel: " + String(channel)); })();
+        assertNever(channel, "Unhandled channel");
     }
     coordinates.push({ x, y });
   }
@@ -985,7 +985,7 @@ const buildApprox = (
         };
       }
       default:
-        return (() => { throw new Error("Unhandled channel: " + String(channel)); })();
+        return assertNever(channel, "Unhandled channel");
     }
   });
 };

@@ -1,4 +1,5 @@
-import type { Delta } from "@contour/shared";
+import type { Delta } from "@contour/schema";
+import { assertNever } from "@contour/schema";
 import type { Canvas } from "../bounds.js";
 import { coord } from "../geometry.js";
 import type { Palette } from "../theme.js";
@@ -15,7 +16,6 @@ export type Tone = "added" | "modified" | "removed" | "neutral";
 export const toneFor = (delta: Delta): Tone => {
   switch (delta) {
     case "added":
-    case "new":
       return "added";
     case "modified":
       return "modified";
@@ -24,17 +24,22 @@ export const toneFor = (delta: Delta): Tone => {
     case "unchanged":
       return "neutral";
     default:
-      return "neutral";
+      return assertNever(delta, "Unhandled delta");
   }
 };
 
 export const toneColour = (palette: Palette, tone: Tone): string => {
   switch (tone) {
-    case "added":   return palette.added;
-    case "modified": return palette.modified;
-    case "removed": return palette.removed;
-    case "neutral": return palette.edge;
-    default: return palette.edge;
+    case "added":
+      return palette.added;
+    case "modified":
+      return palette.modified;
+    case "removed":
+      return palette.removed;
+    case "neutral":
+      return palette.edge;
+    default:
+      return assertNever(tone, "Unhandled tone");
   }
 };
 
@@ -90,7 +95,10 @@ const stylesheet = (palette: Palette): string =>
   ].join("");
 
 /**
- * Two arrowhead forms per tone: filled head (sync) and open line-form head (async).
+ * Two arrowhead forms per tone, the classic sequence-diagram pair: a filled
+ * head for a message the sender waits on, an open line-form head for one it
+ * fires and forgets. The open head anchors at its tip so the line runs all
+ * the way into the point, where a filled head covers its own line end.
  */
 const markers = (palette: Palette): string =>
   TONES.map(
@@ -131,12 +139,18 @@ const markers = (palette: Palette): string =>
   ).join("");
 
 export const markerFor = (tone: Tone): string => `url(#mk-${tone})`;
+
 export const openMarkerFor = (tone: Tone): string => `url(#mko-${tone})`;
 
 const DOT_PITCH = 18;
 
 /**
  * Wraps painted content in a standalone SVG file.
+ *
+ * Nothing outside the file is referenced: it is served through an image proxy
+ * where the page it lands in does not exist, and it is served as an image, so
+ * script would not run even if it were there. Colours are literal for the
+ * same reason — the theme is chosen by picking a file, not by asking the page.
  */
 export const svgDocument = (input: {
   width: number;
@@ -174,7 +188,9 @@ export const svgDocument = (input: {
 
 /**
  * Moves painted content clear of the canvas edge when something was drawn
- * above or to the left of the origin.
+ * above or to the left of the origin. Wrapping rather than re-deriving every
+ * coordinate keeps the geometry — and so the bytes — unchanged whenever the
+ * shift is zero, which is the ordinary case.
  */
 export const shifted = (canvas: Canvas, body: string): string =>
   canvas.shiftX === 0 && canvas.shiftY === 0

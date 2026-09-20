@@ -1,4 +1,5 @@
-import type { NodeKind } from "@contour/shared";
+import type { NodeKind } from "@contour/schema";
+import { assertNever } from "@contour/schema";
 import { coord } from "../geometry.js";
 import { MONO_STACK } from "../text.js";
 import { lines, tag, textNode, wrap } from "./primitives.js";
@@ -27,6 +28,13 @@ const box = (cx: number, cy: number, width: number, height: number, radius?: num
     rx: radius === undefined ? undefined : coord(radius),
   });
 
+/**
+ * The chip glyph for a node's kind, centred on a point.
+ *
+ * These say "what sort of thing is this" at a glance and nothing more, which
+ * is why the kind enum is coarse. Every kind draws something: a card with an
+ * empty chip reads as a rendering fault rather than as an unknown kind.
+ */
 const kindGlyph = (kind: NodeKind, cx: number, cy: number): string => {
   switch (kind) {
     case "service":
@@ -62,7 +70,9 @@ const kindGlyph = (kind: NodeKind, cx: number, cy: number): string => {
     case "datastore":
       return lines([
         tag("ellipse", { class: "glyph-stroke", cx: coord(cx), cy: coord(cy - 4.5), rx: 6.5, ry: 2.6 }),
-        stroked(`M${coord(cx - 6.5)},${coord(cy - 4.5)} v9 a6.5,2.6 0 0 0 13 0 v-9`),
+        stroked(
+          `M${coord(cx - 6.5)},${coord(cy - 4.5)} v9 a6.5,2.6 0 0 0 13 0 v-9`,
+        ),
       ]);
     case "cache":
       return tag("path", {
@@ -90,11 +100,12 @@ const kindGlyph = (kind: NodeKind, cx: number, cy: number): string => {
       return stroked(`M${coord(cx - 6)},${coord(cy)} l4,4 l8,-8`);
     case "package":
       return lines([
-        stroked(`M${coord(cx)},${coord(cy - 7)} l6.5,3.5 v7 l-6.5,3.5 l-6.5,-3.5 v-7 Z`),
+        stroked(
+          `M${coord(cx)},${coord(cy - 7)} l6.5,3.5 v7 l-6.5,3.5 l-6.5,-3.5 v-7 Z`,
+        ),
         stroked(`M${coord(cx - 6.5)},${coord(cy - 3.5)} l6.5,3.5 l6.5,-3.5`),
         stroked(`M${coord(cx)},${coord(cy)} v7`),
       ]);
-    case "store":
     case "other":
       return lines([
         tag("circle", { class: "glyph", cx: coord(cx - 5), cy: coord(cy), r: 1.8 }),
@@ -102,9 +113,7 @@ const kindGlyph = (kind: NodeKind, cx: number, cy: number): string => {
         tag("circle", { class: "glyph", cx: coord(cx + 5), cy: coord(cy), r: 1.8 }),
       ]);
     default:
-      return lines([
-        tag("circle", { class: "glyph", cx: coord(cx), cy: coord(cy), r: 1.8 }),
-      ]);
+      return assertNever(kind, "Unhandled node kind");
   }
 };
 

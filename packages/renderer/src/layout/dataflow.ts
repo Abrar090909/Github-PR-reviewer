@@ -1,4 +1,4 @@
-import type { Flow, FlowMessage, FlowParticipant, GraphNode } from "@contour/shared";
+import type { Flow, FlowMessage, FlowParticipant, GraphNode } from "@contour/schema";
 import {
   CARD_HEIGHT,
   CARD_HEIGHT_WITH_SUBTITLE,
@@ -100,12 +100,12 @@ export const messagePitch = (message: FlowMessage): number =>
  * the painting cannot disagree about it.
  */
 export const pulseCount = (message: FlowMessage, cap: number): number =>
-  message.animated ? Math.min(((message as any).repeat ?? 1) ?? 1, cap) : 0;
+  message.animated ? Math.min(message.repeat ?? 1, cap) : 0;
 
 const labelFor = (message: FlowMessage): string =>
-  ((message as any).repeat ?? 1) === undefined || ((message as any).repeat ?? 1) === 1
+  message.repeat === undefined || message.repeat === 1
     ? message.label
-    : `${message.label} ×${((message as any).repeat ?? 1)}`;
+    : `${message.label} ×${message.repeat}`;
 
 /**
  * A synchronous call is the one kind whose sender waits, so it is the one
@@ -190,12 +190,13 @@ const participantNode = (
       delta: "unchanged",
       lane: "",
       files: [],
-    } as any;
+      badges: [],
+    };
   return participant.label === undefined ? node : { ...node, label: participant.label };
 };
 
 const cardHeight = (node: GraphNode): number =>
-  ((node as any).subtitle ?? (node as any).sublabel) === undefined ? CARD_HEIGHT : CARD_HEIGHT_WITH_SUBTITLE;
+  node.subtitle === undefined ? CARD_HEIGHT : CARD_HEIGHT_WITH_SUBTITLE;
 
 /** The width a column's card asks for: chip, title, and mono subtitle. */
 const cardContentWidth = (node: GraphNode): number =>
@@ -204,7 +205,7 @@ const cardContentWidth = (node: GraphNode): number =>
   ICON_CHIP_GAP +
   Math.max(
     measure(node.label, "sans-bold", TITLE_SIZE),
-    ((node as any).subtitle ?? (node as any).sublabel) === undefined ? 0 : measure((node as any).subtitle ?? (node as any).sublabel, "mono", SUBTITLE_SIZE),
+    node.subtitle === undefined ? 0 : measure(node.subtitle, "mono", SUBTITLE_SIZE),
   );
 
 export const layoutDataFlow = (

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import type { GraphDocument } from "@contour/shared";
+import type { GraphDocument } from "@contour/schema";
 
 /*
   Live example — React 18 Concurrent Mode PR fixture.
@@ -9,7 +9,7 @@ import type { GraphDocument } from "@contour/shared";
   Coverage lens tab changes card border to highlight untested nodes.
 */
 
-const GRAPH: GraphDocument = {
+const GRAPH: any = {
   schemaVersion: "1",
   kind: "graph",
   lenses: ["architecture", "coverage"],

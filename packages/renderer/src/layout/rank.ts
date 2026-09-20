@@ -1,8 +1,17 @@
-import type { GraphEdge, GraphNode } from "@contour/shared";
+import type { GraphEdge, GraphNode } from "@contour/schema";
 
 /**
  * Layer index per node: how far down the diagram it sits.
- * Longest path from a source. Cycles have their closing edge dropped.
+ *
+ * Longest path from a source, so an arrow always points at a node below the
+ * one it left. Real dependency graphs contain cycles, and a cycle has no
+ * such ordering, so the edges that close one are dropped first — the arrow
+ * still gets drawn, it just runs back up the page.
+ *
+ * `hints` are the document's preferences, applied as a floor rather than an
+ * answer: a hint can push a node further down, never above something that
+ * feeds it. A stale hint from an extraction model therefore cannot invert an
+ * edge, only leave a gap.
  */
 export const rankNodes = (
   nodes: readonly GraphNode[],
@@ -38,6 +47,12 @@ export const rankNodes = (
   return ranks;
 };
 
+/**
+ * Depth-first from every node in document order, dropping any edge that
+ * reaches a node still open on the stack. Which edge closes a cycle depends
+ * on where the walk started, so the walk order is fixed by the document
+ * rather than by iteration order of a map.
+ */
 const forwardEdgesWithoutCycles = (
   nodes: readonly GraphNode[],
   forward: ReadonlyMap<string, readonly string[]>,

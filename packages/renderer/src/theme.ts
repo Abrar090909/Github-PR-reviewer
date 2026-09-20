@@ -1,12 +1,22 @@
+import { assertNever, THEMES, type Theme } from "@contour/schema";
+
 /**
- * Light and dark palette definitions.
- * Ported from PR Lens renderer — colors are baked in per theme since SVGs
- * are served as images and cannot see the page's CSS custom properties.
+ * The two halves of a GitHub `<picture>` pair. A comment ships both and the
+ * client picks; neither half may depend on the page it lands in, because an
+ * SVG served as an image cannot see it.
+ *
+ * The contract owns the pair, because the number of themes is one half of the
+ * arithmetic that bounds a document's view tree. Re-exported here so a caller
+ * rendering a diagram does not have to reach into the schema for it.
  */
+export { THEMES, type Theme };
 
-export type Theme = "light" | "dark";
-export const THEMES: readonly Theme[] = ["light", "dark"] as const;
-
+/**
+ * Every colour the renderer can paint, resolved to a literal before it
+ * reaches the document. CSS custom properties would be shorter, but GitHub
+ * serves these files through an image proxy where nothing outside the file
+ * exists, so the palette is baked in per theme.
+ */
 export type Palette = {
   background: string;
   dot: string;
@@ -20,6 +30,8 @@ export type Palette = {
   pill: string;
   pillBorder: string;
   lifeline: string;
+  /** Strokes and text split per tone: on a light ground, a stroke bright
+   * enough to pop is too pale for badge text. */
   added: string;
   addedText: string;
   addedFill: string;
@@ -96,8 +108,11 @@ const DARK: Palette = {
 
 export const paletteFor = (theme: Theme): Palette => {
   switch (theme) {
-    case "light": return LIGHT;
-    case "dark": return DARK;
-    default: throw new Error(`Unhandled theme: ${theme}`);
+    case "light":
+      return LIGHT;
+    case "dark":
+      return DARK;
+    default:
+      return assertNever(theme, "Unhandled theme");
   }
 };

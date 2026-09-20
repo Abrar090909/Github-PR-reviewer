@@ -11,9 +11,8 @@
     "test": "vitest run --passWithNoTests"
   },
   "dependencies": {
-    "@contour/shared": "workspace:*",
+    "@contour/schema": "workspace:*",
     "@contour/renderer": "workspace:*",
-    "@contour/worker": "workspace:*",
     "next": "^15.0.3",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

@@ -1,4 +1,4 @@
-import type { GraphEdge, GraphNode, Lane } from "@contour/shared";
+import type { GraphEdge, GraphNode, Lane } from "@contour/schema";
 import { rankNodes } from "./rank.js";
 
 /** One occupied row of one lane: a single card, or two side by side. */
@@ -11,6 +11,21 @@ export type Seating = {
   deadFromRow: number | undefined;
 };
 
+/**
+ * Where every card sits: a row grid shared across all lanes.
+ *
+ * Ranks are compressed globally rather than per lane, so a card and the card
+ * it converses with across a lane boundary land on comparable rows — that is
+ * what lets their connection run straight. The cost is honest: a lane that
+ * enters the story late leaves its upper rows empty, and the diagram gets
+ * taller. Stability is the invariant this trades nothing of: seating reads
+ * connections and document order, never a label, so a rename moves nothing.
+ *
+ * What was removed drops out of the living graph entirely, into a band of
+ * rows below everything alive, keeping its internal structure. Living ranks
+ * are computed over living connections only, so a retired pathway cannot
+ * push a living card down the page.
+ */
 export const seatNodes = (
   orderedLanes: readonly Lane[],
   nodes: readonly GraphNode[],
@@ -59,6 +74,7 @@ export const seatNodes = (
   return { rowsByLane, rowCount: lastRow + 1, deadFromRow };
 };
 
+/** Rank values in use, in order, mapped onto contiguous rows. */
 const compressRanks = (
   nodes: readonly GraphNode[],
   ranks: ReadonlyMap<string, number>,
@@ -68,7 +84,9 @@ const compressRanks = (
 };
 
 type Barycenters = {
+  /** Mean rank of a card's partners: decides who falls when a rank collides. */
   fall: Map<string, number>;
+  /** Mean lane of a card's partners: decides who sits left in a shared row. */
   side: Map<string, number>;
 };
 
@@ -104,6 +122,17 @@ const mean = (values: readonly number[]): number | undefined =>
     ? undefined
     : values.reduce((sum, value) => sum + value, 0) / values.length;
 
+/**
+ * One lane's members onto the shared grid.
+ *
+ * A card sits at its rank's row unless an earlier card of the same lane
+ * already claimed it, in which case it falls to the next free one — a lane
+ * never overlaps itself. Two cards share a row only at the same rank in the
+ * same sub-group, so a pair always reads as "these happen alongside each
+ * other". Who falls, and who sits left in a pair, is decided by where each
+ * card's partners are — the card leaning toward its neighbours stays put —
+ * with document order as the stable tiebreak.
+ */
 const seatLane = (
   members: readonly GraphNode[],
   ranks: ReadonlyMap<string, number>,

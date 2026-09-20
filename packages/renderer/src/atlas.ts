@@ -4,6 +4,12 @@ import { roundCoord, type Box } from "./geometry.js";
 /**
  * Where everything a render drew ended up, in the viewBox units of the file
  * beside it.
+ *
+ * A surface that plays a walkthrough has to put a rim around what a step
+ * points at, and a step points at lanes, nodes, edges and flow steps by id
+ * alone. Only the renderer knows where any of them landed, and it knows it
+ * while it is drawing them, so the geometry travels with the picture rather
+ * than being measured back out of it by something that would have to guess.
  */
 export type RenderAtlas = {
   lanes: Record<string, Box>;
@@ -18,6 +24,16 @@ export const emptyAtlas = (): RenderAtlas => ({ lanes: {}, nodes: {}, edges: {},
 
 export type AtlasEntry = { id: string; box: Box };
 
+/**
+ * Boxes onto the canvas and into a record, in the order they were drawn.
+ *
+ * Each coordinate is rounded on its own, exactly as the one written into the
+ * file beside it is, so a box here and the rectangle it stands for cannot
+ * disagree in the last place. An id drawn more than once — a participant
+ * heading a column in two stacked flows — keeps the box covering every
+ * drawing of it, because a reader sent to that node is being sent to all of
+ * them.
+ */
 export const atlasBoxes = (
   entries: readonly AtlasEntry[],
   canvas: Canvas,

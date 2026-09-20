@@ -1,4 +1,5 @@
-import type { GraphNode, Lane } from "@contour/shared";
+import type { Delta, GraphNode, Lane, LayoutHints } from "@contour/schema";
+import { assertNever } from "@contour/schema";
 import {
   BADGE_GAP,
   BADGE_HEIGHT,
@@ -16,10 +17,10 @@ import {
   ICON_CHIP_SIZE,
   ICON_MIN_CARD_WIDTH,
   LANE_BOTTOM_PADDING,
-  LANE_CONTENT_WIDTH,
   LANE_GAP,
   LANE_LABEL_SIZE,
   LANE_LABEL_TRACKING,
+  LANE_CONTENT_WIDTH,
   LANE_PADDING_X,
   LANE_TOP,
   ROW_GAP,
@@ -33,16 +34,9 @@ import type { ScopedGraph } from "../scope.js";
 import { measure, type Face } from "../text.js";
 import { seatNodes, type SeatedRow } from "./seating.js";
 
-/** Optional layout hints from the document (laneOrder, rank overrides). */
-export type LayoutHints = {
-  laneOrder?: string[];
-  rank?: Record<string, number>;
-};
-
-export const deltaBadgeText = (delta: GraphNode["delta"]): string | undefined => {
+export const deltaBadgeText = (delta: Delta): string | undefined => {
   switch (delta) {
     case "added":
-    case "new":
       return "NEW";
     case "modified":
       return "CHANGED";
@@ -51,7 +45,7 @@ export const deltaBadgeText = (delta: GraphNode["delta"]): string | undefined =>
     case "unchanged":
       return undefined;
     default:
-      return undefined;
+      return assertNever(delta, "Unhandled delta");
   }
 };
 
@@ -66,18 +60,26 @@ const trackedWidth = (
 export const badgeWidth = (text: string): number =>
   trackedWidth(text, "sans-bold", BADGE_TEXT_SIZE, BADGE_TRACKING) + BADGE_PADDING_X * 2;
 
+/**
+ * Every badge a card carries, its own first and the delta badge last.
+ *
+ * A producer badge that already says the same thing as the delta badge
+ * (e.g. "new" on a node whose delta is "added") is dropped so the card
+ * does not show it twice.
+ */
 export const cardBadges = (node: GraphNode): string[] => {
   const delta = deltaBadgeText(node.delta);
-  const ownBadges = (node as any).badges as string[] ?? [];
-  if (delta === undefined) return [...ownBadges];
-  const own = ownBadges.filter((text: string) => text.toLowerCase() !== delta.toLowerCase());
+  if (delta === undefined) return [...node.badges];
+  const own = node.badges.filter((text) => text.toLowerCase() !== delta.toLowerCase());
   return [...own, delta];
 };
 
 export type PlacedNode = {
   node: GraphNode;
   box: Box;
+  /** Wide enough for the kind glyph to earn its place. */
   showIcon: boolean;
+  /** The size the title is actually set at, after fitting it to the card. */
   titleSize: number;
   row: number;
   laneIndex: number;
@@ -85,6 +87,14 @@ export type PlacedNode = {
 
 export type PlacedLane = { lane: Lane; box: Box };
 
+/**
+ * The badges a card actually shows and the strip they occupy above it.
+ *
+ * When the row is wider than the card the badges the author added give way
+ * first: the delta badge is the one a reviewer is scanning for. Nothing is
+ * returned when the card carries no badge, and the strip counts as occupied
+ * space so an edge label does not settle on top of it.
+ */
 export const badgeRow = (placed: PlacedNode): { badges: string[]; box: Box } | undefined => {
   const all = cardBadges(placed.node);
   if (all.length === 0) return undefined;
@@ -112,13 +122,28 @@ export const badgeRow = (placed: PlacedNode): { badges: string[]; box: Box } | u
   };
 };
 
+/**
+ * The gaps of the grid, for the router: the vertical corridors beside each
+ * lane's cards and the horizontal extents of every row. Corridor `i` runs to
+ * the left of lane `i`; the extra corridor after the last lane is where
+ * retired pathways are exiled to.
+ */
 export type LayoutGrid = {
   rows: { top: number; height: number }[];
   corridors: { left: number; right: number }[];
+  /** Where lane content ends — the floor of the last band under the last row. */
   laneBottom: number;
+  /** First row of the dead band; absent when nothing was removed. */
   deadFromRow: number | undefined;
 };
 
+/**
+ * Extra room granted to individual gaps, keyed by corridor or band index —
+ * how the layout widens where traffic would otherwise compress track pitch
+ * through the floor. Expanding a corridor moves every lane after it sideways
+ * by the same amount; expanding a band moves every row after it down. Cards
+ * travel with their lane and row — nothing re-seats, nothing reorders.
+ */
 export type GapExpansions = {
   corridors: ReadonlyMap<number, number>;
   bands: ReadonlyMap<number, number>;
@@ -133,8 +158,14 @@ export type ArchitectureLayout = {
 };
 
 const cardHeight = (node: GraphNode): number =>
-  (node as any).subtitle === undefined ? CARD_HEIGHT : CARD_HEIGHT_WITH_SUBTITLE;
+  node.subtitle === undefined ? CARD_HEIGHT : CARD_HEIGHT_WITH_SUBTITLE;
 
+/**
+ * Lane order: the document's explicit list first, for the lanes it names,
+ * then whatever is left by declared order and finally by the order they were
+ * written in. `order` may be absent, and two lanes may share one, so the
+ * document's own array is the tie-break that keeps this stable.
+ */
 const orderLanes = (lanes: readonly Lane[], hints: LayoutHints | undefined): Lane[] => {
   const named = hints?.laneOrder ?? [];
   const byId = new Map(lanes.map((lane) => [lane.id, lane]));
@@ -151,23 +182,44 @@ const orderLanes = (lanes: readonly Lane[], hints: LayoutHints | undefined): Lan
   const rest = lanes
     .map((lane, index) => ({ lane, index }))
     .filter(({ lane }) => !taken.has(lane.id))
-    .sort((a, b) => ((a.lane as any).order ?? Number.MAX_SAFE_INTEGER) - ((b.lane as any).order ?? Number.MAX_SAFE_INTEGER) || a.index - b.index)
+    .sort((a, b) => (a.lane.order ?? Number.MAX_SAFE_INTEGER) - (b.lane.order ?? Number.MAX_SAFE_INTEGER) || a.index - b.index)
     .map(({ lane }) => lane);
 
   return [...ordered, ...rest];
 };
 
+/**
+ * A pair divides its row into equal halves. Splitting in proportion to what
+ * each card's text asked for would mean a rename moves its neighbour — and a
+ * rename moving anything is exactly what the seating guarantee rules out.
+ */
 const rowWidths = (contentWidth: number, row: SeatedRow): number[] => {
   if (row.nodes.length < 2) return [contentWidth];
   const half = Math.round((contentWidth - CARD_GAP_X) / 2);
   return [half, contentWidth - CARD_GAP_X - half];
 };
 
+/**
+ * Every kind draws something, on every card: the chip is reserved space and
+ * the title gives way around it, so recognition wins at any width.
+ */
 const SHOW_ICON = true;
 
+/**
+ * The horizontal run a card's text gets, once the padding either side and the
+ * kind chip have taken their share. The layout fits the title into this and
+ * the painter cuts against the same number, so it is owned in one place.
+ */
 export const cardTextWidth = (cardWidth: number, showIcon: boolean): number =>
   cardWidth - CARD_PADDING_X * 2 - (showIcon ? ICON_CHIP_SIZE + ICON_CHIP_GAP : 0);
 
+/**
+ * The size a title is set at: the largest half-point step, at or below the
+ * size the card's width earns, where the whole label still fits its run.
+ *
+ * Stops at the floor, and the painter truncates from there — at that point the
+ * name really is longer than the card, rather than a point or two over.
+ */
 const fittedTitleSize = (label: string, earned: number, budget: number): number => {
   let size = earned;
   while (size > TITLE_SIZE_MIN && measure(label, "sans-bold", size) > budget)
@@ -200,6 +252,8 @@ export const layoutArchitecture = (
       gridHeights.set(grid, Math.max(gridHeights.get(grid) ?? 0, height));
     }
 
+  // Every row of the shared grid is occupied by whichever card created it, so
+  // walking 0..rowCount visits exactly the keys collected above.
   const gridRows: { top: number; height: number }[] = [];
   let cursor = CONTENT_TOP;
   for (let grid = 0; grid < seating.rowCount; grid += 1) {
@@ -266,6 +320,8 @@ export const layoutArchitecture = (
   });
 
   return {
+    // Whole numbers: the canvas is reported to the comment composer as pixels,
+    // and half a pixel of diagram is not a thing a reviewer can be shown.
     width: Math.ceil(laneX - LANE_GAP + DIAGRAM_MARGIN),
     height: Math.ceil(laneBottom + DIAGRAM_MARGIN),
     lanes: placedLanes,
@@ -274,8 +330,22 @@ export const layoutArchitecture = (
   };
 };
 
+/**
+ * The lane's own name over its band. Lanes never widen to fit their
+ * headers — that would put content in charge of where the next lane
+ * starts — so a header longer than the band gives up its tail instead.
+ */
+export const laneHeaderText = (lane: Lane): string => {
+  const full = (
+    lane.subtitle === undefined ? lane.label : `${lane.label} · ${lane.subtitle}`
+  ).toUpperCase();
+
+  return truncateTracked(full, LANE_LABEL_SIZE, LANE_LABEL_TRACKING, LANE_CONTENT_WIDTH);
+};
+
 const ELLIPSIS = "…";
 
+/** `truncate`, but counting the extra step letter-spacing puts after each glyph. */
 const truncateTracked = (
   text: string,
   fontSize: number,
@@ -294,12 +364,4 @@ const truncateTracked = (
   }
 
   return kept === 0 ? ELLIPSIS : characters.slice(0, kept).join("").trimEnd() + ELLIPSIS;
-};
-
-export const laneHeaderText = (lane: Lane): string => {
-  const full = (
-    (lane as any).subtitle === undefined ? lane.label : `${lane.label} · ${(lane as any).subtitle}`
-  ).toUpperCase();
-
-  return truncateTracked(full, LANE_LABEL_SIZE, LANE_LABEL_TRACKING, LANE_CONTENT_WIDTH);
 };

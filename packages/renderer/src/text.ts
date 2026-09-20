@@ -1,10 +1,11 @@
+import { assertNever } from "@contour/schema";
+
 /**
  * The renderer never asks a font engine how wide a string is: it must produce
  * the same geometry on a CI runner with no fonts installed as on a laptop
- * with all of them. Widths come from a table instead.
- * Ported from PR Lens renderer.
+ * with all of them. Widths come from a table instead, and every box is sized
+ * with enough slack that the small error against a real face stays invisible.
  */
-
 export type Face = "sans" | "sans-bold" | "mono";
 
 export const SANS_STACK =
@@ -27,8 +28,14 @@ const SANS_ADVANCE: Readonly<Record<string, number>> = {
   y: 500, z: 500, "{": 334, "|": 260, "}": 334, "~": 584,
 };
 
+/** What a narrow character outside the table is assumed to cost, in the same units. */
 const FALLBACK_ADVANCE = 600;
 
+/**
+ * East Asian Wide and Fullwidth glyphs occupy a full em. Measuring them at
+ * the narrow fallback puts every CJK label about 38% short of its real width,
+ * which is enough for an edge label's plate to stop covering its own text.
+ */
 const isWide = (character: string): boolean => {
   const point = character.codePointAt(0) ?? 0;
   return (
@@ -48,12 +55,14 @@ const FULL_WIDTH_ADVANCE = 1000;
 const fallbackAdvance = (character: string): number =>
   isWide(character) ? FULL_WIDTH_ADVANCE : FALLBACK_ADVANCE;
 
+/**
+ * The bold face of the same family runs a little wider at every weight step.
+ * One factor over the regular table is close enough for boxes that already
+ * carry padding, and it keeps a second table from drifting out of sync.
+ */
 const BOLD_WIDENING = 1.06;
-const MONO_ADVANCE = 600;
 
-const assertNeverFace = (face: never): number => {
-  throw new Error(`Unhandled font face: ${face}`);
-};
+const MONO_ADVANCE = 600;
 
 const advanceFor = (face: Face, character: string): number => {
   switch (face) {
@@ -64,7 +73,7 @@ const advanceFor = (face: Face, character: string): number => {
     case "mono":
       return MONO_ADVANCE;
     default:
-      return assertNeverFace(face);
+      return assertNever(face, "Unhandled font face");
   }
 };
 
@@ -77,7 +86,11 @@ export const measure = (text: string, face: Face, fontSize: number): number => {
 
 const ELLIPSIS = "…";
 
-/** Shortens `text` until it fits `maxWidth`, ellipsis included. */
+/**
+ * Shortens `text` until it fits `maxWidth`, ellipsis included. Cutting by
+ * code point rather than by UTF-16 unit keeps a surrogate pair from being
+ * split into a replacement character.
+ */
 export const truncate = (
   text: string,
   face: Face,

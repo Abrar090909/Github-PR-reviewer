@@ -1,0 +1,36 @@
+{
+  "name": "@contour/action",
+  "version": "0.3.1",
+  "description": "The Contour GitHub Action: analyze a pull request with your own model key, publish the diagrams, post one static comment.",
+  "license": "MIT",
+  "author": "Contour",
+  "keywords": [
+    "contour",
+    "code-review",
+    "architecture-diagram",
+    "data-flow",
+    "github-action",
+    "pull-request"
+  ],
+  "type": "module",
+  "files": [
+    "action.yml",
+    "scripts",
+    "README.md",
+    "LICENSE"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.0",
+    "typescript": "7.0.2",
+    "vitest": "4.1.11",
+    "yaml": "^2.8.1",
+    "zod": "^4.4.3"
+  }
+}

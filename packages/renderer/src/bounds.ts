@@ -21,6 +21,12 @@ export type Canvas = { width: number; height: number; shiftX: number; shiftY: nu
 
 /**
  * A canvas big enough for everything that was drawn.
+ *
+ * Edge routes deliberately leave their lane, and a label pill can be pushed
+ * past the last card in search of clear air, so the space the lanes occupy is
+ * a floor rather than the answer. The canvas only ever grows: the margins the
+ * design leaves above and beside the lanes are part of the design, not slack
+ * to be reclaimed.
  */
 export const canvasFor = (
   laid: { width: number; height: number },

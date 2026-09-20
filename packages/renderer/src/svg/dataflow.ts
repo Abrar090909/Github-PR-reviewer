@@ -1,5 +1,5 @@
-import type { Flow, FlowMessage, GraphNode, MessageKind } from "@contour/shared";
-
+import type { Flow, FlowMessage, GraphNode, MessageKind } from "@contour/schema";
+import { assertNever } from "@contour/schema";
 import {
   DIAGRAM_MARGIN,
   FLOW_CYCLE_MAX,
@@ -59,14 +59,14 @@ const travelDirection = (kind: MessageKind, fromX: number, toX: number): -1 | 0 
     case "return":
       return toX >= fromX ? 1 : -1;
     default:
-      return (() => { throw new Error("Unhandled message kind: " + String(kind)); })();
+      return assertNever(kind, "Unhandled message kind");
   }
 };
 
 const messageClasses = (message: FlowMessage, tone: Tone): string => {
   const classes = ["msg", `edge-${tone}`];
   if (message.kind === "return") classes.push("msg-return");
-  if ((message.delta ?? "unchanged") === "added") classes.push("msg-strong");
+  if (message.delta === "added") classes.push("msg-strong");
   return classes.join(" ");
 };
 
@@ -89,7 +89,7 @@ const headFor = (kind: MessageKind, tone: Tone): string => {
     case "self":
       return markerFor(tone);
     default:
-      return (() => { throw new Error("Unhandled message kind: " + String(kind)); })();
+      return assertNever(kind, "Unhandled message kind");
   }
 };
 
@@ -183,7 +183,7 @@ const pulsesFor = (
   palette: Palette,
 ): string => {
   if (slotCount === 0) return "";
-  const colour = toneColour(palette, toneFor(placed.message.delta ?? "unchanged"));
+  const colour = toneColour(palette, toneFor(placed.message.delta));
   // A repeated step keeps the heavier mark it has always carried; only when
   // its crossings happen changed here, not what they look like.
   const radius = placed.slot.count > 1 ? TRAIN_RADIUS : PULSE_RADIUS;
@@ -233,9 +233,9 @@ const paintMessage = (
   slotCount: number,
   palette: Palette,
 ): { line: string; pill: string } => {
-  const tone = toneFor(placed.message.delta ?? "unchanged");
-  const direction = travelDirection(placed.message.kind ?? "sync", placed.fromX, placed.toX);
-  const head = headFor(placed.message.kind ?? "sync", tone);
+  const tone = toneFor(placed.message.delta);
+  const direction = travelDirection(placed.message.kind, placed.fromX, placed.toX);
+  const head = headFor(placed.message.kind, tone);
 
   if (direction === 0) {
     const activated = activeAt(placed.message.from, placed.y);
@@ -362,7 +362,7 @@ const flowBounds = (layout: FlowLayout, columnWidth: number): Box[] => {
   );
 
   const pills = layout.messages.map((placed) => {
-    const direction = travelDirection(placed.message.kind ?? "sync", placed.fromX, placed.toX);
+    const direction = travelDirection(placed.message.kind, placed.fromX, placed.toX);
 
     if (direction === 0) return selfPillBox(placed, activeAt(placed.message.from, placed.y));
     return pillBox(placed, endsFor(placed, activeAt, direction));
@@ -390,7 +390,7 @@ const flowBounds = (layout: FlowLayout, columnWidth: number): Box[] => {
  * a step lit without its own words is a step a reader cannot name.
  */
 const messageBox = (placed: PlacedMessage, activeAt: ActiveAt): Box => {
-  const direction = travelDirection(placed.message.kind ?? "sync", placed.fromX, placed.toX);
+  const direction = travelDirection(placed.message.kind, placed.fromX, placed.toX);
 
   const drawn =
     direction === 0

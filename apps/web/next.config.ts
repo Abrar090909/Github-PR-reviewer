@@ -1,8 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  transpilePackages: ["@contour/shared", "@contour/renderer"],
-  serverExternalPackages: ["@contour/worker", "ts-morph", "pino"],
+  transpilePackages: ["@contour/schema", "@contour/renderer"],
+  serverExternalPackages: ["pino"],
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "avatars.githubusercontent.com" },
