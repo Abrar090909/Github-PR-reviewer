@@ -23,7 +23,8 @@
     "@sentry/nextjs": "^8.28.0",
     "pino": "^9.4.0",
     "uuid": "^10.0.0",
-    "lucide-react": "^0.447.0"
+    "lucide-react": "^0.447.0",
+    "server-only": "^0.0.1"
   },
   "devDependencies": {
     "typescript": "^5.5.4",

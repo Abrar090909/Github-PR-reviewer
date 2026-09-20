@@ -1,13 +1,23 @@
 #!/usr/bin/env bash
 #
-# Posts the one PR Lens comment, or updates the one that is already there.
+# Posts the one Contour comment, or updates the one that is already there.
 set -euo pipefail
 
-WORK="${RUNNER_TEMP}/pr-lens"
+WORK="${RUNNER_TEMP}/contour"
 BODY="${WORK}/comment.md"
 
+# Validate inputs before they are used as shell arguments or URL path components.
+if ! [[ "${PR_NUMBER}" =~ ^[0-9]+$ ]]; then
+  echo "::error::PR_NUMBER contains unexpected characters: ${PR_NUMBER}"
+  exit 1
+fi
+if ! [[ "${HEAD_SHA}" =~ ^[0-9a-f]{40}$ ]]; then
+  echo "::error::HEAD_SHA is not a valid git SHA: ${HEAD_SHA}"
+  exit 1
+fi
+
 cli() {
-  npx --yes "@coldtea/pr-lens-cli@${CLI_VERSION}" "$@"
+  npx --yes "@contour/cli@${CLI_VERSION}" "$@"
 }
 
 # Whether this run still describes the pull request as it stands. A run that

@@ -1,17 +1,47 @@
 #!/usr/bin/env bash
 #
-# Publishes a render to the data branch: an orphan branch that holds no code,
+# Publishes a Contour render to the data branch: an orphan branch that holds no code,
 # one directory per pull request per commit.
 #
 # GitHub proxies comment images through a cache that never revalidates, so a
 # changed diagram has to arrive as a new URL rather than as new bytes at the
 # old one. The renderer names every file after the hash of its own contents,
 # so a directory is written once and never rewritten.
+#
+# Security: GITHUB_TOKEN is passed via GIT_ASKPASS (never in argv or git config)
+# so it cannot be observed via `ps aux` or read from .git/config on disk.
 set -euo pipefail
 
 DIRECTORY="pr/${PR_NUMBER}/${HEAD_SHA}"
-WORKSPACE="${RUNNER_TEMP}/pr-lens-publish"
+WORKSPACE="${RUNNER_TEMP}/contour-publish"
 PUSHED=""
+
+# Validate that PR_NUMBER and HEAD_SHA contain only safe characters before
+# they are used as path components or git arguments.
+if ! [[ "${PR_NUMBER}" =~ ^[0-9]+$ ]]; then
+  echo "::error::PR_NUMBER contains unexpected characters: ${PR_NUMBER}"
+  exit 1
+fi
+if ! [[ "${HEAD_SHA}" =~ ^[0-9a-f]{40}$ ]]; then
+  echo "::error::HEAD_SHA is not a valid git SHA: ${HEAD_SHA}"
+  exit 1
+fi
+
+# Write a minimal ASKPASS helper that returns the token without embedding it
+# in any argument string. The file is mode 700 and lives under RUNNER_TEMP,
+# which is cleaned up by the runner after the job ends.
+ASKPASS="${RUNNER_TEMP}/contour-askpass.sh"
+cat > "${ASKPASS}" <<'EOF'
+#!/usr/bin/env bash
+# Called by git with "Username" or "Password" as $1.
+case "$1" in
+  Username*) echo "x-access-token" ;;
+  Password*) echo "${GIT_TOKEN}" ;;
+esac
+EOF
+chmod 700 "${ASKPASS}"
+export GIT_ASKPASS="${ASKPASS}"
+export GIT_TOKEN="${GITHUB_TOKEN}"
 
 # Every run of every pull request shares this one branch, so losing the race is
 # ordinary rather than exceptional: pick the tip up again and replay onto it.
@@ -24,7 +54,8 @@ for ATTEMPT in 1 2 3 4 5; do
   git init --quiet
   git config user.name "github-actions[bot]"
   git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-  git remote add origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+  # Token is NOT in the URL — git will call GIT_ASKPASS for credentials.
+  git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git"
 
   if git fetch --quiet --depth=1 origin "${DATA_BRANCH}" 2>/dev/null; then
     git checkout --quiet -b "${DATA_BRANCH}" FETCH_HEAD
@@ -33,7 +64,7 @@ for ATTEMPT in 1 2 3 4 5; do
   fi
 
   mkdir -p "${DIRECTORY}"
-  cp "${RUNNER_TEMP}"/pr-lens/assets/*.svg "${DIRECTORY}/"
+  cp "${RUNNER_TEMP}"/contour/assets/*.svg "${DIRECTORY}/"
   git add "${DIRECTORY}"
 
   if git diff --quiet --cached; then
@@ -42,7 +73,7 @@ for ATTEMPT in 1 2 3 4 5; do
     break
   fi
 
-  git commit --quiet -m "PR Lens: #${PR_NUMBER} at ${HEAD_SHA}"
+  git commit --quiet -m "Contour: #${PR_NUMBER} at ${HEAD_SHA}"
 
   if git push --quiet origin "${DATA_BRANCH}"; then
     PUSHED="yes"
@@ -59,3 +90,4 @@ if [ -z "${PUSHED}" ]; then
 fi
 
 echo "assets-url=https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/${DATA_BRANCH}/${DIRECTORY}" >> "${GITHUB_OUTPUT}"
+

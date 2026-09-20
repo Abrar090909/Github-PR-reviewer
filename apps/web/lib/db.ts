@@ -1,3 +1,4 @@
+import "server-only"; // prevents service-role key from leaking into client bundles
 import { createClient } from "@supabase/supabase-js";
 
 const supabaseUrl = process.env.SUPABASE_URL || "https://placeholder.supabase.co";
