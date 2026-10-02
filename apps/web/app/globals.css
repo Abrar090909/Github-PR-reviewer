@@ -264,10 +264,6 @@ canvas {
   background: var(--bg-raised);
 }
 
-.hero-diagram-mobile {
-  display: none;
-}
-
 .live-graph-swipe-hint {
   display: none;
 }
@@ -354,14 +350,21 @@ canvas {
     overflow-wrap: anywhere;
   }
 
-  .hero-diagram-desktop {
-    display: none !important;
+  .hero-graph {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-inline: contain;
   }
 
-  .hero-diagram-mobile {
-    display: grid;
-    gap: 10px;
-    padding: 16px;
+  .hero-graph svg {
+    min-width: 0;
+  }
+
+  .hero-graph-zoomed svg {
+    min-width: 780px;
+  }
+
+  .hero-graph-zoomed > .grid {
+    width: 780px;
   }
 
   .hero-flow-step {

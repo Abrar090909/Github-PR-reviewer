@@ -6,6 +6,7 @@ import { GITHUB_APP_INSTALL_URL } from "@/lib/constants";
 export default function Hero() {
   const [activeTab, setActiveTab] = useState<"architecture" | "dataflow">("architecture");
   const [copiedCli, setCopiedCli] = useState(false);
+  const [graphZoomed, setGraphZoomed] = useState(false);
   const [, setHoveredNode] = useState<string | null>("orchestrator");
 
   const handleCopyCli = () => {
@@ -119,6 +120,14 @@ export default function Hero() {
             {/* Switcher */}
             <div className="flex items-center gap-1 bg-[#12141A] p-1 rounded-lg border border-[#222630] text-xs self-end sm:self-auto">
               <button
+                type="button"
+                onClick={() => setGraphZoomed(!graphZoomed)}
+                aria-pressed={graphZoomed}
+                className="md:hidden px-3 py-1 rounded-md text-[#CCCCCC] border border-[#343844] cursor-pointer"
+              >
+                {graphZoomed ? "Fit graph" : "Zoom graph"}
+              </button>
+              <button
                 onClick={() => setActiveTab("architecture")}
                 className={`px-3 py-1 rounded-md transition-all cursor-pointer ${
                   activeTab === "architecture"
@@ -143,7 +152,7 @@ export default function Hero() {
 
           {/* ── VIEW 1: Architecture View ─────────────────────────────── */}
           {activeTab === "architecture" && (
-            <div className="hero-diagram-desktop relative w-full overflow-x-auto">
+            <div className={`hero-graph relative w-full overflow-x-auto ${graphZoomed ? "hero-graph-zoomed" : ""}`}>
               {/* Lane Columns Header */}
               <div className="grid grid-cols-3 border-b border-[#1A1D24] px-4 sm:px-8 py-2.5 text-[11px] font-mono tracking-wider text-[#5A6270] uppercase select-none">
                 <div>API GATEWAY</div>
@@ -340,7 +349,7 @@ export default function Hero() {
 
           {/* ── VIEW 2: Data Flow View (Matching User Reference Image) ─────── */}
           {activeTab === "dataflow" && (
-            <div className="hero-diagram-desktop relative w-full overflow-x-auto">
+            <div className={`hero-graph relative w-full overflow-x-auto ${graphZoomed ? "hero-graph-zoomed" : ""}`}>
               <svg
                 className="w-full h-auto min-w-[760px] block"
                 viewBox="0 0 800 460"
@@ -491,31 +500,6 @@ export default function Hero() {
               </svg>
             </div>
           )}
-
-          <div className="hero-diagram-mobile" aria-label={`${activeTab} flow summary`}>
-            {(activeTab === "architecture"
-              ? [
-                  ["POST /checkout", "Changed · starts the payment flow"],
-                  ["payment-worker", "Service · processes the payment"],
-                  ["Order ledger", "Data · stores the result"],
-                ]
-              : [
-                  ["Checkout request", "Starts the flow"],
-                  ["Queue", "Schedules the payment job"],
-                  ["Worker", "Processes the payment asynchronously"],
-                  ["Order ledger", "Stores the result"],
-                ]
-            ).map(([title, detail], index, items) => (
-              <div className="hero-flow-step" key={title}>
-                <span className="hero-flow-number">{index + 1}</span>
-                <div>
-                  <strong>{title}</strong>
-                  <p>{detail}</p>
-                </div>
-                {index < items.length - 1 && <span className="hero-flow-connector" aria-hidden="true">↓</span>}
-              </div>
-            ))}
-          </div>
 
           {/* Simple Explanation Bar */}
           <div className="border-t border-[#1C1F26] px-4 sm:px-6 py-3 bg-[#080A0E] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs font-mono">
