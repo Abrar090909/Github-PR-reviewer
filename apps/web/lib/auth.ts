@@ -1,3 +1,4 @@
+import "server-only";
 import { createAppAuth } from "@octokit/auth-app";
 
 const TOKEN_CACHE = new Map<number, { token: string; expiresAt: Date }>();

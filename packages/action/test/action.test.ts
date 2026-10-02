@@ -91,7 +91,7 @@ test("a comment is only ever edited when the account this action comments as wro
 });
 
 test("the workflow the README hands out serialises runs of the same pull request", async () => {
-  const readme = await read("README.md");
+  const readme = await read("README.txt");
 
   expect(readme).toContain("concurrency:");
   expect(readme).toContain("cancel-in-progress: true");

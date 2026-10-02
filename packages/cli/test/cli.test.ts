@@ -48,7 +48,7 @@ test("--version is the version stamped on documents", async () => {
 
 test("skill prints the operating manual from the agent skill package", async () => {
   const manual = await readFile(
-    new URL("../../agent-skill/SKILL.md", import.meta.url),
+    new URL("../../agent-skill/SKILL.txt", import.meta.url),
     "utf8",
   );
 
@@ -69,11 +69,11 @@ test("skill help makes its agent-facing output clear", async () => {
 
 test("skill references prints the config, graph specification, and example", async () => {
   const config = await readFile(
-    new URL("../../agent-skill/references/config.md", import.meta.url),
+    new URL("../../agent-skill/references/config.txt", import.meta.url),
     "utf8",
   );
   const graphDocument = await readFile(
-    new URL("../../agent-skill/references/graph-document.md", import.meta.url),
+    new URL("../../agent-skill/references/graph-document.txt", import.meta.url),
     "utf8",
   );
   const exampleDocument = await readFile(

@@ -13,6 +13,7 @@ import {
 } from "@/lib/hosted/queue";
 import { createRateLimiter } from "@/lib/rate-limiter";
 import { getRedis } from "@/lib/redis";
+import { hasJsonContentType, readLimitedBody, RequestBodyTooLargeError } from "@/lib/server/read-limited-body";
 
 export const runtime = "nodejs";
 export const maxDuration = 300;
@@ -224,13 +225,13 @@ async function processJob(job: AnalysisJob): Promise<{ status: string; analysisI
     }).eq("id", analysisId);
     if (completeError) throw completeError;
     return { status: "complete", analysisId };
-  } catch (error) {
+  } catch {
     if (analysisId) await db.from("pr_analyses").update({
       status: "failed",
-      error_message: (error instanceof Error ? error.message : String(error)).slice(0, 1000),
+      error_message: "Analysis failed. Check protected server logs for details.",
       updated_at: new Date().toISOString(),
     }).eq("id", analysisId);
-    throw error;
+    throw new Error("analysis failed");
   } finally {
     const owner = await redis.get<string>(lockKey);
     if (owner === job.deliveryId) await redis.del(lockKey);
@@ -238,18 +239,25 @@ async function processJob(job: AnalysisJob): Promise<{ status: string; analysisI
 }
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
-  const rawBody = await req.text();
+  if (!hasJsonContentType(req)) return NextResponse.json({ error: "unsupported media type" }, { status: 415 });
+
+  let rawBody: string;
+  try {
+    rawBody = await readLimitedBody(req, 64 * 1024);
+  } catch (error) {
+    if (error instanceof RequestBodyTooLargeError)
+      return NextResponse.json({ error: "request body is too large" }, { status: 413 });
+    return NextResponse.json({ error: "invalid request body" }, { status: 400 });
+  }
+
   try {
     if (!verifyQStashRequest(req.headers.get("upstash-signature") ?? "", rawBody))
       return NextResponse.json({ error: "invalid QStash signature" }, { status: 401 });
 
     const job = parseJob(JSON.parse(rawBody));
     return NextResponse.json(await processJob(job));
-  } catch (error) {
-    console.error("[analysis-worker]", error);
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : "analysis failed" },
-      { status: 500 },
-    );
+  } catch {
+    console.error("[analysis-worker] analysis failed");
+    return NextResponse.json({ error: "analysis failed" }, { status: 500 });
   }
 }

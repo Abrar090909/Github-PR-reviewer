@@ -7,11 +7,11 @@ allowed-tools: Read Write Edit Glob Grep
 
 > Anti Slop: Rules for AI Coding Agents. UI & Visual skill
 
-> Part of the antislop system. Read together with `antislop.md` (the core). This skill deep-dives the UI/visual concern: color, layout, components, decoration, structural flow, and motion. It references core rules by number and never duplicates or renumbers them. Load it when the task builds or edits a website, web app, or any interface.
+> Part of the antislop system. Read together with `antislop.txt` (the core). This skill deep-dives the UI/visual concern: color, layout, components, decoration, structural flow, and motion. It references core rules by number and never duplicates or renumbers them. Load it when the task builds or edits a website, web app, or any interface.
 
 ## How to use this skill
 
-- Load together with `antislop.md` whenever the task is UI or visual work. The core holds the mechanism (the purpose test, the three tiers, the Delivery Gate); this skill holds UI-specific depth.
+- Load together with `antislop.txt` whenever the task is UI or visual work. The core holds the mechanism (the purpose test, the three tiers, the Delivery Gate); this skill holds UI-specific depth.
 - Every entry has the same shape: **Tell** (the pattern), **Why** (why it reads as slop), **Fix** (what to do instead), with the governing core rule cited as R-XX.
 - The Delivery Gate in the core remains the gate. The "UI Skill Checklist" at the end of this file is the UI-specific supplement to run alongside it.
 
@@ -21,7 +21,7 @@ allowed-tools: Read Write Edit Glob Grep
 
 - **Tell:** blue-to-purple, blue-to-cyan, or purple-to-pink gradients used as the primary color treatment, or a full-page colored glow.
 - **Why:** the most over-represented color treatment in training data. It signals "no brand identity", not "our palette", and marks the design as AI-generated at a glance.
-- **Fix:** pull the palette from `DESIGN.md` or the product's own identity. Keep a gradient only as a hierarchy function with the reason written down (R-01). A gradient separating one level from another is craft; the same gradient on every section is a default.
+- **Fix:** pull the palette from `DESIGN.txt` or the product's own identity. Keep a gradient only as a hierarchy function with the reason written down (R-01). A gradient separating one level from another is craft; the same gradient on every section is a default.
 - **The same default family:** harsh or rainbow gradients, purple-and-black schemes, neon or pastel palettes, and blurred radial orbs behind the hero. They are the same tell wearing different clothes: color from the model's default, not from the brand. All of them are FORBIDDEN as defaults without purpose (R-01).
 
 ### Excessive Glassmorphism
@@ -76,7 +76,7 @@ allowed-tools: Read Write Edit Glob Grep
 
 - **Tell:** flat white or near-white, thin grey borders, small radius, no texture, generic font, no identity.
 - **Why:** this is the "safe" result of over-filtering without direction. It is not slop, but it is not design either: it is a void where a design should be.
-- **Fix:** this is a direction problem, not a filter problem. Add `DESIGN.md` or resolve the Design Read (core Part 3), then raise the liveliness dials. The fix is never more bans; it is state the purpose and add energy.
+- **Fix:** this is a direction problem, not a filter problem. Add `DESIGN.txt` or resolve the Design Read (core Part 3), then raise the liveliness dials. The fix is never more bans; it is state the purpose and add energy.
 
 ## Layout & Components
 
@@ -282,7 +282,7 @@ The patterns above are landing-page shapes. These are the app-side equivalents: 
 
 Run these alongside the core Delivery Gate when the task is UI work. All answers must be **yes**:
 
-- [ ] Is the palette derived from `DESIGN.md` or a written brand identity, not the default gradient set? (R-01, R-29)
+- [ ] Is the palette derived from `DESIGN.txt` or a written brand identity, not the default gradient set? (R-01, R-29)
 - [ ] Is the accent used at the key moment only, not spread across every element? (core Part 3, one deliberate accent)
 - [ ] Is the copy free of decorative emoji scattered through headings, bullets, and buttons? (R-04)
 - [ ] Do section compositions vary according to the declared RHYTHM dial instead of repeating one template? (R-05)

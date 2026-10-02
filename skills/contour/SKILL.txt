@@ -15,7 +15,7 @@ The diff or code is represented as one JSON document (lanes, nodes, edges, order
 
    If not expressing a code diff, read the code to be visually represented
 
-2. **Write the document** to `.contour/graph.json`, following `references/graph-document.md`. `references/example.graph.json` is valid reference with three lanes, all four delta states, a hero edge, a seven-step flow, a nested drill-down tree and a six-step walkthrough. Read it before you write your first one. It is quicker than reading the reference.
+2. **Write the document** to `.contour/graph.json`, following `references/graph-document.txt`. `references/example.graph.json` is valid reference with three lanes, all four delta states, a hero edge, a seven-step flow, a nested drill-down tree and a six-step walkthrough. Read it before you write your first one. It is quicker than reading the reference.
 
 3. **Validate, and fix**
 
@@ -54,7 +54,7 @@ The diff or code is represented as one JSON document (lanes, nodes, edges, order
    ```
 
    ```bash
-   gh pr create --title "Batch broadcast sends" --body-file .contour/body.md \
+   gh pr create --title "Batch broadcast sends" --body-file .contour/body.txt \
      --attach .contour/overview-dark-4f9bd6c1.svg
    ```
 
@@ -163,7 +163,7 @@ The field arrived with contract 0.1.1. A CLI older than 0.4.0 does not know it a
 
 ## What the validator will catch
 
-Read `references/graph-document.md` before writing. The four failures that account for nearly everything:
+Read `references/graph-document.txt` before writing. The four failures that account for nearly everything:
 
 | Code                         | What you did                                                         |
 | ---------------------------- | -------------------------------------------------------------------- |
@@ -191,7 +191,7 @@ map:
       lane: functions
 ```
 
-`references/config.md` has the full format and the recipes. Validate it the same way: `npx @contour/cli@latest validate .github/contour.yml`.
+`references/config.txt` has the full format and the recipes. Validate it the same way: `npx @contour/cli@latest validate .github/contour.yml`.
 
 A `match` beginning with `id:` addresses one node exactly; anything else is a path glob matched against a node's file paths. Prefer the glob, because it keeps holding when the next run names the node differently. A lane pin may name a lane the document never declared: the band is created, and takes the id for its label, so give it one a reader would want to see.
 
@@ -203,8 +203,8 @@ Everything you need is beside this page. Nothing here asks you to install a pack
 
 |                                 |                                                                                    |
 | ------------------------------- | ---------------------------------------------------------------------------------- |
-| `references/graph-document.md`  | the document, field by field: enums, limits, and where documents actually go wrong |
-| `references/config.md`          | `.github/contour.yml`, the correction overlay, in full                             |
+| `references/graph-document.txt`  | the document, field by field: enums, limits, and where documents actually go wrong |
+| `references/config.txt`          | `.github/contour.yml`, the correction overlay, in full                             |
 | `references/example.graph.json` | one complete document that validates, to read and to copy the shape of             |
 
 The same document ships as `postmark-refactor.graph.json` in `@contour/schema`, and the JSON Schema the validator enforces is published at `https://unpkg.com/@contour/schema/json-schema/graph-doc.schema.json`. Neither is something you need to fetch to write a document.

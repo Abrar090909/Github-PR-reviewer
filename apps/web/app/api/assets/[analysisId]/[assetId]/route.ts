@@ -20,10 +20,23 @@ export async function GET(
 
   const { data: analysis, error: analysisError } = await db
     .from("pr_analyses")
-    .select("asset_token_hash,status")
+    .select("asset_token_hash,status,installation_id,repository_id")
     .eq("id", analysisId)
     .maybeSingle();
   if (analysisError || !analysis?.asset_token_hash || !matches(token, analysis.asset_token_hash))
+    return new NextResponse("Not found", { status: 404 });
+  if (analysis.status === "failed" || analysis.status === "stale")
+    return new NextResponse("Not found", { status: 404 });
+
+  const [{ data: installation }, { data: repository }] = await Promise.all([
+    db.from("installations").select("suspended_at").eq("id", analysis.installation_id).maybeSingle(),
+    db.from("installation_repositories")
+      .select("repository_id")
+      .eq("installation_id", analysis.installation_id)
+      .eq("repository_id", analysis.repository_id)
+      .maybeSingle(),
+  ]);
+  if (!installation || installation.suspended_at || !repository)
     return new NextResponse("Not found", { status: 404 });
 
   const { data: asset, error: assetError } = await db
@@ -37,7 +50,8 @@ export async function GET(
   return new NextResponse(asset.svg, {
     headers: {
       "content-type": "image/svg+xml; charset=utf-8",
-      "cache-control": "public, max-age=31536000, immutable",
+      "cache-control": "private, no-store, max-age=0",
+      "referrer-policy": "no-referrer",
       "content-security-policy": "default-src 'none'; style-src 'unsafe-inline'; sandbox",
       "x-content-type-options": "nosniff",
     },

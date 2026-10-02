@@ -15,9 +15,9 @@ Use contour --help for a short command overview. Pass references for the
 configuration format, graph-document specification, and a complete example.`;
 
 const REFERENCES = [
-  "# references/config.md",
+  "# references/config.txt",
   CONFIG_REFERENCE,
-  "# references/graph-document.md",
+  "# references/graph-document.txt",
   GRAPH_DOCUMENT_REFERENCE,
   "# references/example.graph.json",
   EXAMPLE_GRAPH_DOCUMENT,

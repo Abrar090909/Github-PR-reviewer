@@ -26,7 +26,7 @@ const REFERENCES = "references";
 export const skillFiles = async (root: string): Promise<readonly string[]> => {
   const references = await readdir(join(root, REFERENCES));
 
-  return ["LICENSE", "SKILL.md", ...references.sort().map((name) => `${REFERENCES}/${name}`)];
+  return ["LICENSE", "SKILL.txt", ...references.sort().map((name) => `${REFERENCES}/${name}`)];
 };
 
 /** Every file actually present under `dir`, relative and slash-separated. */

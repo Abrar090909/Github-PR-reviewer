@@ -63,5 +63,5 @@ jobs:
             --graph "${RUNNER_TEMP}/contour/assets/drawn.graph.json" \
             --manifest "${RUNNER_TEMP}/contour/assets/manifest.json" \
             --asset-base-url "${ASSETS_URL}" \
-            --out "${RUNNER_TEMP}/contour/comment.md"
-          gh pr comment "${PR_NUMBER}" --body-file "${RUNNER_TEMP}/contour/comment.md"
+    --out "${RUNNER_TEMP}/contour/comment.txt"
+    gh pr comment "${PR_NUMBER}" --body-file "${RUNNER_TEMP}/contour/comment.txt"

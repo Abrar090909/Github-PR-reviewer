@@ -12,9 +12,9 @@
   ],
   "type": "module",
   "files": [
-    "SKILL.md",
+    "SKILL.txt",
     "references",
-    "README.md",
+    "README.txt",
     "LICENSE"
   ],
   "publishConfig": {

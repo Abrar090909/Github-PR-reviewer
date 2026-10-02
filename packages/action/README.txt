@@ -68,7 +68,7 @@ tag always runs the matching schema, renderer, and CLI together.
 
 ## Corrections
 
-Commit `.github/contour.yml` and the action picks it up: renames, exclusions, lane pins, groupings, applied when the diagrams are drawn, over whatever the latest analysis inferred. See the [schema README](../schema/README.md#repository-config) for the format, and the [agent skill](../agent-skill) if you would rather tell your coding agent to fix the map than write YAML yourself.
+Commit `.github/contour.yml` and the action picks it up: renames, exclusions, lane pins, groupings, applied when the diagrams are drawn, over whatever the latest analysis inferred. See the [schema README](../schema/README.txt#repository-config) for the format, and the [agent skill](../agent-skill) if you would rather tell your coding agent to fix the map than write YAML yourself.
 
 ## Deliberately static
 

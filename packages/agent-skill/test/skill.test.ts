@@ -23,9 +23,9 @@ const read = (name: string) =>
     content.replace(/\r\n/g, "\n"),
   );
 
-const skill = await read("SKILL.md");
-const graphGuide = await read("references/graph-document.md");
-const configGuide = await read("references/config.md");
+const skill = await read("SKILL.txt");
+const graphGuide = await read("references/graph-document.txt");
+const configGuide = await read("references/config.txt");
 
 const fenced = (source: string, language: string): string[] =>
   [
@@ -133,7 +133,7 @@ test("the skill counts the parser-only rules the contract counts", async () => {
       .exec(page)?.[1]
       ?.toLowerCase();
 
-  const contract = await read("../schema/README.md");
+  const contract = await read("../schema/README.txt");
 
   expect(counted(skill)).toBeDefined();
   expect(counted(contract)).toBe(counted(skill));

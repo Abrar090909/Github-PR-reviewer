@@ -14,25 +14,25 @@ npm install --save-dev @contour/agent-skill
 
 ```bash
 mkdir -p .claude/skills/contour
-cp -R node_modules/@contour/agent-skill/{SKILL.md,references} .claude/skills/contour/
+cp -R node_modules/@contour/agent-skill/{SKILL.txt,references} .claude/skills/contour/
 ```
 
 **Cursor**: the same file works as a rule:
 
 ```bash
 mkdir -p .cursor/rules
-cp node_modules/@contour/agent-skill/SKILL.md .cursor/rules/contour.mdc
+cp node_modules/@contour/agent-skill/SKILL.txt .cursor/rules/contour.mdc
 ```
 
-**Anything else**: point your agent's instructions file at `SKILL.md`. It is plain markdown with YAML frontmatter, and it assumes nothing beyond a shell and `npx`.
+**Anything else**: point your agent's instructions file at `SKILL.txt`. It is plain markdown with YAML frontmatter, and it assumes nothing beyond a shell and `npx`.
 
 ## What is in it
 
 | | |
 | --- | --- |
-| `SKILL.md` | when to reach for Contour, and the write → validate → fix → render loop |
-| `references/graph-document.md` | the document, field by field, and what the validator will catch |
-| `references/config.md` | `.github/contour.yml` corrections, with recipes |
+| `SKILL.txt` | when to reach for Contour, and the write → validate → fix → render loop |
+| `references/graph-document.txt` | the document, field by field, and what the validator will catch |
+| `references/config.txt` | `.github/contour.yml` corrections, with recipes |
 
 The agent is usually the model. Rather than spending a provider key to describe a diff it already understands, it writes the document itself and lets `contour validate` hold it to the contract. Every failure is a path into the document, so the loop closes without a human in it.
 

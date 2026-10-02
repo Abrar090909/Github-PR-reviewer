@@ -199,5 +199,253 @@ code, .mono {
   animation: marqueeScroll 10s linear infinite;
 }
 
+/* Keep narrow screens inside the viewport, including grids defined inline. */
+html,
+body {
+  max-width: 100%;
+  overflow-x: clip;
+}
+
+img,
+video,
+canvas {
+  max-width: 100%;
+}
+
+.mobile-nav-toggle {
+  width: 42px;
+  height: 42px;
+  padding: 10px;
+  display: inline-flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  color: var(--text-primary);
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.mobile-nav-toggle span {
+  display: block;
+  width: 100%;
+  height: 2px;
+  border-radius: 2px;
+  background: currentColor;
+}
+
+.mobile-nav-panel {
+  position: absolute;
+  top: 60px;
+  left: 12px;
+  right: 12px;
+  z-index: 60;
+  display: grid;
+  gap: 4px;
+  padding: 8px;
+  background: #090909;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: 0 16px 40px rgb(0 0 0 / 45%);
+}
+
+.mobile-nav-panel a {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 12px;
+  color: var(--text-primary);
+  text-decoration: none;
+  border-radius: 8px;
+}
+
+.mobile-nav-panel a:hover,
+.mobile-nav-panel a:focus-visible {
+  background: var(--bg-raised);
+}
+
+.hero-diagram-mobile {
+  display: none;
+}
+
+.live-mobile-node-list {
+  display: none;
+}
+
+@media (max-width: 767px) {
+  .nav-inner {
+    padding-inline: 16px !important;
+  }
+
+  .nav-star {
+    display: none !important;
+  }
+
+  main > section:not(.hero-section) {
+    padding: 56px 16px !important;
+  }
+
+  main > section h2 {
+    font-size: clamp(24px, 7vw, 30px) !important;
+    line-height: 1.2 !important;
+  }
+
+  main > section div[style*="grid-template-columns"] {
+    grid-template-columns: minmax(0, 1fr) !important;
+    row-gap: 24px !important;
+  }
+
+  main > section div[style*="gap: 80px"] {
+    row-gap: 32px !important;
+  }
+
+  main > section div[style*="padding: 28px"] {
+    padding: 20px !important;
+  }
+
+  #live-example > div > div[style*="display: flex"] {
+    align-items: flex-start !important;
+  }
+
+  #live-example [style*="white-space: nowrap"] {
+    max-width: 100%;
+    flex-wrap: wrap;
+    white-space: normal !important;
+    gap: 8px !important;
+  }
+
+  #live-example .live-example-svg {
+    display: none !important;
+  }
+
+  #live-example .live-mobile-node-list {
+    display: grid;
+    gap: 8px;
+    padding: 12px;
+  }
+
+  #live-example .live-mobile-node {
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 12px;
+    color: var(--text-primary);
+    text-align: left;
+    background: var(--bg-base);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+  }
+
+  #live-example .live-mobile-node strong {
+    min-width: 36px;
+    padding: 4px 6px;
+    color: var(--bg-base);
+    text-align: center;
+    border-radius: 4px;
+  }
+
+  #live-example .no-scrollbar {
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  .hero-cli {
+    max-width: 100%;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .hero-cli code {
+    max-width: calc(100vw - 88px);
+    overflow-wrap: anywhere;
+  }
+
+  .hero-diagram-desktop {
+    display: none !important;
+  }
+
+  .hero-diagram-mobile {
+    display: grid;
+    gap: 10px;
+    padding: 16px;
+  }
+
+  .hero-flow-step {
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    min-width: 0;
+    padding: 14px;
+    background: #0a0c10;
+    border: 1px solid #222630;
+    border-radius: 12px;
+  }
+
+  .hero-flow-number {
+    display: grid;
+    flex: 0 0 28px;
+    width: 28px;
+    height: 28px;
+    place-items: center;
+    color: #22c55e;
+    background: rgb(34 197 94 / 12%);
+    border-radius: 50%;
+    font: 600 12px 'Geist Mono', monospace;
+  }
+
+  .hero-flow-step strong {
+    display: block;
+    color: #ededed;
+    font-size: 14px;
+    overflow-wrap: anywhere;
+  }
+
+  .hero-flow-step p {
+    margin: 4px 0 0;
+    color: #999;
+    font-size: 12px;
+    line-height: 1.5;
+  }
+
+  .hero-flow-connector {
+    position: absolute;
+    bottom: -17px;
+    left: 22px;
+    z-index: 1;
+    color: #4ade80;
+    font-size: 14px;
+  }
+
+  footer {
+    padding: 40px 16px 28px !important;
+  }
+
+  footer div[style*="grid-template-columns"] {
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 28px !important;
+    margin-bottom: 32px !important;
+  }
+
+  footer div[style*="justify-content: space-between"] {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
 
 

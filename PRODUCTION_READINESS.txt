@@ -2,7 +2,7 @@
 
 **Repo:** `Abrar090909/Github-PR-reviewer` ("Contour")
 **Scope of this review:** GitHub App + Next.js dashboard + async worker + Supabase + Redis/QStash queue, built on top of the `coldteadotai/pr-lens` concept.
-**How this review was produced:** GitHub blocks automated directory crawling on this repo, so this is based on `contour-technical-documentation.md` and `BACKEND_WORKING.md` in the repo (which include real code excerpts for the webhook handler, token minting, and repo-fetcher) plus the `.env.example`/`.gitignore`. It is **not** a line-by-line audit of every file. Treat every item below as "verify this in the actual source," not as a confirmed finding — a few are already handled correctly per the docs and are called out as such.
+**How this review was produced:** GitHub blocks automated directory crawling on this repo, so this is based on `contour-technical-documentation.txt` and `BACKEND_WORKING.txt` in the repo (which include real code excerpts for the webhook handler, token minting, and repo-fetcher) plus the `.env.example`/`.gitignore`. It is **not** a line-by-line audit of every file. Treat every item below as "verify this in the actual source," not as a confirmed finding — a few are already handled correctly per the docs and are called out as such.
 
 Legend: 🔴 blocker · 🟠 fix before real users · 🟡 hardening / nice-to-have
 
@@ -26,7 +26,7 @@ Legend: 🔴 blocker · 🟠 fix before real users · 🟡 hardening / nice-to-h
 
 ### 2.1 🔴 Installation token embedded in a shelled-out git URL
 
-`BACKEND_WORKING.md` (§2.1) shows:
+`BACKEND_WORKING.txt` (§2.1) shows:
 
 ```ts
 const authedUrl = `https://x-access-token:${installationToken}@github.com/${repoFullName}.git`;
@@ -42,7 +42,7 @@ Two separate problems here:
 
 ### 2.2 🔴 Confirm raw-body verification order in the webhook route
 
-The signature check itself (`contour-technical-documentation.md` §5) is correct — `timingSafeEqual`, `sha256=` prefix, length check before comparison. That part is solid.
+The signature check itself (`contour-technical-documentation.txt` §5) is correct — `timingSafeEqual`, `sha256=` prefix, length check before comparison. That part is solid.
 
 What isn't shown, and is the single most common bug in this exact pattern: if `apps/web/app/api/webhooks/github/route.ts` calls `req.json()` (or any body parser) *before* computing the HMAC, the raw bytes are gone and you're hashing a re-serialized object that may not byte-match what GitHub signed — verification either silently always fails, or worse, someone finds a payload that re-serializes identically but changes semantically. Read the raw text body first, verify, *then* `JSON.parse` it.
 
@@ -56,7 +56,7 @@ Because the app uses the service-role key server-side, **RLS provides zero prote
 
 ### 2.5 🟠 Escape every LLM-produced string field, not just the label
 
-The renderer snippet in `BACKEND_WORKING.md` (§8) shows `escapeXml(node.label)` — good — but `riskReasons`, `behaviorDelta`, and edge `label` aren't shown going through the same treatment. Since these strings originate from an LLM that was fed diff content from a PR (which, on a public/OSS repo, means **untrusted external contributors control part of the model's input**), any of these fields could end up containing `</text><script>...` or similar if a PR is deliberately crafted to try to influence the model's output. GitHub strips `<script>` from rendered PR comments, but the dashboard's "walk the change" playback renders this SVG live in a browser — that context does execute scripts. Escape all text-bearing fields, not just `label`.
+The renderer snippet in `BACKEND_WORKING.txt` (§8) shows `escapeXml(node.label)` — good — but `riskReasons`, `behaviorDelta`, and edge `label` aren't shown going through the same treatment. Since these strings originate from an LLM that was fed diff content from a PR (which, on a public/OSS repo, means **untrusted external contributors control part of the model's input**), any of these fields could end up containing `</text><script>...` or similar if a PR is deliberately crafted to try to influence the model's output. GitHub strips `<script>` from rendered PR comments, but the dashboard's "walk the change" playback renders this SVG live in a browser — that context does execute scripts. Escape all text-bearing fields, not just `label`.
 
 ### 2.6 🟠 Rate limiter: make the increment atomic
 
@@ -80,14 +80,14 @@ If a customer's own `GEMINI_API_KEY`/`OPENAI_API_KEY` is stored per-installation
 
 ---
 
-## 3. Known Functional Bugs (from your own `BACKEND_WORKING.md` §10)
+## 3. Known Functional Bugs (from your own `BACKEND_WORKING.txt` §10)
 
 Worth folding into this doc rather than leaving buried in a second file — these are launch blockers for *correctness*, separate from security, and your own debugging checklist already identifies the likely root causes:
 
 | Symptom | Likely cause | Fix |
 |---|---|---|
 | Graph nodes with no edges | `tsconfig.json` path-alias resolution failing silently to `"external"` | Log every unresolved import; parse `compilerOptions.paths` explicitly |
-| Diagram = restated diff, no context | Pipeline skips baseline whole-repo graph, goes diff → LLM directly | Enforce the 7-step order in §1 of `BACKEND_WORKING.md`; add a test asserting subgraph extraction ran |
+| Diagram = restated diff, no context | Pipeline skips baseline whole-repo graph, goes diff → LLM directly | Enforce the 7-step order in §1 of `BACKEND_WORKING.txt`; add a test asserting subgraph extraction ran |
 | Renderer crash on LLM output | Missing/weak Zod validation before render | Validate shape *and* bound string lengths (§2.5 above also applies here — a passing-shape response can still be huge) |
 | Same PR renders differently on repeat pushes | Non-deterministic (force-directed) layout | Confirm the grid/lane layout in §8 is what's actually wired in, not a leftover d3-force call |
 | Jobs time out, no comment posted | Parsing `node_modules`/`dist` instead of respecting `.gitignore` | Confirm the `ignore` package is actually used, not a partial hand-rolled filter |

@@ -129,7 +129,7 @@ export default function LiveExample() {
   const overallRisk = Math.round(GRAPH.nodes.reduce((a: number, n: any) => a + n.riskScore, 0) / GRAPH.nodes.length);
 
   return (
-    <section id="live-example" style={{ padding: "80px 24px", borderTop: "1px solid var(--border)" }}>
+    <section id="live-example" className="mobile-section" style={{ padding: "80px 24px", borderTop: "1px solid var(--border)" }}>
       <div style={{ maxWidth: 1100, margin: "0 auto" }}>
 
         {/* Section header */}
@@ -204,6 +204,7 @@ export default function LiveExample() {
             overflow: "hidden",
           }}>
             <svg
+              className="live-example-svg"
               viewBox="0 0 832 400"
               style={{ width: "100%", height: 400, display: "block" }}
               aria-label="React 18 Concurrent Mode PR architecture diagram"
@@ -320,6 +321,19 @@ export default function LiveExample() {
                 );
               })}
             </svg>
+            <div className="live-mobile-node-list">
+              {GRAPH.nodes.map((node: any) => (
+                <button
+                  className="live-mobile-node"
+                  key={node.id}
+                  type="button"
+                  onClick={() => setHovered(node.id)}
+                >
+                  <span>{node.label}</span>
+                  <strong style={{ background: riskColor(node.riskScore) }}>{node.riskScore}</strong>
+                </button>
+              ))}
+            </div>
           </div>
 
           {/* Risk panel */}

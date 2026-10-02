@@ -26,9 +26,9 @@ for (const file of wanted) {
 
 const embeddedSkillPath = join(SKILL_SOURCE_DIR, "..", "cli", "src", "skill-content.generated.ts");
 const [manual, config, graphDocument, exampleDocument, graphDocumentJsonSchema] = await Promise.all([
-  readFile(join(SKILL_SOURCE_DIR, "SKILL.md"), "utf8"),
-  readFile(join(SKILL_SOURCE_DIR, "references", "config.md"), "utf8"),
-  readFile(join(SKILL_SOURCE_DIR, "references", "graph-document.md"), "utf8"),
+  readFile(join(SKILL_SOURCE_DIR, "SKILL.txt"), "utf8"),
+  readFile(join(SKILL_SOURCE_DIR, "references", "config.txt"), "utf8"),
+  readFile(join(SKILL_SOURCE_DIR, "references", "graph-document.txt"), "utf8"),
   readFile(join(SKILL_SOURCE_DIR, "references", "example.graph.json"), "utf8"),
   readFile(join(SKILL_SOURCE_DIR, "..", "schema", "json-schema", "graph-doc.schema.json"), "utf8"),
 ]);

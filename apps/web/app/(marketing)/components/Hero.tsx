@@ -15,7 +15,7 @@ export default function Hero() {
   };
 
   return (
-    <section className="relative pt-24 sm:pt-32 pb-20 px-4 sm:px-6 max-w-[1280px] mx-auto overflow-hidden">
+    <section className="hero-section relative pt-24 sm:pt-32 pb-20 px-4 sm:px-6 max-w-[1280px] mx-auto overflow-hidden">
       
       {/* ── Center-Based Hero Header ────────────────────────────────────── */}
       <div className="flex flex-col items-center text-center max-w-[900px] mx-auto mb-12 sm:mb-16">
@@ -68,7 +68,7 @@ export default function Hero() {
         </div>
 
         {/* Quick CLI command */}
-        <div className="inline-flex items-center gap-2 text-xs font-mono text-[#777777] mt-1">
+        <div className="hero-cli inline-flex items-center gap-2 text-xs font-mono text-[#777777] mt-1">
           <span>Run locally:</span>
           <code className="text-[#A1A1A1] bg-[#111111] px-2 py-0.5 rounded border border-[#222222]">
             npx @contour/cli --help
@@ -143,7 +143,7 @@ export default function Hero() {
 
           {/* ── VIEW 1: Architecture View ─────────────────────────────── */}
           {activeTab === "architecture" && (
-            <div className="relative w-full overflow-x-auto">
+            <div className="hero-diagram-desktop relative w-full overflow-x-auto">
               {/* Lane Columns Header */}
               <div className="grid grid-cols-3 border-b border-[#1A1D24] px-4 sm:px-8 py-2.5 text-[11px] font-mono tracking-wider text-[#5A6270] uppercase select-none">
                 <div>API GATEWAY</div>
@@ -340,7 +340,7 @@ export default function Hero() {
 
           {/* ── VIEW 2: Data Flow View (Matching User Reference Image) ─────── */}
           {activeTab === "dataflow" && (
-            <div className="relative w-full overflow-x-auto">
+            <div className="hero-diagram-desktop relative w-full overflow-x-auto">
               <svg
                 className="w-full h-auto min-w-[760px] block"
                 viewBox="0 0 800 460"
@@ -491,6 +491,31 @@ export default function Hero() {
               </svg>
             </div>
           )}
+
+          <div className="hero-diagram-mobile" aria-label={`${activeTab} flow summary`}>
+            {(activeTab === "architecture"
+              ? [
+                  ["POST /checkout", "Changed · starts the payment flow"],
+                  ["payment-worker", "Service · processes the payment"],
+                  ["Order ledger", "Data · stores the result"],
+                ]
+              : [
+                  ["Checkout request", "Starts the flow"],
+                  ["Queue", "Schedules the payment job"],
+                  ["Worker", "Processes the payment asynchronously"],
+                  ["Order ledger", "Stores the result"],
+                ]
+            ).map(([title, detail], index, items) => (
+              <div className="hero-flow-step" key={title}>
+                <span className="hero-flow-number">{index + 1}</span>
+                <div>
+                  <strong>{title}</strong>
+                  <p>{detail}</p>
+                </div>
+                {index < items.length - 1 && <span className="hero-flow-connector" aria-hidden="true">↓</span>}
+              </div>
+            ))}
+          </div>
 
           {/* Simple Explanation Bar */}
           <div className="border-t border-[#1C1F26] px-4 sm:px-6 py-3 bg-[#080A0E] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs font-mono">

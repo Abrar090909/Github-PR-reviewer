@@ -139,7 +139,7 @@ Registry writes take a lock at `.contour/canvas.json.lock`. The CLI never remove
 
 The CLI refuses to write the registry where git could commit it. If a checkout tracks `.contour/canvas.json` or un-ignores `.contour/`, the command fails with `CANVAS_REGISTRY_EXPOSED` and writes nothing.
 
-`--api` points at another Contour app, or set `PR_LENS_API_URL`. The protocol between the CLI and the app is five routes and one error envelope, written up in [the canvas API contract](https://github.com/Abrar090909/Github-PR-reviewer/blob/main/docs/canvas-api.md) so a private server can answer it and documents stay on your network.
+`--api` points at another Contour app, or set `PR_LENS_API_URL`. The protocol between the CLI and the app is five routes and one error envelope, written up in [the canvas API contract](https://github.com/Abrar090909/Github-PR-reviewer/blob/main/docs/canvas-api.txt) so a private server can answer it and documents stay on your network.
 
 ## Corrections
 

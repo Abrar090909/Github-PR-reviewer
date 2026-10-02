@@ -78,7 +78,7 @@ The default installation path. Repository owners install Contour once, select re
 
 **Install:** [contour-wheat.vercel.app](https://contour-wheat.vercel.app)
 
-See [HOSTED_APP_SETUP.md](HOSTED_APP_SETUP.md) for the full deployment and GitHub App registration guide.
+See [HOSTED_APP_SETUP.txt](HOSTED_APP_SETUP.txt) for the full deployment and GitHub App registration guide.
 
 ---
 
@@ -117,7 +117,7 @@ permissions:
     api-key: ${{ secrets.OPENAI_API_KEY }}
 ```
 
-See [packages/action/README.md](packages/action/README.md) for the complete workflow reference.
+See [packages/action/README.txt](packages/action/README.txt) for the complete workflow reference.
 
 ---
 

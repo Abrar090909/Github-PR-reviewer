@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 
 export default function Nav() {
   const [scrolled, setScrolled] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     const handler = () => setScrolled(window.scrollY > 24);
@@ -26,7 +27,7 @@ export default function Nav() {
         transition: "background 200ms ease, border-color 200ms ease",
       }}
     >
-      <div style={{ maxWidth: 1240, margin: "0 auto", padding: "0 24px", height: 60, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+      <div className="nav-inner" style={{ maxWidth: 1240, margin: "0 auto", padding: "0 24px", height: 60, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
 
         {/* Brand */}
         <Link href="/" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none" }}>
@@ -71,8 +72,9 @@ export default function Nav() {
         </div>
 
         {/* GitHub Star Pill Button matching reference */}
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+        <div className="nav-actions" style={{ display: "flex", alignItems: "center", gap: 12 }}>
           <a
+            className="nav-star"
             href="https://github.com/Abrar090909/Github-PR-reviewer"
             target="_blank"
             rel="noopener noreferrer"
@@ -104,8 +106,33 @@ export default function Nav() {
             </svg>
             <span>Star on GitHub</span>
           </a>
+          <button
+            className="mobile-nav-toggle md:hidden"
+            type="button"
+            aria-label={menuOpen ? "Close navigation menu" : "Open navigation menu"}
+            aria-expanded={menuOpen}
+            aria-controls="mobile-navigation"
+            onClick={() => setMenuOpen((open) => !open)}
+          >
+            <span />
+            <span />
+            <span />
+          </button>
         </div>
       </div>
+      {menuOpen && (
+        <div className="mobile-nav-panel md:hidden" id="mobile-navigation">
+          {[
+            { label: "Features", href: "#features" },
+            { label: "How it works", href: "#how-it-works" },
+            { label: "Pricing", href: "#pricing" },
+          ].map((item) => (
+            <a key={item.label} href={item.href} onClick={() => setMenuOpen(false)}>
+              {item.label}
+            </a>
+          ))}
+        </div>
+      )}
     </nav>
   );
 }

@@ -1,10 +1,12 @@
-import { createHmac, timingSafeEqual } from "node:crypto";
+import { createHash, createHmac, timingSafeEqual } from "node:crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { enqueueAnalysis, type AnalysisJob } from "@/lib/hosted/queue";
 import { getRedis } from "@/lib/redis";
+import { hasJsonContentType, readLimitedBody, RequestBodyTooLargeError } from "@/lib/server/read-limited-body";
 
 export const runtime = "nodejs";
+const MAX_WEBHOOK_BYTES = 10 * 1024 * 1024;
 
 function verifySignature(secret: string, body: string, signature: string): boolean {
   if (!signature.startsWith("sha256=")) return false;
@@ -123,7 +125,17 @@ function toAnalysisJob(payload: RecordValue, deliveryId: string): AnalysisJob | 
 }
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
-  const rawBody = await req.text();
+  if (!hasJsonContentType(req)) return NextResponse.json({ error: "unsupported media type" }, { status: 415 });
+
+  let rawBody: string;
+  try {
+    rawBody = await readLimitedBody(req, MAX_WEBHOOK_BYTES);
+  } catch (error) {
+    if (error instanceof RequestBodyTooLargeError)
+      return NextResponse.json({ error: "request body is too large" }, { status: 413 });
+    return NextResponse.json({ error: "invalid request body" }, { status: 400 });
+  }
+
   const secret = process.env.GITHUB_WEBHOOK_SECRET;
   if (!secret) return NextResponse.json({ error: "server misconfiguration" }, { status: 500 });
   if (!verifySignature(secret, rawBody, req.headers.get("x-hub-signature-256") ?? ""))
@@ -140,9 +152,17 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
   const event = req.headers.get("x-github-event") ?? "";
   const deliveryId = req.headers.get("x-github-delivery") ?? "";
-  if (!deliveryId) return NextResponse.json({ error: "missing delivery id" }, { status: 400 });
+  if (!deliveryId || deliveryId.length > 128) return NextResponse.json({ error: "invalid delivery id" }, { status: 400 });
 
+  const dedupKey = `github-delivery:${createHash("sha256").update(rawBody).digest("hex")}`;
+  let redis: ReturnType<typeof getRedis> | undefined;
+  let ownsDelivery = false;
   try {
+    redis = getRedis();
+    const accepted = await redis.set(dedupKey, deliveryId, { nx: true, ex: 86_400 });
+    if (!accepted) return NextResponse.json({ ok: true, duplicate: true });
+    ownsDelivery = true;
+
     if (event === "installation") await handleInstallation(payload);
     if (event === "installation_repositories") await handleInstallationRepositories(payload);
 
@@ -152,22 +172,13 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       const job = toAnalysisJob(payload, deliveryId);
       if (!job) return NextResponse.json({ error: "incomplete pull request payload" }, { status: 400 });
 
-      const redis = getRedis();
-      const dedupKey = `github-delivery:${deliveryId}`;
-      const accepted = await redis.set(dedupKey, "1", { nx: true, ex: 86_400 });
-      if (accepted) {
-        try {
-          await enqueueAnalysis(job);
-        } catch (error) {
-          await redis.del(dedupKey);
-          throw error;
-        }
-      }
+      await enqueueAnalysis(job);
     }
 
     return NextResponse.json({ ok: true });
-  } catch (error) {
-    console.error("[github-webhook]", error);
+  } catch {
+    if (ownsDelivery && redis) await redis.del(dedupKey).catch(() => undefined);
+    console.error("[github-webhook] event processing failed");
     return NextResponse.json({ error: "event processing failed" }, { status: 500 });
   }
 }
