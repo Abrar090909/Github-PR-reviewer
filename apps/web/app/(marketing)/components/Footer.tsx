@@ -45,7 +45,7 @@ export default function Footer() {
                 { label: "Features",    href: "#features"     },
                 { label: "How it works",href: "#how-it-works" },
                 { label: "Pricing",     href: "#pricing"      },
-                { label: "Changelog",   href: "/changelog"    },
+                { label: "About",       href: "/about"        },
               ].map(l => (
                 <a key={l.label} href={l.href} style={{ fontSize: 13, color: "var(--text-secondary)", textDecoration: "none", transition: "color 160ms" }}
                   onMouseEnter={e => (e.currentTarget.style.color = "var(--text-primary)")}
@@ -64,7 +64,9 @@ export default function Footer() {
                 { label: "Privacy Policy",    href: "/privacy"                   },
                 { label: "Terms of Service",  href: "/terms"                     },
                 { label: "Security",          href: "/security"                  },
-                { label: "Contact",           href: "mailto:hello@contour.dev"   },
+                { label: "Refunds & cancellations", href: "/refunds"             },
+                { label: "Shipping & delivery", href: "/delivery"                },
+                { label: "Contact",           href: "/contact"                   },
               ].map(l => (
                 <a key={l.label} href={l.href} style={{ fontSize: 13, color: "var(--text-secondary)", textDecoration: "none", transition: "color 160ms" }}
                   onMouseEnter={e => (e.currentTarget.style.color = "var(--text-primary)")}

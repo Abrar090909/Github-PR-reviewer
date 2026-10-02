@@ -10,7 +10,7 @@ export const metadata: Metadata = {
     title: "Contour — AI PR Risk & Architecture Copilot",
     description: "Risk-scored architecture diagrams for every PR. Built for teams shipping fast with AI coding agents.",
     type: "website",
-    url: "https://contour.dev",
+    url: "/",
   },
   twitter: {
     card: "summary_large_image",

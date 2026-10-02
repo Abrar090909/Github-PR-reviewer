@@ -524,7 +524,7 @@ export default function Hero() {
       <div className="mt-14 pt-8 border-t border-[#181818] flex flex-wrap items-center justify-center gap-6 sm:gap-12 text-xs sm:text-[13px] text-[#777777] font-medium">
         <div className="flex items-center gap-2 hover:text-[#D4D4D4] transition-colors">
           <div className="w-1.5 h-1.5 rounded-full bg-[#22C55E]" />
-          <span>No code stored on our servers</span>
+          <span>Pull requests analysed on demand</span>
         </div>
         <div className="flex items-center gap-2 hover:text-[#D4D4D4] transition-colors">
           <div className="w-1.5 h-1.5 rounded-full bg-[#3B82F6]" />

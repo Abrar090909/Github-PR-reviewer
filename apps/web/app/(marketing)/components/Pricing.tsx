@@ -18,7 +18,7 @@ const PLANS = [
     price: { monthly: "$0", annually: "$0" },
     for: "Public open-source repos",
     features: [
-      "Unlimited public repo analyses",
+      "Public repo analyses (fair-use limits apply)",
       "Architecture + coverage lenses",
       "Behavior delta descriptions",
       "Gemini as the LLM (default)",
@@ -29,38 +29,33 @@ const PLANS = [
   },
   {
     id: "team",
-    name: "Team",
+    name: "Team (planned)",
     price: { monthly: "$16", annually: "$13" },
     per: "/ dev / month",
-    for: "Private repos, growing teams",
+    for: "Planned paid tier for private repos",
     features: [
       "Everything in Free",
-      "Unlimited private repo analyses",
-      "Cross-PR hotspot memory",
-      "Claude and OpenAI provider support",
-      "Bring your own LLM API key",
-      "Sensitivity tuning per repo",
+      "Private repository analysis",
+      "Team billing and administration",
+      "Additional model options under development",
     ],
-    cta: "Start 14-day trial",
-    href: GITHUB_APP_INSTALL_URL,
+    cta: "Ask about Team",
+    href: "mailto:abrar.dev26@gmail.com?subject=Contour%20Team%20plan",
     highlight: true,
-    highlightReason: "This tier funds development and is the right fit for most teams.",
+    highlightReason: "Planned pricing; subscriptions are not available yet.",
   },
   {
     id: "enterprise",
-    name: "Enterprise",
+    name: "Enterprise (planned)",
     price: { monthly: "Custom", annually: "Custom" },
-    for: "Large orgs with compliance needs",
+    for: "Discuss requirements with us",
     features: [
       "Everything in Team",
-      "SSO / SAML",
-      "Self-hosted LLM support",
-      "SOC 2 report on request",
-      "SLA commitment",
-      "Dedicated support channel",
+      "Custom plan discussion",
+      "Requirements and availability confirmed before purchase",
     ],
     cta: "Contact us",
-    href: "mailto:enterprise@contour.dev",
+    href: "mailto:abrar.dev26@gmail.com?subject=Contour%20Enterprise",
     highlight: false,
   },
 ];
@@ -78,7 +73,7 @@ export default function Pricing() {
               PRICING
             </p>
             <h2 style={{ fontSize: 28, fontWeight: 700, letterSpacing: "-0.025em", color: "var(--text-primary)", margin: 0 }}>
-              Free for open source. Paid for private.
+              Free for open source. Paid plans are in development.
             </h2>
           </div>
 
@@ -188,7 +183,7 @@ export default function Pricing() {
         </div>
 
         <p style={{ fontSize: 12, color: "var(--text-dim)", textAlign: "center", marginTop: 24 }}>
-          14-day trial on private repos. No credit card required.
+          Paid subscriptions and trials are not available yet. No payment is collected when you install Contour.
         </p>
 
       </div>

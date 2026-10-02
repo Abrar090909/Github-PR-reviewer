@@ -1,0 +1,37 @@
+Contour / Dodo Payments onboarding notes
+Updated: 2 October 2026
+
+Public pages now provided by the website:
+- /about: describes the software and operator.
+- /contact: support email, phone, and country.
+- /privacy: data processing and provider disclosures.
+- /terms: service terms and user permissions.
+- /refunds: cancellation and refund request process.
+- /delivery: digital delivery and access requirements.
+- /security: security contact and factual controls.
+
+Before requesting approval or accepting money:
+1. Give Dodo Payments the operator's actual legal identity and any identity,
+   tax, banking, and address information it requests in its private onboarding.
+   Contour is currently an unregistered solo project; do not present it as an
+   incorporated company. A country alone may not satisfy Dodo's KYC review.
+2. Verify that abrar.dev26@gmail.com and +91 93484 73185 receive customer
+   enquiries, and respond within the support period promised on /contact.
+3. Finish the paid Team product, Dodo checkout, subscription activation,
+   renewal/cancellation handling, receipts, and refund operations. None of
+   those payment functions currently exists in this repository.
+4. Set final Dodo product prices, billing intervals, taxes, currency, and any
+   trial terms. Replace planned pricing and features with what is actually
+   available. Link Terms and Refunds at checkout and retain acceptance records.
+5. Verify the production domain, all public policy routes, GitHub App install
+   flow, and a complete test purchase and cancellation before submitting the
+   site to Dodo Payments. The live site must deliver the digital product.
+6. Review these policy drafts with a qualified adviser for the operator's
+   actual legal status and the markets served. Keep them synchronized with
+   operational practice and Dodo's current terms.
+
+Provider guidance:
+https://docs.dodopayments.com/miscellaneous/merchant-acceptance
+https://docs.dodopayments.com/guides/disputes
+
+These notes contain no API keys or private onboarding documents.
