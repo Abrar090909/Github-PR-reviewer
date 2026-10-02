@@ -14,6 +14,9 @@ const CLI_INVOCATION = "npx @contour/cli@latest";
 const forBundledCli = (content: string): string =>
   content.replaceAll(CLI_INVOCATION, "contour");
 
+const readText = async (path: string): Promise<string> =>
+  (await readFile(path, "utf8")).replaceAll("\r\n", "\n");
+
 const wanted = await skillFiles(SKILL_SOURCE_DIR);
 
 await rm(SKILL_MIRROR_DIR, { recursive: true, force: true });
@@ -25,13 +28,13 @@ for (const file of wanted) {
 }
 
 const embeddedSkillPath = join(SKILL_SOURCE_DIR, "..", "cli", "src", "skill-content.generated.ts");
-const [manual, config, graphDocument, exampleDocument, graphDocumentJsonSchema] = (await Promise.all([
-  readFile(join(SKILL_SOURCE_DIR, "SKILL.txt"), "utf8"),
-  readFile(join(SKILL_SOURCE_DIR, "references", "config.txt"), "utf8"),
-  readFile(join(SKILL_SOURCE_DIR, "references", "graph-document.txt"), "utf8"),
-  readFile(join(SKILL_SOURCE_DIR, "references", "example.graph.json"), "utf8"),
-  readFile(join(SKILL_SOURCE_DIR, "..", "schema", "json-schema", "graph-doc.schema.json"), "utf8"),
-])).map((content) => content.replaceAll("\r\n", "\n"));
+const [manual, config, graphDocument, exampleDocument, graphDocumentJsonSchema] = await Promise.all([
+  readText(join(SKILL_SOURCE_DIR, "SKILL.txt")),
+  readText(join(SKILL_SOURCE_DIR, "references", "config.txt")),
+  readText(join(SKILL_SOURCE_DIR, "references", "graph-document.txt")),
+  readText(join(SKILL_SOURCE_DIR, "references", "example.graph.json")),
+  readText(join(SKILL_SOURCE_DIR, "..", "schema", "json-schema", "graph-doc.schema.json")),
+]);
 
 await writeFile(
   embeddedSkillPath,
