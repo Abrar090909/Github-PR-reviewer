@@ -1,5 +1,7 @@
 "use client";
 
+import ContourLogo from "../../components/ContourLogo";
+
 /*
   Footer — structured around what the product actually links to.
   Not 4 equal columns (Product / Company / Resources / Legal template).
@@ -16,11 +18,7 @@ export default function Footer() {
           {/* Brand column */}
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
-              <svg width="20" height="20" viewBox="0 0 22 22" fill="none">
-                <rect x="1" y="5" width="9" height="12" rx="2" fill="#3B82F6" opacity="0.9"/>
-                <rect x="6" y="2" width="9" height="12" rx="2" fill="#E6EDF3" opacity="0.15"/>
-                <rect x="12" y="8" width="9" height="12" rx="2" fill="#58A6FF" opacity="0.6"/>
-              </svg>
+              <ContourLogo size={32} />
               <span style={{ fontWeight: 600, fontSize: 14, color: "var(--text-primary)" }}>Contour</span>
             </div>
             <p style={{ fontSize: 13, color: "var(--text-secondary)", lineHeight: 1.65, marginBottom: 18, maxWidth: 220 }}>

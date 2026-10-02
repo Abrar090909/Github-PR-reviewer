@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState, useEffect } from "react";
+import ContourLogo from "../../components/ContourLogo";
 
 export default function Nav() {
   const [scrolled, setScrolled] = useState(false);
@@ -31,22 +32,7 @@ export default function Nav() {
 
         {/* Brand */}
         <Link href="/" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none" }}>
-          <div style={{
-            width: 26,
-            height: 26,
-            borderRadius: 7,
-            background: "#111111",
-            border: "1px solid #262626",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            color: "#EDEDED"
-          }}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="11" cy="11" r="8"/>
-              <path d="m21 21-4.3-4.3"/>
-            </svg>
-          </div>
+          <ContourLogo size={36} />
           <span style={{ fontWeight: 600, fontSize: 16, color: "#FFFFFF", letterSpacing: "-0.02em" }}>
             Contour
           </span>

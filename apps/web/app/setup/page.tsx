@@ -1,4 +1,5 @@
 import Link from "next/link";
+import ContourLogo from "../components/ContourLogo";
 
 export const metadata = {
   title: "Contour installed",
@@ -15,6 +16,10 @@ export default async function SetupCompletePage({
   return (
     <main className="min-h-screen bg-black text-[#EDEDED] flex items-center justify-center px-6">
       <section className="w-full max-w-xl rounded-2xl border border-[#242424] bg-[#0A0A0A] p-8 sm:p-10">
+        <Link href="/" className="mb-6 inline-flex items-center gap-2 text-base font-semibold" aria-label="Contour home">
+          <ContourLogo size={40} />
+          Contour
+        </Link>
         <div className="mb-6 flex h-11 w-11 items-center justify-center rounded-full bg-[#22C55E]/15 text-[#22C55E] text-xl">
           ✓
         </div>
