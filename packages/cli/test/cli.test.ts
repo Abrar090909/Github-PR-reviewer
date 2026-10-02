@@ -17,7 +17,7 @@ const GOLDEN = fileURLToPath(
 const CLI_INVOCATION = "npx @contour/cli@latest";
 
 const forBundledCli = (content: string): string =>
-  content.replaceAll(CLI_INVOCATION, "contour");
+  content.replaceAll("\r\n", "\n").replaceAll(CLI_INVOCATION, "contour");
 
 let out: string[] = [];
 let err: string[] = [];
@@ -85,7 +85,7 @@ test("skill references prints the config, graph specification, and example", asy
   expect(out).toHaveLength(1);
   expect(out[0]).toContain(forBundledCli(config));
   expect(out[0]).toContain(forBundledCli(graphDocument));
-  expect(out[0]).toContain(exampleDocument);
+  expect(out[0]).toContain(exampleDocument.replaceAll("\r\n", "\n"));
 });
 
 test("the embedded analysis schema matches the schema package", async () => {
@@ -94,7 +94,7 @@ test("the embedded analysis schema matches the schema package", async () => {
     "utf8",
   );
 
-  expect(GRAPH_DOCUMENT_JSON_SCHEMA).toBe(graphDocumentJsonSchema);
+  expect(GRAPH_DOCUMENT_JSON_SCHEMA).toBe(graphDocumentJsonSchema.replaceAll("\r\n", "\n"));
 });
 
 test("an unknown command is a misuse", async () => {
