@@ -1,8 +1,8 @@
 const STEPS = [
   {
     num: "01",
-    title: "Install the GitHub App with 1 click",
-    body: "Add Contour to your GitHub repository in seconds. No complex config files, no secret keys to copy, and zero maintenance.",
+    title: "Install the Contour GitHub App",
+    body: "Choose the repositories where Contour should run. There is no workflow to commit and no model key to configure.",
     aside: "Free for open-source & public repos",
   },
   {
@@ -14,8 +14,8 @@ const STEPS = [
   {
     num: "03",
     title: "Contour creates your visual map",
-    body: "In under 30 seconds, Contour traces how your backend, API, and database connect — and checks if you added tests.",
-    aside: "Powered by smart AST analysis",
+    body: "Contour reads the pull request change, validates a structured architecture document, and renders matching light and dark diagrams.",
+    aside: "Runs on Contour's hosted worker",
   },
   {
     num: "04",
@@ -28,7 +28,7 @@ const STEPS = [
 const SIMPLE_CHECKLIST = [
   { label: "Automatic", detail: "Runs automatically whenever new commits are pushed" },
   { label: "Safe",      detail: "Your private source code is never stored in any database" },
-  { label: "Fast",      detail: "Ready in under 30 seconds — no slowdown to your CI tests" },
+  { label: "Independent", detail: "Runs outside your CI, so it does not slow down your test jobs" },
   { label: "Clear",     detail: "Anyone on your team can understand the PR at a glance" },
 ];
 

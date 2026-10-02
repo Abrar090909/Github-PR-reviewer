@@ -59,6 +59,6 @@ export const RenderManifest = z
     }),
     assets: z.array(RenderAsset).min(1).max(MAX_RENDER_ASSETS),
   })
-  .describe("A PR Lens render manifest.");
+  .describe("A Contour render manifest.");
 export type RenderManifest = z.infer<typeof RenderManifest>;
 export type RenderManifestInput = z.input<typeof RenderManifest>;

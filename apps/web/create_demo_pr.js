@@ -28,7 +28,7 @@ const instOctokit = new Octokit({
 async function main() {
   const owner = 'Abrar090909';
   const repo = 'Blynkpage';
-  const branchName = 'feature/pr-lens-svg-comment-' + Date.now().toString().slice(-6);
+const branchName = 'feature/contour-svg-comment-' + Date.now().toString().slice(-6);
 
   console.log(`Connecting to ${owner}/${repo}...`);
   const mainRef = await instOctokit.request('GET /repos/{owner}/{repo}/git/ref/{ref}', {
@@ -178,7 +178,7 @@ async function main() {
   console.log(`PR Number: #${pr.data.number}`);
   console.log(`URL: ${pr.data.html_url}`);
   console.log('========================================\n');
-  console.log('The Contour GitHub App will now analyze this PR and post');
+console.log('The Contour GitHub Action will now analyze this PR and post');
   console.log('an animated SVG architecture diagram directly as a PR comment.');
 }
 

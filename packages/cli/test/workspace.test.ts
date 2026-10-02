@@ -2,6 +2,7 @@ import { execFile } from "node:child_process";
 import { mkdir, mkdtemp, readFile, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
 import { expect, test } from "vitest";
 import { run as runCli } from "../src/cli.js";
@@ -10,12 +11,13 @@ import { ignoreWorkspace, WORKSPACE_DIR } from "../src/workspace.js";
 
 const run = promisify(execFile);
 
-const GOLDEN = new URL("../../schema/examples/postmark-refactor.graph.json", import.meta.url)
-  .pathname;
+const GOLDEN = fileURLToPath(
+  new URL("../../schema/examples/postmark-refactor.graph.json", import.meta.url),
+);
 
 /** A repository with nothing in it, which is all an ignore rule needs to be read. */
 const repository = async (): Promise<string> => {
-  const directory = await mkdtemp(join(tmpdir(), "pr-lens-workspace-"));
+  const directory = await mkdtemp(join(tmpdir(), "contour-workspace-"));
   await run("git", ["init", "--quiet"], { cwd: directory });
   return directory;
 };
@@ -100,7 +102,7 @@ test("says nothing when an entry already covers the previews", async () => {
 });
 
 /**
- * The two spellings that read as "already ignored" and are not. `/.pr-lens/`
+ * The two spellings that read as "already ignored" and are not. `/.contour/`
  * is anchored to the root, so it says nothing about a run inside a
  * subdirectory; leading whitespace is part of a pattern, so that entry matches
  * nothing anywhere. Both must still end with the previews ignored.
@@ -136,7 +138,7 @@ test.each([
 });
 
 /**
- * `!/.pr-lens/` at the root un-ignores the root's previews and says nothing
+ * `!/.contour/` at the root un-ignores the root's previews and says nothing
  * about a workspace under a subdirectory. Reading it as a blanket choice left
  * every nested preview file visible.
  */
@@ -167,12 +169,16 @@ test("narrows its entry rather than overruling an un-ignore meant for elsewhere"
  * patterns. Every one of these names means something else as a pattern, and the
  * previews stay visible under an entry that looks right.
  */
-test.each([
+const patternCases = ([
   ["a character class", "sub[1]"],
   ["a comment", "#sub"],
   ["a negation", "!sub"],
   ["a wildcard", "sub*x"],
-])("writes a nested directory that would read as %s as a literal path", async (_, name) => {
+] satisfies [string, string][]).filter(
+  ([, name]) => process.platform !== "win32" || !name.includes("*"),
+);
+
+test.each(patternCases)("writes a nested directory that would read as %s as a literal path", async (_, name) => {
   const directory = await repository();
   await writeFile(join(directory, ".gitignore"), `!/${WORKSPACE_DIR}/\n`);
   const nested = join(directory, name);
@@ -183,7 +189,7 @@ test.each([
   expect(await ignoresPreviews(directory, join(nested, WORKSPACE_DIR))).toBe(true);
 });
 
-test("a wildcard in the entry is not left free to catch a neighbour", async () => {
+(process.platform === "win32" ? test.skip : test)("a wildcard in the entry is not left free to catch a neighbour", async () => {
   const directory = await repository();
   await writeFile(join(directory, ".gitignore"), `!/${WORKSPACE_DIR}/\n`);
   await mkdir(join(directory, "sub*x"), { recursive: true });
@@ -216,7 +222,7 @@ test("adds itself once, however many times it runs", async () => {
 });
 
 test("writes nothing outside a repository", async () => {
-  const directory = await mkdtemp(join(tmpdir(), "pr-lens-loose-"));
+  const directory = await mkdtemp(join(tmpdir(), "contour-loose-"));
 
   expect(await ignoreWorkspace(await workspaceIn(directory))).toBeUndefined();
 });

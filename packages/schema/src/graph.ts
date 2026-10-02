@@ -397,7 +397,7 @@ export const Provenance = z
 export type Provenance = z.infer<typeof Provenance>;
 
 /**
- * The document every PR Lens component speaks: extraction emits it, the
+ * The document every Contour component speaks: extraction emits it, the
  * renderer consumes it, and a baseline map is one of these kept current by
  * patch documents.
  */
@@ -424,6 +424,6 @@ export const GraphDoc = z
     walkthrough: Walkthrough.optional(),
     layout: LayoutHints.optional(),
   })
-  .describe("A PR Lens graph document.");
+  .describe("A Contour graph document.");
 export type GraphDoc = z.infer<typeof GraphDoc>;
 export type GraphDocInput = z.input<typeof GraphDoc>;

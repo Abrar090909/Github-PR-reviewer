@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import path from "node:path";
 
 const nextConfig: NextConfig = {
   transpilePackages: ["@contour/schema", "@contour/renderer"],
@@ -8,7 +9,7 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "avatars.githubusercontent.com" },
     ],
   },
-  outputFileTracingRoot: process.cwd(),
+  outputFileTracingRoot: path.join(__dirname, "../.."),
 };
 
 export default nextConfig;

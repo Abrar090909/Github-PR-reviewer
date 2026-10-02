@@ -1,6 +1,14 @@
 {
   "$schema": "https://turbo.build/schema.json",
   "ui": "tui",
+  "globalPassThroughEnv": [
+    "GITHUB_*",
+    "GEMINI_*",
+    "SUPABASE_*",
+    "UPSTASH_*",
+    "QSTASH_*",
+    "MAX_*"
+  ],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
@@ -12,7 +20,7 @@
       "persistent": true
     },
     "test": {
-      "dependsOn": ["^build"],
+      "dependsOn": ["build", "^build"],
       "inputs": ["src/**", "__tests__/**", "*.test.ts"]
     },
     "lint": {

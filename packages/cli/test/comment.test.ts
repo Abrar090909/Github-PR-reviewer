@@ -44,12 +44,12 @@ test("a light and a dark render become one picture, so both GitHub themes read",
       asset({}),
       asset({ id: "architecture-dark", theme: "dark", path: "architecture-dark.svg" }),
     ]),
-    assetBaseUrl: "https://raw.githubusercontent.com/o/r/pr-lens/",
+    assetBaseUrl: "https://raw.githubusercontent.com/o/r/contour/",
     branding: true,
   });
 
   expect(body).toContain('<source media="(prefers-color-scheme: dark)"');
-  expect(body).toContain("https://raw.githubusercontent.com/o/r/pr-lens/architecture-dark.svg");
+  expect(body).toContain("https://raw.githubusercontent.com/o/r/contour/architecture-dark.svg");
   expect(body).toContain('<img alt="Touch the health check — Architecture"');
 });
 

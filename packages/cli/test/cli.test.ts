@@ -3,6 +3,7 @@ import { parseGraphDoc, parseRenderManifest } from "@contour/schema";
 import { mkdtemp, readFile, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { beforeEach, expect, test } from "vitest";
 import { run } from "../src/cli.js";
 import { COMMENT_MARKER } from "../src/comment.js";
@@ -10,11 +11,13 @@ import { GRAPH_DOCUMENT_JSON_SCHEMA } from "../src/skill-content.generated.js";
 import type { Terminal } from "../src/terminal.js";
 import { CLI_VERSION } from "../src/version.js";
 
-const GOLDEN = new URL("../../schema/examples/postmark-refactor.graph.json", import.meta.url).pathname;
+const GOLDEN = fileURLToPath(
+  new URL("../../schema/examples/postmark-refactor.graph.json", import.meta.url),
+);
 const CLI_INVOCATION = "npx @contour/cli@latest";
 
 const forBundledCli = (content: string): string =>
-  content.replaceAll(CLI_INVOCATION, "pr-lens");
+  content.replaceAll(CLI_INVOCATION, "contour");
 
 let out: string[] = [];
 let err: string[] = [];
@@ -29,12 +32,12 @@ beforeEach(() => {
 
 test("running it with nothing to do is a misuse, and prints what it can do", async () => {
   expect(await invoke()).toBe(2);
-  expect(err.join("\n")).toContain("pr-lens analyze");
+  expect(err.join("\n")).toContain("contour analyze");
 });
 
 test("--help is an answer, not a misuse", async () => {
   expect(await invoke("--help")).toBe(0);
-  expect(out.join("\n")).toContain("pr-lens validate");
+  expect(out.join("\n")).toContain("contour validate");
   expect(out.join("\n")).toContain("diagram instructions for coding agents");
 });
 
@@ -51,17 +54,17 @@ test("skill prints the operating manual from the agent skill package", async () 
 
   expect(await invoke("skill")).toBe(0);
   expect(out).toEqual([forBundledCli(manual)]);
-  expect(out[0]).toContain("pr-lens render");
+  expect(out[0]).toContain("contour render");
   expect(out[0]).not.toContain(CLI_INVOCATION);
 });
 
 test("skill help makes its agent-facing output clear", async () => {
   expect(await invoke("skill", "--help")).toBe(0);
   expect(out.join("\n")).toContain("create, validate, render, and");
-  expect(out.join("\n")).toContain("share PR Lens diagrams");
+  expect(out.join("\n")).toContain("share Contour diagrams");
   expect(out.join("\n")).toContain("written to stdout");
   expect(out.join("\n")).toContain("long, agent-facing document");
-  expect(out.join("\n")).toContain("Use pr-lens --help for a short command overview");
+  expect(out.join("\n")).toContain("Use contour --help for a short command overview");
 });
 
 test("skill references prints the config, graph specification, and example", async () => {
@@ -116,7 +119,7 @@ test("a valid document validates, and says what it holds", async () => {
  * the document by eye, which is the whole reason validate runs before a push.
  */
 test("a walkthrough step focusing a flow step its stage never draws is caught", async () => {
-  const directory = await mkdtemp(join(tmpdir(), "pr-lens-cli-"));
+  const directory = await mkdtemp(join(tmpdir(), "contour-cli-"));
   const path = join(directory, "tour.json");
   const document = JSON.parse(await readFile(GOLDEN, "utf8"));
   const step = document.walkthrough.steps.find(
@@ -132,7 +135,7 @@ test("a walkthrough step focusing a flow step its stage never draws is caught", 
 });
 
 test("a walkthrough step with a heading and nothing under it is caught", async () => {
-  const directory = await mkdtemp(join(tmpdir(), "pr-lens-cli-"));
+  const directory = await mkdtemp(join(tmpdir(), "contour-cli-"));
   const path = join(directory, "tour.json");
   const document = JSON.parse(await readFile(GOLDEN, "utf8"));
   delete document.walkthrough.steps[0].body;
@@ -143,7 +146,7 @@ test("a walkthrough step with a heading and nothing under it is caught", async (
 });
 
 test("an invalid document fails with every problem, not only the first", async () => {
-  const directory = await mkdtemp(join(tmpdir(), "pr-lens-cli-"));
+  const directory = await mkdtemp(join(tmpdir(), "contour-cli-"));
   const path = join(directory, "broken.json");
   await writeFile(
     path,
@@ -170,7 +173,7 @@ test("a missing required flag prints the reason and then the usage", async () =>
   expect(await invoke("analyze")).toBe(2);
   const reported = err.join("\n");
   expect(reported).toContain("--base is required");
-  expect(reported).toContain("pr-lens analyze");
+  expect(reported).toContain("contour analyze");
 });
 
 test("an unknown flag is a misuse rather than a stack trace", async () => {
@@ -184,7 +187,7 @@ test("the marker is printed by the CLI that owns it, so nothing else has to spel
 });
 
 test("rendering writes every SVG the manifest promises, and the manifest validates", async () => {
-  const directory = await mkdtemp(join(tmpdir(), "pr-lens-render-"));
+  const directory = await mkdtemp(join(tmpdir(), "contour-render-"));
 
   expect(await invoke("render", GOLDEN, "--out", directory, "--no-config")).toBe(0);
 
@@ -200,7 +203,7 @@ test("rendering writes every SVG the manifest promises, and the manifest validat
 });
 
 test("--theme draws one half of the pair, and nothing else", async () => {
-  const directory = await mkdtemp(join(tmpdir(), "pr-lens-render-"));
+  const directory = await mkdtemp(join(tmpdir(), "contour-render-"));
 
   expect(await invoke("render", GOLDEN, "--out", directory, "--theme", "dark", "--no-config")).toBe(0);
 
@@ -222,8 +225,8 @@ map:
 `;
 
 test("a comment never announces a section the corrections stopped the render from drawing", async () => {
-  const directory = await mkdtemp(join(tmpdir(), "pr-lens-render-"));
-  const config = join(directory, "pr-lens.yml");
+  const directory = await mkdtemp(join(tmpdir(), "contour-render-"));
+  const config = join(directory, "contour.yml");
   await writeFile(config, CORRECTIONS, "utf8");
 
   expect(await invoke("render", GOLDEN, "--out", directory, "--config", config)).toBe(0);
@@ -248,8 +251,8 @@ test("a comment never announces a section the corrections stopped the render fro
 });
 
 test("the document that was read cannot stand in for the document that was drawn", async () => {
-  const directory = await mkdtemp(join(tmpdir(), "pr-lens-render-"));
-  const config = join(directory, "pr-lens.yml");
+  const directory = await mkdtemp(join(tmpdir(), "contour-render-"));
+  const config = join(directory, "contour.yml");
   await writeFile(config, CORRECTIONS, "utf8");
 
   expect(await invoke("render", GOLDEN, "--out", directory, "--config", config)).toBe(0);
@@ -271,8 +274,8 @@ test("the document that was read cannot stand in for the document that was drawn
 });
 
 test("a correction that matches nothing is said out loud", async () => {
-  const directory = await mkdtemp(join(tmpdir(), "pr-lens-render-"));
-  const config = join(directory, "pr-lens.yml");
+  const directory = await mkdtemp(join(tmpdir(), "contour-render-"));
+  const config = join(directory, "contour.yml");
   await writeFile(config, CORRECTIONS, "utf8");
 
   expect(await invoke("render", GOLDEN, "--out", directory, "--config", config)).toBe(0);
@@ -283,8 +286,8 @@ test("a correction that matches nothing is said out loud", async () => {
 });
 
 test("the drawn document and the manifest are bound to each other", async () => {
-  const directory = await mkdtemp(join(tmpdir(), "pr-lens-render-"));
-  const config = join(directory, "pr-lens.yml");
+  const directory = await mkdtemp(join(tmpdir(), "contour-render-"));
+  const config = join(directory, "contour.yml");
   await writeFile(config, CORRECTIONS, "utf8");
 
   expect(await invoke("render", GOLDEN, "--out", directory, "--config", config)).toBe(0);
@@ -297,7 +300,7 @@ test("the drawn document and the manifest are bound to each other", async () => 
 });
 
 test("render and comment agree on where the SVGs are, without either deriving the other's names", async () => {
-  const directory = await mkdtemp(join(tmpdir(), "pr-lens-render-"));
+  const directory = await mkdtemp(join(tmpdir(), "contour-render-"));
 
   expect(await invoke("render", GOLDEN, "--out", directory, "--no-config")).toBe(0);
   out = [];
@@ -310,7 +313,7 @@ test("render and comment agree on where the SVGs are, without either deriving th
       "--manifest",
       join(directory, "manifest.json"),
       "--asset-base-url",
-      "https://raw.githubusercontent.com/o/r/pr-lens/42",
+      "https://raw.githubusercontent.com/o/r/contour/42",
     ),
   ).toBe(0);
 
@@ -318,6 +321,6 @@ test("render and comment agree on where the SVGs are, without either deriving th
   const manifest = parseRenderManifest(JSON.parse(await readFile(join(directory, "manifest.json"), "utf8")));
 
   for (const asset of manifest.assets) {
-    expect(body).toContain(`https://raw.githubusercontent.com/o/r/pr-lens/42/${asset.path}`);
+    expect(body).toContain(`https://raw.githubusercontent.com/o/r/contour/42/${asset.path}`);
   }
 });

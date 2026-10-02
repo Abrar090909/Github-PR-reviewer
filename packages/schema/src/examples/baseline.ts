@@ -22,7 +22,7 @@ export const broadcastBaselineGraphInput: GraphDocInput = {
     repo: { owner: "ohansemmanuel", name: "bestregards", host: "github.com" },
     base: { sha: BASE_SHA, ref: "main" },
     head: { sha: BASE_SHA, ref: "main" },
-    generator: { name: "pr-lens-examples", version: "0.1.0" },
+    generator: { name: "contour-examples", version: "0.1.0" },
   },
   lanes: [
     { id: "web", label: "Next.js", subtitle: "Vercel", order: 0 },

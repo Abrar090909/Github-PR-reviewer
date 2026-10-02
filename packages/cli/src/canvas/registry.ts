@@ -14,7 +14,7 @@ import type { Stats } from "node:fs";
 import { randomBytes } from "node:crypto";
 import { assertNever } from "@contour/schema";
 import { setTimeout as sleep } from "node:timers/promises";
-import { basename, dirname, join, relative, resolve } from "node:path";
+import { basename, dirname, join, relative, resolve, sep } from "node:path";
 
 import { git } from "../git.js";
 import type { Terminal } from "../terminal.js";
@@ -23,7 +23,7 @@ import { prepareWorkspace, WORKSPACE_DIR } from "../workspace.js";
 import { readJsonFile, secretStagingPath, writeSecretJsonFile } from "../io.js";
 
 /** Holds write tokens, the one thing here nothing can rebuild. */
-export const REGISTRY_PATH = join(WORKSPACE_DIR, "canvas.json");
+export const REGISTRY_PATH = `${WORKSPACE_DIR}/canvas.json`;
 
 const LOCK_PATH = `${REGISTRY_PATH}.lock`;
 
@@ -325,7 +325,7 @@ const inUse = (lock: LockState): PrLensCliError => {
   const who = (() => {
     switch (lock.type) {
       case "absent":
-        return "other pr-lens commands, which kept it busy";
+        return "other contour commands, which kept it busy";
       case "unfinished":
         return "a command that did not finish taking it";
       case "held":
@@ -405,7 +405,7 @@ export const updateRegistry = (
   });
 
 export const sourceKey = (path: string): string =>
-  relative(process.cwd(), resolve(path));
+  relative(process.cwd(), resolve(path)).split(sep).join("/");
 
 const entries = (registry: CanvasRegistry): Registered[] =>
   Object.entries(registry.canvases).map(([id, entry]) => ({ id, entry }));
@@ -465,7 +465,7 @@ export const onlyCanvas = (registry: CanvasRegistry): Registered => {
   if (only === undefined)
     throw unregistered(
       `no canvas in ${REGISTRY_PATH}`,
-      "pr-lens canvas push mints one, or pass --canvas <id|name> for one pushed elsewhere",
+      "contour canvas push mints one, or pass --canvas <id|name> for one pushed elsewhere",
     );
 
   if (more.length > 0)

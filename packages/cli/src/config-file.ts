@@ -4,7 +4,14 @@ import { join } from "node:path";
 import { readConfig } from "./document.js";
 
 /** Where a repository puts its corrections, in the order they are looked for. */
-export const CONFIG_PATHS = [".github/pr-lens.yml", ".github/pr-lens.yaml"] as const;
+export const CONFIG_PATHS = [
+  ".github/contour.yml",
+  ".github/contour.yaml",
+  // Keep reading the upstream filenames so an existing installation can
+  // rebrand without silently losing its corrections.
+  ".github/pr-lens.yml",
+  ".github/pr-lens.yaml",
+] as const;
 
 export type LoadedConfig = { path: string; config: Config };
 

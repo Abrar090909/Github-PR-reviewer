@@ -57,7 +57,7 @@ test("the probe cannot collide with what a document already holds", () => {
   const collides = {
     ...postmarkRefactorGraph,
     nodes: postmarkRefactorGraph.nodes.map((candidate) =>
-      candidate.id === node.id ? { ...candidate, label: "pr-lens-probe" } : candidate,
+      candidate.id === node.id ? { ...candidate, label: "contour-probe" } : candidate,
     ),
   };
 
@@ -66,7 +66,7 @@ test("the probe cannot collide with what a document already holds", () => {
       collides,
       parseConfig({
         schemaVersion: "0.1.0",
-        map: { rename: [{ match: `id:${node.id}`, to: "pr-lens-probe" }] },
+        map: { rename: [{ match: `id:${node.id}`, to: "contour-probe" }] },
       }),
     ),
   ).toEqual([]);

@@ -4,14 +4,15 @@ import type { Terminal } from "../terminal.js";
 import { PrLensCliError, usageError } from "../errors.js";
 import { updateRegistry, type Registered } from "./registry.js";
 
-export const DEFAULT_API = "https://prlens.dev";
-export const API_ENV = "PR_LENS_API_URL";
+export const DEFAULT_API = "https://contour.dev";
+export const API_ENV = "CONTOUR_API_URL";
+export const LEGACY_API_ENV = "PR_LENS_API_URL";
 
 export const readApi = (
   value: unknown,
   env: Record<string, string | undefined>,
 ): string => {
-  const api = readString(value, "api") ?? env[API_ENV] ?? DEFAULT_API;
+  const api = readString(value, "api") ?? env[API_ENV] ?? env[LEGACY_API_ENV] ?? DEFAULT_API;
   try {
     new URL(api);
   } catch {
@@ -48,7 +49,7 @@ const unfinishedRotation = (error: PrLensCliError): PrLensCliError =>
     `${error.message}; the rotation is not finished`,
     [
       error.details,
-      "run pr-lens canvas rotate again to finish it: the new token is kept until the app confirms it",
+      "run contour canvas rotate again to finish it: the new token is kept until the app confirms it",
     ]
       .filter((line) => line !== undefined && line !== "")
       .join("\n"),

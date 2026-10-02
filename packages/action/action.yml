@@ -25,20 +25,17 @@ inputs:
     description: Comma-separated lenses to render. Defaults to both.
     default: ""
   branding:
-    description: Show the "Rendered by PR Lens" footer.
+    description: Show the "Rendered by Contour" footer.
     default: "true"
   comment:
     description: Post the comment. Set false to render and publish the SVGs without commenting.
     default: "true"
   data-branch:
     description: Orphan branch the rendered SVGs are committed to. It holds no code and is never merged.
-    default: pr-lens
-  cli-version:
-    description: Version of @coldtea/pr-lens-cli to run.
-    default: 0.5.0
+    default: contour
   comment-author:
     description: >-
-      Login that owns the PR Lens comment. Only a comment posted by this
+      Login that owns the Contour comment. Only a comment posted by this
       account is ever updated, so nobody else can put the marker on a comment
       of their own and have this Action edit it. Change it when github-token
       belongs to another identity.
@@ -63,12 +60,12 @@ runs:
       run: |
         set -euo pipefail
         if [ -z "${PR_NUMBER}" ]; then
-          echo "::error::PR Lens runs on pull_request events — there is no pull request in this one."
+          echo "::error::Contour runs on pull_request events — there is no pull request in this one."
           exit 1
         fi
         for SHA in "${BASE_SHA}" "${HEAD_SHA}"; do
           if ! git cat-file -e "${SHA}^{commit}" 2>/dev/null; then
-            echo "::error::${SHA} is not in this checkout. PR Lens diffs two commits, so check out with fetch-depth: 0."
+            echo "::error::${SHA} is not in this checkout. Contour diffs two commits, so check out with fetch-depth: 0."
             exit 1
           fi
         done
@@ -81,24 +78,35 @@ runs:
       with:
         node-version: 20
 
+    - uses: pnpm/action-setup@v4
+      with:
+        version: 9
+
+    - name: Build the Contour engine
+      shell: bash
+      run: |
+        set -euo pipefail
+        ACTION_ROOT="$(cd "${GITHUB_ACTION_PATH}/../.." && pwd)"
+        pnpm --dir "${ACTION_ROOT}" install --frozen-lockfile --filter @contour/cli...
+        pnpm --dir "${ACTION_ROOT}" --filter @contour/cli... build
+
     - name: Analyze the diff
       id: analyze
       shell: bash
       run: |
         set -euo pipefail
-        npx --yes "@coldtea/pr-lens-cli@${CLI_VERSION}" analyze \
+        node "${GITHUB_ACTION_PATH}/../cli/dist/bin.js" analyze \
           --base "${BASE_SHA}" \
           --head "${HEAD_SHA}" \
           --pr "${PR_NUMBER}" \
           --provider "${PROVIDER}" \
-          --api-key-env PR_LENS_API_KEY \
+          --api-key-env CONTOUR_API_KEY \
           ${MODEL:+--model "${MODEL}"} \
           ${BASE_URL:+--base-url "${BASE_URL}"} \
           ${LENS:+--lens "${LENS}"} \
-          --out "${RUNNER_TEMP}/pr-lens/graph.json"
-        echo "graph=${RUNNER_TEMP}/pr-lens/graph.json" >> "${GITHUB_OUTPUT}"
+          --out "${RUNNER_TEMP}/contour/graph.json"
+        echo "graph=${RUNNER_TEMP}/contour/graph.json" >> "${GITHUB_OUTPUT}"
       env:
-        CLI_VERSION: ${{ inputs.cli-version }}
         BASE_SHA: ${{ github.event.pull_request.base.sha }}
         HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         PR_NUMBER: ${{ github.event.pull_request.number }}
@@ -106,7 +114,7 @@ runs:
         MODEL: ${{ inputs.model }}
         BASE_URL: ${{ inputs.base-url }}
         LENS: ${{ inputs.lens }}
-        PR_LENS_API_KEY: ${{ inputs.api-key }}
+        CONTOUR_API_KEY: ${{ inputs.api-key }}
 
     # Corrections are applied here, so this writes the document the diagrams
     # actually show alongside them, and the comment is composed from that one.
@@ -114,10 +122,8 @@ runs:
       shell: bash
       run: |
         set -euo pipefail
-        npx --yes "@coldtea/pr-lens-cli@${CLI_VERSION}" render "${RUNNER_TEMP}/pr-lens/graph.json" \
-          --out "${RUNNER_TEMP}/pr-lens/assets"
-      env:
-        CLI_VERSION: ${{ inputs.cli-version }}
+        node "${GITHUB_ACTION_PATH}/../cli/dist/bin.js" render "${RUNNER_TEMP}/contour/graph.json" \
+          --out "${RUNNER_TEMP}/contour/assets"
 
     - name: Publish the SVGs
       id: publish
@@ -134,7 +140,7 @@ runs:
       shell: bash
       run: bash "${GITHUB_ACTION_PATH}/scripts/comment.sh"
       env:
-        CLI_VERSION: ${{ inputs.cli-version }}
+        CONTOUR_CLI_ENTRY: ${{ github.action_path }}/../cli/dist/bin.js
         ASSETS_URL: ${{ steps.publish.outputs.assets-url }}
         BRANDING_OFF: ${{ inputs.branding == 'false' && '1' || '' }}
         COMMENT_AUTHOR: ${{ inputs.comment-author }}

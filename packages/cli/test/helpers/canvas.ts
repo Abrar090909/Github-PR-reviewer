@@ -1,5 +1,6 @@
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { afterEach, beforeEach, vi } from "vitest";
 import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 
@@ -7,11 +8,10 @@ import { run } from "../../src/cli.js";
 import type { Terminal } from "../../src/terminal.js";
 
 export const API = "https://canvas.test";
-export const REGISTRY = ".pr-lens/canvas.json";
-export const GOLDEN = new URL(
-  "../../../schema/examples/postmark-refactor.graph.json",
-  import.meta.url,
-).pathname;
+export const REGISTRY = ".contour/canvas.json";
+export const GOLDEN = fileURLToPath(
+  new URL("../../../schema/examples/postmark-refactor.graph.json", import.meta.url),
+);
 
 type RegistryEntry = {
   name: string;
@@ -37,7 +37,7 @@ export const setupCanvasTest = () => {
   const createCheckout = () => mkdtemp(join(directory, "checkout-"));
 
   beforeEach(async () => {
-    directory = await mkdtemp(join(tmpdir(), "pr-lens-canvas-"));
+    directory = await mkdtemp(join(tmpdir(), "contour-canvas-"));
     process.chdir(directory);
     output.out = [];
     output.err = [];

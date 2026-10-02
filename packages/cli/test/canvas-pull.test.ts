@@ -18,9 +18,9 @@ test("pull writes the document and brings the recorded rev up to date", async ()
   expect(await invoke("canvas", "pull", "--api", API)).toBe(0);
 
   expect(output.out).toEqual([
-    `✓ .pr-lens/graph.json — rev 3 of ${API}/c/${FIRST}`,
+    `✓ .contour/graph.json — rev 3 of ${API}/c/${FIRST}`,
   ]);
-  expect(JSON.parse(await readFile(".pr-lens/graph.json", "utf8"))).toEqual(
+  expect(JSON.parse(await readFile(".contour/graph.json", "utf8"))).toEqual(
     JSON.parse(await readFile(GOLDEN, "utf8")),
   );
   expect((await registry())[FIRST]?.rev).toBe(3);
@@ -70,12 +70,12 @@ test("pulling an edit link brings its token into a checkout that never had it", 
     0,
   );
   expect(output.out).toEqual([
-    `✓ .pr-lens/graph.json — rev 1 of ${API}/c/${FIRST}`,
-    "  the edit link's token is now in .pr-lens/canvas.json",
+    `✓ .contour/graph.json — rev 1 of ${API}/c/${FIRST}`,
+    "  the edit link's token is now in .contour/canvas.json",
   ]);
   expect((await registry())[FIRST]).toEqual({
     name: "Batch broadcast sending through Postmark",
-    source: ".pr-lens/graph.json",
+    source: ".contour/graph.json",
     api: API,
     writeToken: TOKEN1,
     rev: 1,
@@ -203,11 +203,11 @@ test("an edit link for a canvas nobody has pushed to is registered, and the push
   );
   expect(output.out).toEqual([
     `✓ ${FIRST} has nothing pushed to it yet`,
-    "  the edit link's token is now in .pr-lens/canvas.json",
+    "  the edit link's token is now in .contour/canvas.json",
   ]);
   expect((await registry())[FIRST]).toEqual({
     name: FIRST,
-    source: ".pr-lens/drawn.graph.json",
+    source: ".contour/drawn.graph.json",
     api: API,
     writeToken: TOKEN1,
     rev: 0,
@@ -254,7 +254,7 @@ test("pulling an unpushed canvas's own link again keeps a rotation that is pendi
 });
 
 test("pull refuses the registry's names in a checkout that has no workspace yet", async () => {
-  for (const target of [REGISTRY, ".pr-lens/Canvas.json", `${REGISTRY}.lock`]) {
+  for (const target of [REGISTRY, ".contour/Canvas.json", `${REGISTRY}.lock`]) {
     output.err = [];
     expect(
       await invoke("canvas", "pull", `${API}/c/${FIRST}`, "-o", target),
@@ -262,7 +262,7 @@ test("pull refuses the registry's names in a checkout that has no workspace yet"
     expect(output.err.join("\n")).toContain("write tokens live");
   }
   expect(app.seen).toEqual([]);
-  await expect(stat(".pr-lens")).rejects.toThrow();
+  await expect(stat(".contour")).rejects.toThrow();
 });
 
 test("pull will not write a document over the registry", async () => {
@@ -275,8 +275,8 @@ test("pull will not write a document over the registry", async () => {
     REGISTRY,
     `./${REGISTRY}`,
     `${REGISTRY}.lock`,
-    ".pr-lens/Canvas.json",
-    ".pr-lens/CANVAS.JSON",
+    ".contour/Canvas.json",
+    ".contour/CANVAS.JSON",
   ]) {
     output.err = [];
     expect(await invoke("canvas", "pull", "-o", target, "--api", API)).toBe(2);
@@ -304,7 +304,7 @@ test("pulling a view link records the revision, and push then asks for the edit 
   expect(await invoke("canvas", "pull", `${API}/c/${FIRST}`)).toBe(0);
   expect((await registry())[FIRST]).toEqual({
     name: "Batch broadcast sending through Postmark",
-    source: ".pr-lens/graph.json",
+    source: ".contour/graph.json",
     api: API,
     rev: 1,
   });

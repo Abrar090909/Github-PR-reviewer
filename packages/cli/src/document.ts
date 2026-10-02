@@ -87,7 +87,7 @@ export const readConfig = async (path: string): Promise<Config> =>
  */
 const documentKindOf = (path: string, value: unknown): DocumentKind => {
   if (typeof value !== "object" || value === null || Array.isArray(value))
-    throw new PrLensCliError("UNKNOWN_DOCUMENT", `${path} does not hold a PR Lens document`);
+    throw new PrLensCliError("UNKNOWN_DOCUMENT", `${path} does not hold a Contour document`);
 
   const kind = "kind" in value ? value.kind : undefined;
   if (kind === undefined) return "config";

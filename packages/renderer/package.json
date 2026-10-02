@@ -6,12 +6,12 @@
   "author": "Contour",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/coldteadotai/pr-lens.git",
+    "url": "git+https://github.com/Abrar090909/Github-PR-reviewer.git",
     "directory": "packages/renderer"
   },
-  "homepage": "https://github.com/coldteadotai/pr-lens/tree/main/packages/renderer#readme",
+  "homepage": "https://github.com/Abrar090909/Github-PR-reviewer/tree/master/packages/renderer#readme",
   "keywords": [
-    "pr-lens",
+    "contour",
     "code-review",
     "architecture-diagram",
     "data-flow",
@@ -51,7 +51,7 @@
   },
   "devDependencies": {
     "@types/node": "^20.19.0",
-    "typescript": "7.0.2",
-    "vitest": "4.1.11"
+    "typescript": "^5.5.4",
+    "vitest": "^2.1.9"
   }
 }

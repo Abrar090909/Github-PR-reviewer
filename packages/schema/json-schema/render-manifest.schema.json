@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://raw.githubusercontent.com/coldteadotai/pr-lens/main/packages/schema/json-schema/render-manifest.schema.json",
-  "title": "PR Lens render manifest",
+  "$id": "https://raw.githubusercontent.com/Abrar090909/Github-PR-reviewer/master/packages/schema/json-schema/render-manifest.schema.json",
+  "title": "Contour render manifest",
   "version": "0.1.1",
   "type": "object",
   "properties": {
@@ -179,5 +179,5 @@
     "assets"
   ],
   "additionalProperties": false,
-  "description": "A PR Lens render manifest."
+  "description": "A Contour render manifest."
 }

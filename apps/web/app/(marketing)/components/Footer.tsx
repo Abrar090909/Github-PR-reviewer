@@ -27,7 +27,7 @@ export default function Footer() {
               Risk-scored architecture maps for every pull request.
             </p>
             <div style={{ display: "flex", gap: 14 }}>
-              <a href="https://github.com/contour-dev/contour" target="_blank" rel="noopener noreferrer"
+              <a href="https://github.com/Abrar090909/Github-PR-reviewer" target="_blank" rel="noopener noreferrer"
                 style={{ color: "var(--text-dim)", textDecoration: "none", transition: "color 160ms" }}
                 aria-label="GitHub"
                 onMouseEnter={e => (e.currentTarget.style.color = "var(--text-primary)")}

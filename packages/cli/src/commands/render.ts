@@ -25,7 +25,7 @@ const MANIFEST = "manifest.json";
  */
 const DRAWN = "drawn.graph.json";
 
-export const USAGE = `pr-lens render <graph.json> [options]
+export const USAGE = `contour render <graph.json> [options]
 
 Draws the document as self-contained SVGs — one per drill-down section per
 lens, in light and dark — and writes the manifest describing them. A document

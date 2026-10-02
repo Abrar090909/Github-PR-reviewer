@@ -1,5 +1,5 @@
 /**
- * Version of the PR Lens document contract.
+ * Version of the Contour document contract.
  *
  * Every document carries this string so a consumer can refuse, migrate, or
  * degrade gracefully when it meets a document it was not built for. Bumped

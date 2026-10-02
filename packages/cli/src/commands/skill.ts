@@ -7,11 +7,11 @@ import {
   GRAPH_DOCUMENT_REFERENCE,
 } from "../skill-content.generated.js";
 
-export const USAGE = `pr-lens skill [references]
+export const USAGE = `contour skill [references]
 
 Print detailed instructions for coding agents to create, validate, render, and
-share PR Lens diagrams. This long, agent-facing document is written to stdout.
-Use pr-lens --help for a short command overview. Pass references for the
+share Contour diagrams. This long, agent-facing document is written to stdout.
+Use contour --help for a short command overview. Pass references for the
 configuration format, graph-document specification, and a complete example.`;
 
 const REFERENCES = [

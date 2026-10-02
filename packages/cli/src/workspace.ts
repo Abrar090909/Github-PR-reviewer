@@ -13,7 +13,7 @@ import type { Terminal } from "./terminal.js";
  * again. A working tree that fills with them leaves the user deciding what to
  * commit, and the answer is always none of it.
  */
-export const WORKSPACE_DIR = ".pr-lens";
+export const WORKSPACE_DIR = ".contour";
 
 const README_NAME = "README.md";
 
@@ -34,7 +34,7 @@ const asPattern = (path: string): string =>
 const asLiteral = (pattern: string): string => pattern.replace(/\\(.)/g, "$1");
 
 const ignoreEntry = (path: string): string =>
-  `# PR Lens writes its previews here. They are rebuilt on demand.\n${asPattern(path)}/\n`;
+  `# Contour writes its previews here. They are rebuilt on demand.\n${asPattern(path)}/\n`;
 
 /** Where a directory sits in its repository: the root, and its path below it. */
 type Location = { root: string; prefix: string };
@@ -61,7 +61,7 @@ const locate = async (from: string): Promise<Location> => {
 /**
  * Whether git already ignores this workspace. Asked of git rather than worked
  * out from the file, because a pattern that looks right often is not: at the
- * root of a repository `/.pr-lens/` covers the root and nothing below it, and
+ * root of a repository `/.contour/` covers the root and nothing below it, and
  * two leading spaces are part of the pattern and so cover nothing at all.
  * Reading the entry back and deciding it means what we would have meant is how
  * a run leaves the previews visible while reporting them handled.
@@ -89,12 +89,12 @@ const alreadyIgnored = (root: string, workspace: string): Promise<boolean> =>
 type Negation = { kind: "anywhere" } | { kind: "one"; workspace: string };
 
 /**
- * The negations a .gitignore makes about a PR Lens workspace.
+ * The negations a .gitignore makes about a Contour workspace.
  *
  * git will not answer this one. When a negation wins, `check-ignore` reports
  * the path as matching nothing at all — the same answer it gives for a path
  * nobody has mentioned — so the file has to be read, and read the way git reads
- * it. `!/.pr-lens/` at the root is a choice about the root's own previews and
+ * it. `!/.contour/` at the root is a choice about the root's own previews and
  * says nothing about a workspace inside a subdirectory.
  *
  * Only literal names are recognised. A negation written with wildcards is not,
@@ -155,20 +155,20 @@ export const ignoreWorkspace = async (workspace: string): Promise<string | undef
   return writeTextFile(path, `${before}${before === "" ? "" : "\n"}${entry}`);
 };
 
-const README = `# .pr-lens
+const README = `# .contour
 
-PR Lens writes its previews here: the diagrams as light and dark SVGs, the
+Contour writes its previews here: the diagrams as light and dark SVGs, the
 document they were drawn from, and the manifest describing them.
 
 None of that belongs in a commit. Those files are rebuilt from the diff by
-\`pr-lens analyze\` and \`pr-lens render\`, so a stale copy in the history is
+\`contour analyze\` and \`contour render\`, so a stale copy in the history is
 worth less than nothing — it is a diagram of a pull request somebody already
 merged. What readers are meant to see is the comment on the pull request, or
 the share page it links to. Delete them whenever you like; nothing reads them
 back.
 
 \`canvas.json\` is the exception. It holds the write token for every canvas
-this checkout has pushed with \`pr-lens canvas push\`, and nothing can rebuild
+this checkout has pushed with \`contour canvas push\`, and nothing can rebuild
 it. Without it the canvases stay readable by everyone, but pushing to them
 again needs the edit link you were given. Keep it out of commits and out of
 other people's hands.

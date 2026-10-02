@@ -20,7 +20,7 @@ test("the first push records a canvas and prints its links, access warning, and 
     `✓ ${API}/c/${FIRST} — rev 1 · 2 diagrams`,
     "  unlisted: anyone you share it with can open it, no sign-in needed",
     `  README embed: ${API}/c/${FIRST}.svg`,
-    "  remove: pr-lens canvas delete",
+    "  remove: contour canvas delete",
   ]);
 
   expect(await registry()).toEqual({
@@ -35,7 +35,7 @@ test("the first push records a canvas and prints its links, access warning, and 
 
   expect(app.seen.map((request) => request.method)).toEqual(["POST", "PUT"]);
   expect(app.seen[1]?.headers.get("if-match")).toBe("0");
-  expect(app.seen[1]?.headers.get("user-agent")).toMatch(/^pr-lens-cli\//);
+  expect(app.seen[1]?.headers.get("user-agent")).toMatch(/^contour-cli\//);
 });
 
 test("a second push of the same file reuses the canvas and sends the rev it last saw", async () => {
@@ -68,7 +68,7 @@ test("a rev the app has moved past is a conflict, and says what to do", async ()
   const reported = output.err.join("\n");
   expect(reported).toContain("[CANVAS_CONFLICT]");
   expect(reported).toContain("rev 5");
-  expect(reported).toContain("pr-lens canvas pull, then push again");
+  expect(reported).toContain("contour canvas pull, then push again");
 });
 
 test("--canvas takes the name a canvas was minted under", async () => {
@@ -137,7 +137,7 @@ test("a document the app would refuse is refused with its reasons", async () => 
       return refuse(
         422,
         "INVALID_DOCUMENT",
-        "The document does not match the PR Lens contract",
+        "The document does not match the Contour contract",
         {
           issues: [
             {
@@ -162,7 +162,7 @@ test("a document the app would refuse is refused with its reasons", async () => 
   const reported = output.err.join("\n");
   expect(reported).toContain("[CANVAS_REJECTED]");
   expect(reported).toContain(
-    "The document does not match the PR Lens contract",
+    "The document does not match the Contour contract",
   );
   expect(reported).toContain("lanes: expected array, received undefined");
   expect(reported).toContain("\nthe document names no lens");

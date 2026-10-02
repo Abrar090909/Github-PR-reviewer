@@ -1,5 +1,5 @@
 /**
- * Rewrites the root-level `skills/pr-lens/` from this package, which is the
+ * Rewrites the root-level `skills/contour/` from this package, which is the
  * only copy the skills.sh installer hands a user. A drift test fails until
  * this has been run, so the two never disagree.
  *
@@ -9,10 +9,10 @@ import { dirname, join } from "node:path";
 import { cp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { filesPresent, skillFiles, SKILL_MIRROR_DIR, SKILL_SOURCE_DIR } from "./mirror.js";
 
-const CLI_INVOCATION = "npx @coldtea/pr-lens-cli@latest";
+const CLI_INVOCATION = "npx @contour/cli@latest";
 
 const forBundledCli = (content: string): string =>
-  content.replaceAll(CLI_INVOCATION, "pr-lens");
+  content.replaceAll(CLI_INVOCATION, "contour");
 
 const wanted = await skillFiles(SKILL_SOURCE_DIR);
 

@@ -6,10 +6,10 @@ import { PrLensCliError } from "../src/errors.js";
 
 const known: KnownFields = {
   provenance: {
-    repo: { owner: "coldteadotai", name: "pr-lens" },
+    repo: { owner: "Abrar090909", name: "contour" },
     base: { sha: "1111111" },
     head: { sha: "2222222" },
-    generator: { name: "pr-lens-cli", version: "0.1.0", model: "test-model" },
+    generator: { name: "contour-cli", version: "0.1.0", model: "test-model" },
   },
   stats: { filesChanged: 3, additions: 40, deletions: 12 },
   lenses: ["architecture"],
@@ -31,7 +31,7 @@ test("what the repository knows is written over what the model claimed", () => {
     schemaVersion: SCHEMA_VERSION,
     kind: "graph",
     generatedAt: known.generatedAt,
-    provenance: { repo: { owner: "coldteadotai", name: "pr-lens" } },
+    provenance: { repo: { owner: "Abrar090909", name: "contour" } },
     stats: { additions: 40, deletions: 12, filesChanged: 3, chips: [{ label: "Batch size", value: "500" }] },
   });
 });

@@ -73,7 +73,7 @@ export default function Nav() {
         {/* GitHub Star Pill Button matching reference */}
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
           <a
-            href="https://github.com/contour-dev/contour"
+            href="https://github.com/Abrar090909/Github-PR-reviewer"
             target="_blank"
             rel="noopener noreferrer"
             style={{

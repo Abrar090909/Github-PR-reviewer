@@ -21,8 +21,8 @@ const unusedEverywhere = (graph: GraphDoc): string => {
     ...graph.lanes.map((lane) => lane.id),
   ]);
 
-  let candidate = "pr-lens-probe";
-  for (let suffix = 1; taken.has(candidate); suffix += 1) candidate = `pr-lens-probe-${suffix}`;
+  let candidate = "contour-probe";
+  for (let suffix = 1; taken.has(candidate); suffix += 1) candidate = `contour-probe-${suffix}`;
   return candidate;
 };
 

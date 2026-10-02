@@ -1,15 +1,15 @@
-# @coldtea/pr-lens-schema
+# @contour/schema
 
-The PR Lens contract. Extraction produces these documents, the renderer consumes them, and every other surface (CLI, GitHub Action, agent skill, hosted app) passes them around. If a document validates here, it is safe to render.
+The Contour contract. Extraction produces these documents, the renderer consumes them, and every other surface (CLI, GitHub Action, agent skill, hosted app) passes them around. If a document validates here, it is safe to render.
 
 MIT © Coldtea AI.
 
 ```bash
-pnpm add @coldtea/pr-lens-schema
+pnpm add @contour/schema
 ```
 
 ```ts
-import { parseGraphDoc, safeParseGraphDoc } from "@coldtea/pr-lens-schema";
+import { parseGraphDoc, safeParseGraphDoc } from "@contour/schema";
 
 const graph = parseGraphDoc(json);          // throws PrLensSchemaError
 const result = safeParseGraphDoc(json);     // { ok: true, value } | { ok: false, error }
@@ -21,7 +21,7 @@ const result = safeParseGraphDoc(json);     // { ok: true, value } | { ok: false
 | --- | --- | --- |
 | `GraphDoc` | Lanes, nodes, edges, flows, stats, the drill-down tree and an optional walkthrough for one pull request, or for a stored baseline map | `parseGraphDoc` |
 | `PatchDoc` | Ordered operations that move a stored graph forward as pull requests merge | `parsePatchDoc` |
-| `Config` | What a repository commits as `.github/pr-lens.yml` | `parseConfig` |
+| `Config` | What a repository commits as `.github/contour.yml` | `parseConfig` |
 | `RenderManifest` | The SVGs a render produced, and where they live | `parseRenderManifest` |
 
 Every document carries a `schemaVersion`, config included: a repository's corrections have to keep their meaning as the contract moves.
@@ -40,7 +40,7 @@ The cap is the worst case, every theme rendered, not what a particular render wo
 
 ## Two lenses
 
-`architecture` shows blast radius against the existing system. `data-flow` animates an ordered pipeline. There is deliberately no security lens and no findings field: PR Lens is the comprehension layer, and a document that carries findings is rejected rather than quietly stripped. The `Lens` enum is additive: a future contract version may add lenses, so treat one you do not recognise as a view to skip, not as a failure.
+`architecture` shows blast radius against the existing system. `data-flow` animates an ordered pipeline. There is deliberately no security lens and no findings field: Contour is the comprehension layer, and a document that carries findings is rejected rather than quietly stripped. The `Lens` enum is additive: a future contract version may add lenses, so treat one you do not recognise as a view to skip, not as a failure.
 
 ## Walkthroughs
 
@@ -106,7 +106,7 @@ Failures arrive as a `PrLensSchemaError` with a machine-readable `code` (`INVALI
 `applyPatchDoc(graph, patch)` is the executable definition of the patch operations:
 
 ```ts
-import { applyPatchDoc, parseGraphDoc, parsePatchDoc } from "@coldtea/pr-lens-schema";
+import { applyPatchDoc, parseGraphDoc, parsePatchDoc } from "@contour/schema";
 
 const result = applyPatchDoc(parseGraphDoc(baseline), parsePatchDoc(patch));
 ```
@@ -130,7 +130,7 @@ A stored map describes a system rather than a change, so everything in it is `un
 ## Repository config
 
 ```yaml
-# .github/pr-lens.yml
+# .github/contour.yml
 schemaVersion: 0.1.0
 lenses: [architecture, data-flow]
 branding: true
@@ -161,10 +161,10 @@ The hosted App reads `github` settings from the PR's head commit. Other options 
 
 ## JSON Schema
 
-`json-schema/*.json` (draft 2020-12) is generated from the zod schemas and published with the package, for producers that do not run TypeScript and for editors validating `.github/pr-lens.yml`:
+`json-schema/*.json` (draft 2020-12) is generated from the zod schemas and published with the package, for producers that do not run TypeScript and for editors validating `.github/contour.yml`:
 
 ```jsonc
-{ "$ref": "node_modules/@coldtea/pr-lens-schema/json-schema/graph-doc.schema.json" }
+{ "$ref": "node_modules/@contour/schema/json-schema/graph-doc.schema.json" }
 ```
 
 They describe **what an author may write**: a field with a default is one you may leave out. Rules are carried across wherever JSON Schema can state them: the supported contract versions, the repository-relative path rule, `endLine` requiring `startLine`, an asset needing a `url` or a `path`, a `selection` view having to select something.
@@ -185,14 +185,14 @@ The tests run a table of documents through both representations and assert the s
 `examples/` holds the reference documents, also importable pre-parsed:
 
 ```ts
-import { postmarkRefactorGraph } from "@coldtea/pr-lens-schema/examples";
+import { postmarkRefactorGraph } from "@contour/schema/examples";
 ```
 
 They tell one story: a real refactor that moved broadcast sending from one Postmark request per recipient to batches of 500:
 
 - **`postmark-refactor.graph.json`** is the canonical document: the pull request itself, across three lanes, exercising all four delta states, a hero edge, a seven-step data flow with returns and a repeated batch step, a nested drill-down tree, and a six-step walkthrough that stages both a view and a flow. Downstream renderer goldens are measured against it.
 - **`broadcast-baseline.graph.json`** is the stored map of that subsystem as `main` stood before the change, and **`broadcast-baseline.patch.json`** carries it to the merged state, the transition `applyPatchDoc` performs.
-- **`postmark-refactor.render-manifest.json`** is what rendering the pull-request document produces, **`pr-lens.config.json`** a repository's corrections, and **`minimal.graph.json`** the smallest document that validates.
+- **`postmark-refactor.render-manifest.json`** is what rendering the pull-request document produces, **`contour.config.json`** a repository's corrections, and **`minimal.graph.json`** the smallest document that validates.
 
 ## Versioning
 
@@ -200,4 +200,4 @@ They tell one story: a real refactor that moved broadcast sending from one Postm
 
 ---
 
-Part of [PR Lens](https://prlens.dev). Review what actually matters.
+Part of [Contour](https://contour.dev). Review what actually matters.

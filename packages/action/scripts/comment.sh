@@ -17,7 +17,11 @@ if ! [[ "${HEAD_SHA}" =~ ^[0-9a-f]{40}$ ]]; then
 fi
 
 cli() {
-  npx --yes "@contour/cli@${CLI_VERSION}" "$@"
+  if [ -n "${CONTOUR_CLI_COMMAND:-}" ]; then
+    "${CONTOUR_CLI_COMMAND}" "$@"
+    return
+  fi
+  node "${CONTOUR_CLI_ENTRY}" "$@"
 }
 
 # Whether this run still describes the pull request as it stands. A run that

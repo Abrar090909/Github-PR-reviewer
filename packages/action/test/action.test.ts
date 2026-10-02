@@ -97,7 +97,9 @@ test("the workflow the README hands out serialises runs of the same pull request
   expect(readme).toContain("cancel-in-progress: true");
 });
 
-test("the CLI version the action runs is the CLI version in this repository", async () => {
-  const cli: unknown = JSON.parse(await read("../cli/package.json"));
-  expect(cli).toMatchObject({ version: action.inputs["cli-version"]?.default });
+test("the action builds and runs the CLI from its own repository revision", async () => {
+  const source = await read("action.yml");
+  expect(source).toContain("--filter @contour/cli... build");
+  expect(source).toContain("../cli/dist/bin.js");
+  expect(source).not.toContain("npx --yes");
 });

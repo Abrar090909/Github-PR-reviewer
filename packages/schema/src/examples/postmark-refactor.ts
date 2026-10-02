@@ -28,7 +28,7 @@ export const postmarkRefactorGraphInput: GraphDocInput = {
       title: "Send broadcasts in batches of 500",
       url: "https://github.com/ohansemmanuel/bestregards/pull/128",
     },
-    generator: { name: "pr-lens-examples", version: "0.1.0" },
+    generator: { name: "contour-examples", version: "0.1.0" },
   },
   lanes: [
     { id: "web", label: "Next.js", subtitle: "Vercel", order: 0 },
@@ -450,7 +450,7 @@ export const postmarkRefactorGraphInput: GraphDocInput = {
   },
 };
 
-/** What a repository may commit as `.github/pr-lens.yml`. */
+/** What a repository may commit as `.github/contour.yml`. */
 export const exampleConfigInput: ConfigInput = {
   schemaVersion: SCHEMA_VERSION,
   lenses: ["architecture", "data-flow"],
@@ -472,7 +472,7 @@ export const postmarkRefactorManifestInput: RenderManifestInput = {
     headSha: "b71e0d4c8a92f5361de7c0b4a8f2593d6c1e8a77",
     contentHash: "6a1f0b8c7d2e4359",
   },
-  renderer: { name: "@coldtea/pr-lens-renderer", version: "0.1.0" },
+  renderer: { name: "@contour/renderer", version: "0.1.0" },
   assets: [
     {
       id: "overview-light",
@@ -485,7 +485,7 @@ export const postmarkRefactorManifestInput: RenderManifestInput = {
       width: 1280,
       height: 720,
       animated: true,
-      url: "https://cdn.example.com/pr-lens/6a1f0b8c7d2e4359/overview-light-0c9d2e6b1a4f7385.svg",
+      url: "https://cdn.example.com/contour/6a1f0b8c7d2e4359/overview-light-0c9d2e6b1a4f7385.svg",
     },
     {
       id: "overview-dark",
@@ -498,7 +498,7 @@ export const postmarkRefactorManifestInput: RenderManifestInput = {
       width: 1280,
       height: 720,
       animated: true,
-      url: "https://cdn.example.com/pr-lens/6a1f0b8c7d2e4359/overview-dark-7b3e5a0c9d1f6482.svg",
+      url: "https://cdn.example.com/contour/6a1f0b8c7d2e4359/overview-dark-7b3e5a0c9d1f6482.svg",
     },
     {
       id: "send-pipeline-light",
@@ -511,7 +511,7 @@ export const postmarkRefactorManifestInput: RenderManifestInput = {
       width: 1120,
       height: 640,
       animated: true,
-      url: "https://cdn.example.com/pr-lens/6a1f0b8c7d2e4359/send-pipeline-light-2f8a4c6e0b9d1375.svg",
+      url: "https://cdn.example.com/contour/6a1f0b8c7d2e4359/send-pipeline-light-2f8a4c6e0b9d1375.svg",
     },
     {
       id: "send-pipeline-dark",
@@ -524,7 +524,7 @@ export const postmarkRefactorManifestInput: RenderManifestInput = {
       width: 1120,
       height: 640,
       animated: true,
-      url: "https://cdn.example.com/pr-lens/6a1f0b8c7d2e4359/send-pipeline-dark-5d1b7f3a8c0e2946.svg",
+      url: "https://cdn.example.com/contour/6a1f0b8c7d2e4359/send-pipeline-dark-5d1b7f3a8c0e2946.svg",
     },
   ],
 };

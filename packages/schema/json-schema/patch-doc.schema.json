@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://raw.githubusercontent.com/coldteadotai/pr-lens/main/packages/schema/json-schema/patch-doc.schema.json",
-  "title": "PR Lens patch document",
+  "$id": "https://raw.githubusercontent.com/Abrar090909/Github-PR-reviewer/master/packages/schema/json-schema/patch-doc.schema.json",
+  "title": "Contour patch document",
   "version": "0.1.1",
   "type": "object",
   "properties": {
@@ -1379,5 +1379,5 @@
     "ops"
   ],
   "additionalProperties": false,
-  "description": "A PR Lens patch document."
+  "description": "A Contour patch document."
 }

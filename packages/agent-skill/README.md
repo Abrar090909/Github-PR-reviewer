@@ -1,27 +1,27 @@
-# @coldtea/pr-lens-agent-skill
+# @contour/agent-skill
 
-The PR Lens skill for coding agents. It teaches an agent to draw the change it just made: author a graph document from the diff, validate it against the contract, render it, attach it to the pull request, and to fix a repository's map by writing corrections rather than editing generated output.
+The Contour skill for coding agents. It teaches an agent to draw the change it just made: author a graph document from the diff, validate it against the contract, render it, attach it to the pull request, and to fix a repository's map by writing corrections rather than editing generated output.
 
 MIT © Coldtea AI.
 
 ## Install it
 
 ```bash
-npm install --save-dev @coldtea/pr-lens-agent-skill
+npm install --save-dev @contour/agent-skill
 ```
 
 **Claude Code**: copy it where skills live, per project or per user:
 
 ```bash
-mkdir -p .claude/skills/pr-lens
-cp -R node_modules/@coldtea/pr-lens-agent-skill/{SKILL.md,references} .claude/skills/pr-lens/
+mkdir -p .claude/skills/contour
+cp -R node_modules/@contour/agent-skill/{SKILL.md,references} .claude/skills/contour/
 ```
 
 **Cursor**: the same file works as a rule:
 
 ```bash
 mkdir -p .cursor/rules
-cp node_modules/@coldtea/pr-lens-agent-skill/SKILL.md .cursor/rules/pr-lens.mdc
+cp node_modules/@contour/agent-skill/SKILL.md .cursor/rules/contour.mdc
 ```
 
 **Anything else**: point your agent's instructions file at `SKILL.md`. It is plain markdown with YAML frontmatter, and it assumes nothing beyond a shell and `npx`.
@@ -30,11 +30,11 @@ cp node_modules/@coldtea/pr-lens-agent-skill/SKILL.md .cursor/rules/pr-lens.mdc
 
 | | |
 | --- | --- |
-| `SKILL.md` | when to reach for PR Lens, and the write → validate → fix → render loop |
+| `SKILL.md` | when to reach for Contour, and the write → validate → fix → render loop |
 | `references/graph-document.md` | the document, field by field, and what the validator will catch |
-| `references/config.md` | `.github/pr-lens.yml` corrections, with recipes |
+| `references/config.md` | `.github/contour.yml` corrections, with recipes |
 
-The agent is usually the model. Rather than spending a provider key to describe a diff it already understands, it writes the document itself and lets `pr-lens validate` hold it to the contract. Every failure is a path into the document, so the loop closes without a human in it.
+The agent is usually the model. Rather than spending a provider key to describe a diff it already understands, it writes the document itself and lets `contour validate` hold it to the contract. Every failure is a path into the document, so the loop closes without a human in it.
 
 ## Why this exists
 
@@ -42,4 +42,4 @@ A coding agent that opens a pull request is asking a person to review code the p
 
 ---
 
-Part of [PR Lens](https://prlens.dev). Review what actually matters.
+Part of [Contour](https://contour.dev). Review what actually matters.

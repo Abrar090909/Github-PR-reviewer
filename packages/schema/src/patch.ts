@@ -95,6 +95,6 @@ export const PatchDoc = z
       ),
     ops: z.array(PatchOp).min(1).max(512).describe("Applied in array order."),
   })
-  .describe("A PR Lens patch document.");
+  .describe("A Contour patch document.");
 export type PatchDoc = z.infer<typeof PatchDoc>;
 export type PatchDocInput = z.input<typeof PatchDoc>;

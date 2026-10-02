@@ -8,7 +8,7 @@ export const minimalGraphInput: GraphDocInput = {
   title: "Touch the health check",
   lenses: ["architecture"],
   provenance: {
-    repo: { owner: "coldteadotai", name: "pr-lens" },
+    repo: { owner: "Abrar090909", name: "contour" },
     base: { sha: "1111111" },
     head: { sha: "2222222" },
   },

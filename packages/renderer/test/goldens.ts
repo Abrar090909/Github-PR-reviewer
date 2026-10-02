@@ -21,8 +21,11 @@ export const expectGolden = (name: string, actual: string): void => {
     return;
   }
 
-  const expected = readFileSync(path, "utf8");
-  expect(actual, `${name} differs from its golden; re-run with UPDATE_GOLDENS=1 to record`).toBe(
+  // Git may check text fixtures out with CRLF on Windows. SVG output is
+  // deliberately LF-only, so compare normalized text instead of reporting
+  // every line as a visual regression when only the checkout convention differs.
+  const expected = readFileSync(path, "utf8").replace(/\r\n/g, "\n");
+  expect(actual.replace(/\r\n/g, "\n"), `${name} differs from its golden; re-run with UPDATE_GOLDENS=1 to record`).toBe(
     expected,
   );
 };

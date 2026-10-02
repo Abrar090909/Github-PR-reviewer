@@ -17,7 +17,7 @@ export const denseGraph: GraphDoc = parseGraphDoc({
   summary: "A synthetic change dense enough to exercise every routing rule.",
   lenses: ["architecture"],
   provenance: {
-    repo: { owner: "coldteadotai", name: "pr-lens" },
+    repo: { owner: "Abrar090909", name: "contour" },
     base: { sha: "aaaaaaa" },
     head: { sha: "bbbbbbb" },
   },

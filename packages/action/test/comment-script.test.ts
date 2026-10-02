@@ -1,4 +1,4 @@
-import { execFile } from "node:child_process";
+import { execFile, spawnSync } from "node:child_process";
 import { chmod, mkdir, mkdtemp, readFile, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -6,15 +6,16 @@ import { promisify } from "node:util";
 import { expect, test } from "vitest";
 
 const run = promisify(execFile);
+const shellTest = spawnSync("bash", ["--version"], { stdio: "ignore" }).status === 0 ? test : test.skip;
 
 const SCRIPT = new URL("../scripts/comment.sh", import.meta.url).pathname;
-const MARKER = "<!-- pr-lens -->";
+const MARKER = "<!-- contour -->";
 const HEAD = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
 const NEWER = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb";
 const BOT = "github-actions[bot]";
 
 /**
- * `gh` and `npx` are the only things this script cannot do without, so the
+ * `gh` and the CLI are the only things this script cannot do without, so the
  * test replaces both and reads back what it was asked to do. Everything the
  * script decides — whether to comment at all, which comment is ours, and
  * whether to create or edit — is then exercised rather than grepped for.
@@ -35,11 +36,11 @@ const post = async (options: {
   headAfterFirstRead?: string;
   comments?: Comment[];
 }) => {
-  const root = await mkdtemp(join(tmpdir(), "pr-lens-comment-"));
+  const root = await mkdtemp(join(tmpdir(), "contour-comment-"));
   const bin = join(root, "bin");
   const runnerTemp = join(root, "runner");
   await mkdir(bin, { recursive: true });
-  await mkdir(join(runnerTemp, "pr-lens", "assets"), { recursive: true });
+  await mkdir(join(runnerTemp, "contour", "assets"), { recursive: true });
 
   const log = join(root, "gh.log");
   const headCalls = join(root, "head-calls");
@@ -72,15 +73,15 @@ const post = async (options: {
 
   await stub(
     bin,
-    "npx",
+    "contour-cli",
     [
-      'if [[ "$*" == *--print-marker* ]]; then printf "%s\\n" "<!-- pr-lens -->"; exit 0; fi',
+      'if [[ "$*" == *--print-marker* ]]; then printf "%s\\n" "<!-- contour -->"; exit 0; fi',
       'out=""; previous=""',
       'for argument in "$@"; do',
       '  if [ "${previous}" = "--out" ]; then out="${argument}"; fi',
       '  previous="${argument}"',
       "done",
-      'printf "%s\\n### A change\\n" "<!-- pr-lens -->" > "${out}"',
+      'printf "%s\\n### A change\\n" "<!-- contour -->" > "${out}"',
     ].join("\n"),
   );
 
@@ -88,12 +89,12 @@ const post = async (options: {
     env: {
       PATH: `${bin}:${process.env.PATH ?? ""}`,
       RUNNER_TEMP: runnerTemp,
-      GITHUB_REPOSITORY: "coldteadotai/pr-lens",
+      GITHUB_REPOSITORY: "Abrar090909/Github-PR-reviewer",
       PR_NUMBER: "42",
       HEAD_SHA: HEAD,
       COMMENT_AUTHOR: BOT,
-      CLI_VERSION: "0.1.0",
-      ASSETS_URL: "https://raw.githubusercontent.com/coldteadotai/pr-lens/pr-lens/pr/42",
+      CONTOUR_CLI_COMMAND: join(bin, "contour-cli"),
+      ASSETS_URL: "https://raw.githubusercontent.com/Abrar090909/Github-PR-reviewer/contour/pr/42",
       BRANDING_OFF: "",
       GH_TOKEN: "token",
       GH_LOG: log,
@@ -121,7 +122,7 @@ const post = async (options: {
 const wrote = (calls: readonly string[]): boolean =>
   calls.some((call) => call.includes("PATCH") || call.includes("POST"));
 
-test("a run that was overtaken while it drew does not touch the comment", async () => {
+shellTest("a run that was overtaken while it drew does not touch the comment", async () => {
   const { stdout, calls } = await post({
     currentHead: NEWER,
     comments: [{ id: 1, user: { login: BOT }, body: `${MARKER}\nolder` }],
@@ -131,7 +132,7 @@ test("a run that was overtaken while it drew does not touch the comment", async 
   expect(wrote(calls)).toBe(false);
 });
 
-test("a push while this run was composing takes the comment with it", async () => {
+shellTest("a push while this run was composing takes the comment with it", async () => {
   const { stdout, calls } = await post({
     headAfterFirstRead: NEWER,
     comments: [{ id: 1, user: { login: BOT }, body: `${MARKER}\nolder` }],
@@ -141,7 +142,7 @@ test("a push while this run was composing takes the comment with it", async () =
   expect(wrote(calls)).toBe(false);
 });
 
-test.each([
+shellTest.each([
   ["the lookup fails outright", "fails"],
   ["the lookup answers with nothing", "empty"],
 ])("a run that cannot find out whether it was overtaken fails loudly (%s)", async (_what, headLookup) => {
@@ -156,14 +157,14 @@ test.each([
   expect(wrote(calls)).toBe(false);
 });
 
-test("with no comment of ours yet, one is created", async () => {
+shellTest("with no comment of ours yet, one is created", async () => {
   const { calls } = await post({ comments: [] });
 
-  expect(calls.some((call) => call.includes("-X POST repos/coldteadotai/pr-lens/issues/42/comments"))).toBe(true);
+  expect(calls.some((call) => call.includes("-X POST repos/Abrar090909/Github-PR-reviewer/issues/42/comments"))).toBe(true);
   expect(calls.some((call) => call.includes("PATCH"))).toBe(false);
 });
 
-test("our own comment is the one that gets edited", async () => {
+shellTest("our own comment is the one that gets edited", async () => {
   const { calls } = await post({
     comments: [
       { id: 7, user: { login: "someone-else" }, body: "unrelated" },
@@ -171,14 +172,14 @@ test("our own comment is the one that gets edited", async () => {
     ],
   });
 
-  expect(calls.some((call) => call.includes("-X PATCH repos/coldteadotai/pr-lens/issues/comments/9"))).toBe(true);
+  expect(calls.some((call) => call.includes("-X PATCH repos/Abrar090909/Github-PR-reviewer/issues/comments/9"))).toBe(true);
 });
 
-test("somebody else's comment carrying our marker is not ours to edit", async () => {
+shellTest("somebody else's comment carrying our marker is not ours to edit", async () => {
   const { calls } = await post({
     comments: [{ id: 3, user: { login: "drive-by" }, body: `${MARKER}\nhijacked` }],
   });
 
   expect(calls.some((call) => call.includes("PATCH"))).toBe(false);
-  expect(calls.some((call) => call.includes("-X POST repos/coldteadotai/pr-lens/issues/42/comments"))).toBe(true);
+  expect(calls.some((call) => call.includes("-X POST repos/Abrar090909/Github-PR-reviewer/issues/42/comments"))).toBe(true);
 });

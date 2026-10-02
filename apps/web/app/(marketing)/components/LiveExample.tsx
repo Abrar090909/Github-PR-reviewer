@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import type { GraphDocument } from "@contour/schema";
 
 /*
   Live example — React 18 Concurrent Mode PR fixture.

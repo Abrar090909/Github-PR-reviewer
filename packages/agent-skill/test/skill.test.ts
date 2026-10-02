@@ -8,18 +8,20 @@ import {
   parseConfig,
   parseGraphDoc,
   SCHEMA_VERSION,
-} from "@coldtea/pr-lens-schema";
-import { applyCorrections } from "@coldtea/pr-lens-renderer";
+} from "@contour/schema";
+import { applyCorrections } from "@contour/renderer";
 import {
   minimalGraph,
   postmarkRefactorGraph,
-} from "@coldtea/pr-lens-schema/examples";
+} from "@contour/schema/examples";
 import { access, readFile } from "node:fs/promises";
 import { expect, test } from "vitest";
 import { parse } from "yaml";
 
 const read = (name: string) =>
-  readFile(new URL(`../${name}`, import.meta.url), "utf8");
+  readFile(new URL(`../${name}`, import.meta.url), "utf8").then((content) =>
+    content.replace(/\r\n/g, "\n"),
+  );
 
 const skill = await read("SKILL.md");
 const graphGuide = await read("references/graph-document.md");
@@ -37,7 +39,7 @@ test("the skill declares a name and the situations it is for", () => {
   expect(frontmatter).toBeDefined();
 
   const declared: unknown = parse(frontmatter ?? "");
-  expect(declared).toMatchObject({ name: "pr-lens" });
+  expect(declared).toMatchObject({ name: "contour" });
   expect(declared).toHaveProperty("description");
 });
 

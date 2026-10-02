@@ -8,13 +8,13 @@ const packageRoot = join(dirname(fileURLToPath(import.meta.url)), "..");
 export const SKILL_SOURCE_DIR = packageRoot;
 
 /**
- * The copy `npx skills add coldteadotai/pr-lens` installs. The installer
+ * The copy `npx skills add Abrar090909/Github-PR-reviewer` installs. The installer
  * reaches `skills/<name>/` before any SKILL.md nested deeper, then copies that
  * folder whole. So this directory may hold nothing a user should not receive:
  * a package.json, a tsconfig, or a test file placed here lands in their
  * repository, and a test file lands where their own runner will try to run it.
  */
-export const SKILL_MIRROR_DIR = join(packageRoot, "..", "..", "skills", "pr-lens");
+export const SKILL_MIRROR_DIR = join(packageRoot, "..", "..", "skills", "contour");
 
 const REFERENCES = "references";
 

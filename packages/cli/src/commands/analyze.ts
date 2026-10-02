@@ -8,6 +8,7 @@ import { collectDiff, mergeBase, parseRepoSlug, remoteSlug, repositoryRoot, reso
 import { writeJsonFile } from "../io.js";
 import { buildExtractionPrompt, SYSTEM_PROMPT } from "../prompt.js";
 import { completeJson, isProviderId, PROVIDER_IDS, resolveProvider } from "../providers/index.js";
+import { assessWithJev } from "../providers/jev.js";
 import { GRAPH_DOCUMENT_JSON_SCHEMA } from "../skill-content.generated.js";
 import type { Terminal } from "../terminal.js";
 import { CLI_VERSION, GENERATOR_NAME } from "../version.js";
@@ -17,7 +18,7 @@ const DEFAULT_OUT = `${WORKSPACE_DIR}/graph.json`;
 const DEFAULT_MAX_OUTPUT_TOKENS = 32_768;
 const DEFAULT_MAX_DIFF_BYTES = 400_000;
 
-export const USAGE = `pr-lens analyze --base <ref> [options]
+export const USAGE = `contour analyze --base <ref> [options]
 
 Reads the diff between two commits and asks your own model to describe it as a
 graph document. The key never leaves your machine: it is read from the
@@ -38,6 +39,7 @@ environment, and the diff goes straight to the provider you name.
   --remote <name>           remote to read the slug from (default origin)
   --max-diff-bytes <n>      truncate the diff sent to the model (default ${DEFAULT_MAX_DIFF_BYTES})
   --max-output-tokens <n>   room for the answer (default ${DEFAULT_MAX_OUTPUT_TOKENS})
+  --jev-review              add an optional Jev human-review recommendation (requires TYPESAFE_API_KEY)
   --dry-run                 report what would be sent, and send nothing
   -o, --out <file>          where to write the document (default ${DEFAULT_OUT})`;
 
@@ -80,6 +82,7 @@ export const analyzeCommand = async (
     remote: { type: "string" },
     "max-diff-bytes": { type: "string" },
     "max-output-tokens": { type: "string" },
+    "jev-review": { type: "boolean" },
     "dry-run": { type: "boolean" },
     out: { type: "string", short: "o" },
   });
@@ -147,6 +150,15 @@ export const analyzeCommand = async (
         },
         env,
       );
+  const jevReview = readBoolean(values["jev-review"]);
+  const jevApiKey = jevReview ? env.TYPESAFE_API_KEY : undefined;
+
+  if (jevReview && !readBoolean(values["dry-run"]) && (jevApiKey === undefined || jevApiKey === ""))
+    throw new PrLensCliError(
+      "MISSING_API_KEY",
+      "TYPESAFE_API_KEY is not set",
+      "set it to enable the optional Jev review recommendation",
+    );
 
   terminal.err(
     `${diff.files.length} files, +${diff.additions} -${diff.deletions}, ${Buffer.byteLength(diff.patch, "utf8")} bytes of diff${diff.truncatedAt === undefined ? "" : " (truncated)"}`,
@@ -199,6 +211,22 @@ export const analyzeCommand = async (
   const outPath = readString(values.out, "out") ?? DEFAULT_OUT;
   await prepareWorkspace(dirname(outPath), terminal);
   const written = await writeJsonFile(outPath, document);
+  if (jevReview && jevApiKey !== undefined) {
+    const decision = await assessWithJev(jevApiKey, {
+      title: document.title,
+      summary: document.summary ?? "No summary was produced.",
+      changedFiles: diff.files.length,
+      additions: diff.additions,
+      deletions: diff.deletions,
+      nodes: document.nodes.map(({ label, kind, delta }) => ({ label, kind, delta })),
+      edgeCount: document.edges.length,
+    });
+    const decisionPath = `${outPath}.decision.json`;
+    await writeJsonFile(decisionPath, decision);
+    terminal.out(
+      `Jev advisory: ${decision.recommendation} (${Math.round(decision.reviewProbability * 100)}% probability; report: ${decisionPath})`,
+    );
+  }
   terminal.out(
     `✓ ${written} — ${document.nodes.length} nodes, ${document.edges.length} edges, ${document.flows.length} flows${attempts > 1 ? ` (${attempts} attempts)` : ""}`,
   );

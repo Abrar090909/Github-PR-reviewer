@@ -76,7 +76,7 @@ export const FullSha = z
   .describe("Git commit sha, in full.");
 
 /**
- * The two lenses PR Lens ships. The enum is additive: a future contract
+ * The two lenses Contour ships. The enum is additive: a future contract
  * version may introduce further lenses, and consumers must treat an unknown
  * lens as "skip this view" rather than as a hard failure.
  */

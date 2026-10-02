@@ -5,9 +5,9 @@ import { writeJsonFile } from "../io.js";
 import { toStoredMap } from "../snapshot.js";
 import type { Terminal } from "../terminal.js";
 
-const DEFAULT_OUT = ".github/pr-lens.map.json";
+const DEFAULT_OUT = ".github/contour.map.json";
 
-export const USAGE = `pr-lens export <graph.json> [options]
+export const USAGE = `contour export <graph.json> [options]
 
 Turns a pull-request document into the stored map of the system once that pull
 request has merged: elements the change deletes are dropped, the rest stops

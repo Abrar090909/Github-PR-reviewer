@@ -10,7 +10,7 @@ export type PromptContext = {
 };
 
 export const SYSTEM_PROMPT = [
-  "You read a pull request diff and produce one PR Lens graph document: the map a reviewer wishes they had before reading the code.",
+  "You read a pull request diff and produce one Contour graph document: the map a reviewer wishes they had before reading the code.",
   "",
   "You are not a review bot. You never report bugs, risks, style or security findings — there is no field for them and a document that carries them is rejected. Your only job is to describe what the system looks like and how data moves through it, and to mark what this change did to it.",
   "",

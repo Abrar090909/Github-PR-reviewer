@@ -33,16 +33,34 @@ pnpm install
 pnpm dev          # starts the landing page at http://localhost:3000
 ```
 
-## GitHub Action
+## Hosted GitHub App
+
+The default product is a zero-configuration GitHub App: a repository owner
+installs Contour, selects repositories, and every new or updated pull request is
+analyzed automatically. The service owns the model key; customers do not add a
+workflow or a secret. See [HOSTED_APP_SETUP.md](HOSTED_APP_SETUP.md) for the
+deployment and GitHub App registration steps.
+
+## Self-hosted GitHub Action
+
+The Action remains available for teams that want to run Contour in their own
+CI account with their own model key.
 
 Add to your workflow:
 
 ```yaml
-- uses: Abrar090909/Github-PR-reviewer@main
+- uses: actions/checkout@v4
   with:
-    github-token: ${{ secrets.GITHUB_TOKEN }}
-    openai-api-key: ${{ secrets.OPENAI_API_KEY }}
+    fetch-depth: 0
+- uses: Abrar090909/Github-PR-reviewer/packages/action@master
+  with:
+    api-key: ${{ secrets.GEMINI_API_KEY }}
 ```
+
+The action defaults to Gemini. Set `provider`, `model`, and `base-url` to use
+OpenAI or another OpenAI-compatible endpoint. See the
+[Action setup guide](packages/action/README.md) for the complete workflow and
+required permissions.
 
 ## Tech stack
 

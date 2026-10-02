@@ -147,7 +147,7 @@ const refusal = (
       return new PrLensCliError(
         "CANVAS_CONFLICT",
         `${request.canvas ?? "the canvas"} is at rev ${error.rev} on ${hostOf(api)}, not rev ${request.ifMatch ?? "?"}`,
-        "pr-lens canvas pull, then push again",
+        "contour canvas pull, then push again",
       );
     case "INVALID_DOCUMENT":
       return new PrLensCliError(
@@ -185,7 +185,7 @@ const call = async <T>(
 ): Promise<T> => {
   const headers: Record<string, string> = {
     accept: "application/json",
-    "user-agent": `pr-lens-cli/${CLI_VERSION}`,
+    "user-agent": `contour-cli/${CLI_VERSION}`,
   };
 
   if (request.token !== undefined)

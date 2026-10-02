@@ -168,7 +168,7 @@ export const setupCanvasAppTest = () => {
           return refuse(
             422,
             "INVALID_DOCUMENT",
-            "The document does not match the PR Lens contract",
+            "The document does not match the Contour contract",
             {
               issues: [
                 {

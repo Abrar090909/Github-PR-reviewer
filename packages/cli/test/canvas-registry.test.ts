@@ -42,7 +42,7 @@ test("two commands changing the registry at once both keep their canvas", async 
 
 test("a lock left behind by a command that is gone is reported, with the way out, never taken over", async () => {
   const lock = `${REGISTRY}.lock`;
-  await mkdir(".pr-lens", { recursive: true });
+  await mkdir(".contour", { recursive: true });
   await writeFile(lock, `${DEAD_PID}:deadbeef`, "utf8");
 
   expect(await invoke("canvas", "push", "drawn.graph.json", "--api", API)).toBe(
@@ -59,7 +59,7 @@ test("a lock left behind by a command that is gone is reported, with the way out
 
 test("a lock with nobody written in it is reported the same way", async () => {
   const lock = `${REGISTRY}.lock`;
-  await mkdir(".pr-lens", { recursive: true });
+  await mkdir(".contour", { recursive: true });
   await writeFile(lock, "", "utf8");
 
   expect(await invoke("canvas", "push", "drawn.graph.json", "--api", API)).toBe(
@@ -71,7 +71,7 @@ test("a lock with nobody written in it is reported the same way", async () => {
 
 test("a lock held by a command that is still running is waited for, however old, not removed", async () => {
   const lock = `${REGISTRY}.lock`;
-  await mkdir(".pr-lens", { recursive: true });
+  await mkdir(".contour", { recursive: true });
   await writeFile(lock, `${process.pid}:cafebabe`, "utf8");
   const longAgo = new Date(Date.now() - 600_000);
   await utimes(lock, longAgo, longAgo);
@@ -112,7 +112,7 @@ test("git failing for any reason but absence refuses to write the registry", asy
 
 test("the registry is refused a home git would commit", async () => {
   await sh("git", ["init", "--quiet"], { cwd: process.cwd() });
-  await writeFile(".gitignore", "!.pr-lens/\n", "utf8");
+  await writeFile(".gitignore", "!.contour/\n", "utf8");
 
   expect(await invoke("canvas", "push", "drawn.graph.json", "--api", API)).toBe(
     1,
@@ -123,7 +123,7 @@ test("the registry is refused a home git would commit", async () => {
 
   // Ignoring the registry alone is not enough: it is staged through a
   // sibling name, and a crash would leave the tokens there.
-  await writeFile(".gitignore", "!.pr-lens/\n.pr-lens/canvas.json\n", "utf8");
+  await writeFile(".gitignore", "!.contour/\n.contour/canvas.json\n", "utf8");
   output.err = [];
   expect(await invoke("canvas", "push", "drawn.graph.json", "--api", API)).toBe(
     1,
@@ -132,7 +132,7 @@ test("the registry is refused a home git would commit", async () => {
   expect(app.seen).toEqual([]);
 });
 
-test("the registry is the owner's alone, and replaced whole", async () => {
+(process.platform === "win32" ? test.skip : test)("the registry is the owner's alone, and replaced whole", async () => {
   expect(await invoke("canvas", "push", "drawn.graph.json", "--api", API)).toBe(
     0,
   );
@@ -194,9 +194,9 @@ test("an entry answers only for the app it was made against", async () => {
   expect((await registry())[FIRST]).toEqual(before);
 });
 
-test("a filesystem that will not take the lock is a typed failure, not a crash", async () => {
-  await mkdir(".pr-lens", { recursive: true });
-  await chmod(".pr-lens", 0o500);
+(process.platform === "win32" ? test.skip : test)("a filesystem that will not take the lock is a typed failure, not a crash", async () => {
+  await mkdir(".contour", { recursive: true });
+  await chmod(".contour", 0o500);
   try {
     // Whichever write the read-only directory refuses first, the workspace
     // README or the lock, the answer is the typed file error, not a trace.
@@ -208,11 +208,11 @@ test("a filesystem that will not take the lock is a typed failure, not a crash",
     expect(reported).toMatch(/cannot (write|take the lock)/);
     expect(reported).not.toContain("    at ");
   } finally {
-    await chmod(".pr-lens", 0o700);
+    await chmod(".contour", 0o700);
   }
 });
 
-test("a checkout whose .git is a dangling link is not outside a repository", async () => {
+(process.platform === "win32" ? test.skip : test)("a checkout whose .git is a dangling link is not outside a repository", async () => {
   await symlink("nowhere", ".git");
 
   expect(await invoke("canvas", "push", "drawn.graph.json", "--api", API)).toBe(

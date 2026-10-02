@@ -42,29 +42,29 @@ type Subcommand = (typeof SUBCOMMANDS)[number];
 const isSubcommand = (value: string): value is Subcommand =>
   SUBCOMMANDS.some((subcommand) => subcommand === value);
 
-export const USAGE = `pr-lens canvas <push | pull | rotate | delete> [options]
+export const USAGE = `contour canvas <push | pull | rotate | delete> [options]
 
-Keeps a graph document on the PR Lens app as a canvas: a page anyone you share
+Keeps a graph document on the Contour app as a canvas: a page anyone you share
 it with can read, and an SVG a README can embed. The write token lands in
 ${REGISTRY_PATH}, which git ignores; the edit link carries the same token
 in its fragment, so share the view link and keep the edit link to yourself.
 
-  pr-lens canvas push [graph.json]     send the document (default ${DEFAULT_SOURCE})
+  contour canvas push [graph.json]     send the document (default ${DEFAULT_SOURCE})
     --canvas <id|name>                 which canvas (default the one this document
                                        was pushed to before, else a new one)
     --name <name>                      what to call a new canvas (default the document's title)
 
-  pr-lens canvas pull [url|id]         fetch the document (default the checkout's only canvas)
+  contour canvas pull [url|id]         fetch the document (default the checkout's only canvas)
     --canvas <id|name>                 which canvas, when no url or id is given
     -o, --out <file>                   where to write it (default ${DEFAULT_OUT})
 
-  pr-lens canvas rotate                mint a new write token; the old edit link stops working
+  contour canvas rotate                mint a new write token; the old edit link stops working
     --canvas <id|name>                 which canvas (default the checkout's only canvas)
 
-  pr-lens canvas delete                permanently delete the hosted canvas; keep local graph and SVG files
+  contour canvas delete                permanently delete the hosted canvas; keep local graph and SVG files
     --canvas <id|name>                 which canvas (default the checkout's only canvas)
 
-  --api <url>                          the PR Lens app (default $${API_ENV}, else ${DEFAULT_API})`;
+  --api <url>                          the Contour app (default $${API_ENV}, else ${DEFAULT_API})`;
 
 type CanvasRef = {
   id: string;
@@ -277,7 +277,7 @@ const push = async (
   );
   terminal.out("  unlisted: anyone you share it with can open it, no sign-in needed");
   terminal.out(`  README embed: ${pushed.embedUrl}`);
-  terminal.out("  remove: pr-lens canvas delete");
+  terminal.out("  remove: contour canvas delete");
 };
 
 const pull = async (

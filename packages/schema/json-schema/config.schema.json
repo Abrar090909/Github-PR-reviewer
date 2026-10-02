@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://raw.githubusercontent.com/coldteadotai/pr-lens/main/packages/schema/json-schema/config.schema.json",
-  "title": "PR Lens repository config",
+  "$id": "https://raw.githubusercontent.com/Abrar090909/Github-PR-reviewer/master/packages/schema/json-schema/config.schema.json",
+  "title": "Contour repository config",
   "version": "0.1.1",
   "type": "object",
   "properties": {
@@ -141,7 +141,7 @@
     },
     "branding": {
       "default": true,
-      "description": "Show the 'Rendered by PR Lens' footer on comments.",
+      "description": "Show the 'Rendered by Contour' footer on comments.",
       "type": "boolean"
     },
     "github": {
@@ -168,5 +168,5 @@
     "schemaVersion"
   ],
   "additionalProperties": false,
-  "description": "Repository configuration for PR Lens."
+  "description": "Repository configuration for Contour."
 }

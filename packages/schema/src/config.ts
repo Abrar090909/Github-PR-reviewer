@@ -46,7 +46,7 @@ export const MapCorrections = z
   .describe("Overlay applied over inference, never mutated by it.");
 export type MapCorrections = z.infer<typeof MapCorrections>;
 
-/** The `.github/pr-lens.yml` a repository may commit. Every field is optional. */
+/** The `.github/contour.yml` a repository may commit. Every field is optional. */
 export const Config = z
   .strictObject({
     schemaVersion: SchemaVersionField.describe(
@@ -62,7 +62,7 @@ export const Config = z
     branding: z
       .boolean()
       .default(true)
-      .describe("Show the 'Rendered by PR Lens' footer on comments."),
+      .describe("Show the 'Rendered by Contour' footer on comments."),
     github: z
       .strictObject({
         comment: z
@@ -76,6 +76,6 @@ export const Config = z
       })
       .prefault({}),
   })
-  .describe("Repository configuration for PR Lens.");
+  .describe("Repository configuration for Contour.");
 export type Config = z.infer<typeof Config>;
 export type ConfigInput = z.input<typeof Config>;

@@ -20,6 +20,6 @@ export const goldenDocuments = {
   "postmark-refactor.render-manifest.json": postmarkRefactorManifest,
   "broadcast-baseline.graph.json": broadcastBaselineGraph,
   "broadcast-baseline.patch.json": broadcastBaselinePatch,
-  "pr-lens.config.json": exampleConfig,
+  "contour.config.json": exampleConfig,
   "minimal.graph.json": minimalGraph,
 } as const;

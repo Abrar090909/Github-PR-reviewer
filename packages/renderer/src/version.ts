@@ -4,6 +4,6 @@
  * package cannot read its own manifest without doing I/O the renderer does
  * not otherwise need.
  */
-export const RENDERER_NAME = "@coldtea/pr-lens-renderer";
+export const RENDERER_NAME = "@contour/renderer";
 
 export const RENDERER_VERSION = "0.2.3";

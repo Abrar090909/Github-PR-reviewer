@@ -19,7 +19,7 @@ export const cjkGraph: GraphDoc = parseGraphDoc({
   summary: "발송 API가 게이트웨이를 직접 부르던 것을 대기열에 넣는 것으로 바꿉니다.",
   lenses: ["architecture", "data-flow"],
   provenance: {
-    repo: { owner: "coldteadotai", name: "pr-lens" },
+    repo: { owner: "Abrar090909", name: "contour" },
     base: { sha: "1111111" },
     head: { sha: "2222222" },
   },

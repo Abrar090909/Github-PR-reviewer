@@ -7,7 +7,7 @@
     "contentHash": "6a1f0b8c7d2e4359"
   },
   "renderer": {
-    "name": "@coldtea/pr-lens-renderer",
+    "name": "@contour/renderer",
     "version": "0.1.0"
   },
   "assets": [
@@ -22,7 +22,7 @@
       "width": 1280,
       "height": 720,
       "animated": true,
-      "url": "https://cdn.example.com/pr-lens/6a1f0b8c7d2e4359/overview-light-0c9d2e6b1a4f7385.svg"
+      "url": "https://cdn.example.com/contour/6a1f0b8c7d2e4359/overview-light-0c9d2e6b1a4f7385.svg"
     },
     {
       "id": "overview-dark",
@@ -35,7 +35,7 @@
       "width": 1280,
       "height": 720,
       "animated": true,
-      "url": "https://cdn.example.com/pr-lens/6a1f0b8c7d2e4359/overview-dark-7b3e5a0c9d1f6482.svg"
+      "url": "https://cdn.example.com/contour/6a1f0b8c7d2e4359/overview-dark-7b3e5a0c9d1f6482.svg"
     },
     {
       "id": "send-pipeline-light",
@@ -48,7 +48,7 @@
       "width": 1120,
       "height": 640,
       "animated": true,
-      "url": "https://cdn.example.com/pr-lens/6a1f0b8c7d2e4359/send-pipeline-light-2f8a4c6e0b9d1375.svg"
+      "url": "https://cdn.example.com/contour/6a1f0b8c7d2e4359/send-pipeline-light-2f8a4c6e0b9d1375.svg"
     },
     {
       "id": "send-pipeline-dark",
@@ -61,7 +61,7 @@
       "width": 1120,
       "height": 640,
       "animated": true,
-      "url": "https://cdn.example.com/pr-lens/6a1f0b8c7d2e4359/send-pipeline-dark-5d1b7f3a8c0e2946.svg"
+      "url": "https://cdn.example.com/contour/6a1f0b8c7d2e4359/send-pipeline-dark-5d1b7f3a8c0e2946.svg"
     }
   ]
 }

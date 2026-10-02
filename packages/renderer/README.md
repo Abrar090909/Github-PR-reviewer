@@ -1,16 +1,16 @@
-# @coldtea/pr-lens-renderer
+# @contour/renderer
 
-A schema-valid PR Lens graph document in, a self-contained animated SVG out. No network, no filesystem, no clock: the same document renders to the same bytes on any machine, which is what lets a diagram be addressed by the hash of itself.
+A schema-valid Contour graph document in, a self-contained animated SVG out. No network, no filesystem, no clock: the same document renders to the same bytes on any machine, which is what lets a diagram be addressed by the hash of itself.
 
 MIT © Coldtea AI.
 
 ```bash
-pnpm add @coldtea/pr-lens-renderer
+pnpm add @contour/renderer
 ```
 
 ```ts
 import { parseGraphDoc } from "@contour/schema";
-import { render, renderAll } from "@coldtea/pr-lens-renderer";
+import { render, renderAll } from "@contour/renderer";
 
 const doc = parseGraphDoc(json);
 
@@ -78,7 +78,7 @@ Each lens fills in what it draws. The architecture lens places lanes, cards and 
 
 ## Corrections
 
-A repository's `.github/pr-lens.yml` is an overlay, applied here before layout and never written back into inference, so a correction keeps holding as the code moves:
+A repository's `.github/contour.yml` is an overlay, applied here before layout and never written back into inference, so a correction keeps holding as the code moves:
 
 ```ts
 render(doc, { lens: "architecture", theme: "dark", config });
@@ -106,4 +106,4 @@ Labels, subtitles and titles come from a model. They are escaped for XML at the 
 
 ---
 
-Part of [PR Lens](https://prlens.dev). Review what actually matters.
+Part of [Contour](https://contour.dev). Review what actually matters.

@@ -7,7 +7,7 @@ const SHA = "b71e0d4a9c3f5e28d17046b8ac9f52e310d7c6b4";
 
 const exported = () =>
   toStoredMap(postmarkRefactorGraph, {
-    id: "coldteadotai/pr-lens",
+    id: "Abrar090909/Github-PR-reviewer",
     sha: SHA,
     generatedAt: "2026-08-20T21:00:00.000Z",
   });
@@ -19,7 +19,7 @@ test("the exported map is a map the contract will store", () => {
   expect(graphSnapshotIssues(result.value)).toEqual([]);
   expect(result.value.provenance.base.sha).toBe(SHA);
   expect(result.value.provenance.head.sha).toBe(SHA);
-  expect(result.value.id).toBe("coldteadotai/pr-lens");
+  expect(result.value.id).toBe("Abrar090909/Github-PR-reviewer");
 });
 
 test("what the change deleted is gone, and what survived is no longer annotated", () => {
@@ -56,7 +56,7 @@ test("line counts describe a diff, so they do not follow the map", () => {
 
 test("a map has to name its commit in full, and says so when it cannot", () => {
   const result = toStoredMap(postmarkRefactorGraph, {
-    id: "coldteadotai/pr-lens",
+    id: "Abrar090909/Github-PR-reviewer",
     sha: "b71e0d4",
     generatedAt: "2026-08-20T21:00:00.000Z",
   });
@@ -71,7 +71,7 @@ test("exporting a map is idempotent: exporting one again changes nothing", () =>
   if (!first.ok) throw first.error;
 
   const second = toStoredMap(first.value, {
-    id: "coldteadotai/pr-lens",
+    id: "Abrar090909/Github-PR-reviewer",
     sha: SHA,
     generatedAt: "2026-08-20T21:00:00.000Z",
   });
@@ -91,7 +91,7 @@ test("a flow whose every step the change deleted does not survive as an empty co
   });
 
   const result = toStoredMap(withRemovedSteps, {
-    id: "coldteadotai/pr-lens",
+    id: "Abrar090909/Github-PR-reviewer",
     sha: SHA,
     generatedAt: "2026-08-20T21:00:00.000Z",
   });

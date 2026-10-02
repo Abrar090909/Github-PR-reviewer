@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://raw.githubusercontent.com/coldteadotai/pr-lens/main/packages/schema/json-schema/graph-doc.schema.json",
-  "title": "PR Lens graph document",
+  "$id": "https://raw.githubusercontent.com/Abrar090909/Github-PR-reviewer/master/packages/schema/json-schema/graph-doc.schema.json",
+  "title": "Contour graph document",
   "version": "0.1.1",
   "type": "object",
   "properties": {
@@ -1070,7 +1070,7 @@
     "nodes"
   ],
   "additionalProperties": false,
-  "description": "A PR Lens graph document.",
+  "description": "A Contour graph document.",
   "$defs": {
     "View": {
       "type": "object",

@@ -30,7 +30,7 @@ const describe = (validated: ValidatedDocument): string => {
   }
 };
 
-export const USAGE = `pr-lens validate <file...>
+export const USAGE = `contour validate <file...>
 
 Parses graph documents, patch documents, render manifests and configs — JSON or
 YAML — and reports every problem in each, rather than only the first. A file

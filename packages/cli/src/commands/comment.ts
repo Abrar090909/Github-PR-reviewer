@@ -7,7 +7,7 @@ import { usageError } from "../errors.js";
 import { writeTextFile } from "../io.js";
 import type { Terminal } from "../terminal.js";
 
-export const USAGE = `pr-lens comment --graph <graph.json> --manifest <manifest.json> [options]
+export const USAGE = `contour comment --graph <graph.json> --manifest <manifest.json> [options]
 
 Composes the pull request comment: the diagrams as light/dark <picture> pairs,
 the headline numbers, and the drill-down tree. It posts nothing — the markdown
@@ -19,7 +19,7 @@ goes to stdout, or to a file, for whatever does the posting.
       --asset-base-url <url>  where the rendered SVGs are published, when the
                               manifest records local paths
       --config <file>         read 'branding' from a repository config
-      --no-branding           leave off the PR Lens footer
+      --no-branding           leave off the Contour footer
       --print-marker          print the hidden marker that identifies the
                               comment, and nothing else
   -o, --out <file>            write the markdown here instead of stdout`;

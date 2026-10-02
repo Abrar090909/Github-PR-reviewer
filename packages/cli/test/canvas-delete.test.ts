@@ -22,7 +22,7 @@ const save = (canvases: unknown) =>
 const success = () => Response.json({ id: ID, deleted: true });
 
 beforeEach(async () => {
-  await mkdir(".pr-lens");
+  await mkdir(".contour");
   await save({ [ID]: entry("Overview") });
   await writeFile("graph.json", "local graph");
   await writeFile("graph.svg", "local SVG");
@@ -139,6 +139,6 @@ test("does not delete when pending rotation recovery fails", async () => {
 test("exposes delete in canvas and top-level help", async () => {
   await run("canvas", "--help");
   await run("--help");
-  expect(output.out.join("\n")).toContain("pr-lens canvas delete");
+  expect(output.out.join("\n")).toContain("contour canvas delete");
   expect(output.out.join("\n")).toContain("push | pull | rotate | delete");
 });

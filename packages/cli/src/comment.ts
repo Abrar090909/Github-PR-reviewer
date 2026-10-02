@@ -4,7 +4,7 @@ import { PrLensCliError } from "./errors.js";
 
 /**
  * How the comment is recognised on a second run, so a pull request keeps one
- * PR Lens comment instead of collecting one per push. Nothing else may spell
+ * Contour comment instead of collecting one per push. Nothing else may spell
  * this string: a marker that drifts orphans every comment already posted.
  */
 export const COMMENT_MARKER = "<!-- contour -->";
