@@ -268,7 +268,7 @@ canvas {
   display: none;
 }
 
-.live-mobile-node-list {
+.live-graph-swipe-hint {
   display: none;
 }
 
@@ -314,36 +314,26 @@ canvas {
     gap: 8px !important;
   }
 
+  #live-example .live-graph-viewport {
+    min-width: 0;
+    width: 100%;
+    max-width: 100%;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-inline: contain;
+  }
+
   #live-example .live-example-svg {
-    display: none !important;
+    width: 832px !important;
+    min-width: 832px;
   }
 
-  #live-example .live-mobile-node-list {
-    display: grid;
-    gap: 8px;
-    padding: 12px;
-  }
-
-  #live-example .live-mobile-node {
-    min-height: 48px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    padding: 10px 12px;
-    color: var(--text-primary);
-    text-align: left;
-    background: var(--bg-base);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-  }
-
-  #live-example .live-mobile-node strong {
-    min-width: 36px;
-    padding: 4px 6px;
-    color: var(--bg-base);
+  #live-example .live-graph-swipe-hint {
+    display: block;
+    margin: -14px 0 0;
+    color: var(--text-dim);
+    font-size: 12px;
+    line-height: 1.5;
     text-align: center;
-    border-radius: 4px;
   }
 
   #live-example .no-scrollbar {
@@ -447,5 +437,3 @@ canvas {
     transition-duration: 0.01ms !important;
   }
 }
-
-

@@ -142,7 +142,7 @@ export default function LiveExample() {
               React 18: How Contour breaks down a huge PR
             </h2>
             <p style={{ fontSize: 14, color: "var(--text-secondary)", marginTop: 6, margin: 0 }}>
-              Instead of scrolling through 4,000 lines of code, click any box below to see what changed and what could break.
+              Instead of scrolling through 4,000 lines of code, tap or click any box below to see what changed and what could break.
             </p>
           </div>
 
@@ -197,11 +197,12 @@ export default function LiveExample() {
         <div style={{ display: "grid", gridTemplateColumns: "1fr 280px", gap: 16 }}>
 
           {/* Diagram */}
-          <div style={{
+          <div className="live-graph-viewport" style={{
             background: "var(--bg-surface)",
             border: "1px solid var(--border)",
             borderRadius: 6,
-            overflow: "hidden",
+            overflowX: "auto",
+            overflowY: "hidden",
           }}>
             <svg
               className="live-example-svg"
@@ -271,8 +272,19 @@ export default function LiveExample() {
 
                 return (
                   <g key={node.id} style={{ cursor: "pointer" }}
+                    role="button"
+                    tabIndex={0}
+                    aria-label={`Inspect ${node.label}, risk ${node.riskScore}`}
                     onMouseEnter={() => setHovered(node.id)}
                     onMouseLeave={() => setHovered(null)}
+                    onFocus={() => setHovered(node.id)}
+                    onClick={() => setHovered(node.id)}
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter" || event.key === " ") {
+                        event.preventDefault();
+                        setHovered(node.id);
+                      }
+                    }}
                   >
                     <rect x={p.x} y={p.y} width={CARD_W} height={CARD_H} rx={4}
                       fill="var(--bg-raised)"
@@ -321,20 +333,9 @@ export default function LiveExample() {
                 );
               })}
             </svg>
-            <div className="live-mobile-node-list">
-              {GRAPH.nodes.map((node: any) => (
-                <button
-                  className="live-mobile-node"
-                  key={node.id}
-                  type="button"
-                  onClick={() => setHovered(node.id)}
-                >
-                  <span>{node.label}</span>
-                  <strong style={{ background: riskColor(node.riskScore) }}>{node.riskScore}</strong>
-                </button>
-              ))}
-            </div>
           </div>
+
+          <p className="live-graph-swipe-hint">Swipe the graph to see every component. Tap a box for details.</p>
 
           {/* Risk panel */}
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
