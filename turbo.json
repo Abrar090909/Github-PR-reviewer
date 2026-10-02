@@ -21,13 +21,13 @@
     },
     "test": {
       "dependsOn": ["build", "^build"],
-      "inputs": ["src/**", "__tests__/**", "*.test.ts"]
+      "inputs": ["$TURBO_DEFAULT$"]
     },
     "lint": {
       "dependsOn": ["^lint"]
     },
     "typecheck": {
-      "dependsOn": ["^typecheck"]
+      "dependsOn": ["^build", "^typecheck"]
     },
     "clean": {
       "cache": false
