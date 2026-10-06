@@ -30,6 +30,20 @@ Contour reads your pull request diff and posts a visual dependency graph as a Gi
 
 ---
 
+## Technical differentiation
+
+Contour is not a thin wrapper around an LLM or the GitHub API. The repository contains several custom systems that share one graph contract and deterministic execution model:
+
+- **Deterministic SVG layout and routing engine** — `@contour/renderer` lays out architecture and data-flow diagrams without browser layout, system-font measurement, network access, locale-dependent sorting, or clock-dependent output. The same validated document renders to stable SVG output across machines.
+- **Custom DAG layout behavior** — architecture graphs use longest-path ranking, deterministic cycle breaking, lane-aware placement, ordering constraints, and congestion-aware routing so unrelated parts of a diagram remain stable when a PR changes one area.
+- **Executable graph evolution model** — `@contour/schema` defines `GraphDoc` and ordered `PatchDoc` operations with commit preconditions, referential-integrity checks, snapshot invariants, conflict codes, and deterministic pruning of dependent nodes, edges, flows, views, layout hints, and walkthrough state.
+- **Model output treated as untrusted input** — repository identity, commit SHAs, PR metadata, and line counts are derived from Git rather than trusted from the model. Model-produced graph documents must validate against the schema before they are accepted.
+- **Content-addressed review artifacts** — rendered diagrams are addressed from their content so GitHub's image proxy cannot serve stale diagrams after a PR changes. A render manifest binds a PR comment to the exact graph that produced its images.
+- **Shared contract across multiple execution surfaces** — the hosted GitHub App, local CLI, self-hosted GitHub Action, agent skill, and Canvas workflow all consume the same validated graph representation rather than maintaining separate formats.
+- **Stateful Canvas workflow** — the CLI implements revision-aware pushes, conflict handling, write-token rotation, lock-protected registry state, and explicit machine-readable failure modes.
+
+Together these make the repository useful for repository-level software-engineering work beyond ordinary PR summarization: deterministic graph rendering, schema evolution, graph patching, conflict handling, model-output validation, Git integration, CI automation, and stateful workflow behavior are all implemented in one codebase.
+
 ## Monorepo structure
 
 ```
