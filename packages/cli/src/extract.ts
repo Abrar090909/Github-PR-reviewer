@@ -1,14 +1,18 @@
 import {
   SCHEMA_VERSION,
   safeParseGraphDoc,
+  formatIssues,
+  PrLensSchemaError,
   type GraphDoc,
   type GraphDocInput,
   type Lens,
+  type SchemaIssue,
 } from "@contour/schema";
 import { z } from "zod";
 import { PrLensCliError } from "./errors.js";
 import type { JsonCompletion, Turn } from "./providers/index.js";
 import { buildJsonRepairPrompt, buildRepairPrompt } from "./prompt.js";
+import { parseDiffIndex, groundEvidence, formatGroundingIssue } from "./diff-grounding.js";
 
 /** One repair round. A model that cannot fix a named path in one go does not fix it in three. */
 const MAX_ATTEMPTS = 2;
@@ -26,6 +30,8 @@ export type KnownFields = {
   stats: { filesChanged: number; additions: number; deletions: number };
   lenses: readonly Lens[];
   generatedAt: string;
+  /** Raw unified diff patch text, used to ground evidence entries. Optional. */
+  diffPatch?: string;
 };
 
 /**
@@ -88,6 +94,47 @@ export type Complete = (request: JsonCompletion) => Promise<string>;
 
 export type Extraction = { document: GraphDoc; attempts: number };
 
+/**
+ * Validates evidence entries on all nodes and edges against the actual PR
+ * diff hunks. Returns validation issues for any evidence that cites a file
+ * absent from the diff or a range that falls outside all changed hunks.
+ *
+ * This prevents a model from hallucinating citations to files or lines that
+ * were never part of the change under review.
+ */
+const groundDocumentEvidence = (doc: GraphDoc, diffPatch: string): SchemaIssue[] => {
+  const index = parseDiffIndex(diffPatch);
+  const issues: SchemaIssue[] = [];
+
+  doc.nodes.forEach((node, nodeIdx) => {
+    (node.evidence ?? []).forEach((ev, evIdx) => {
+      const issue = groundEvidence(index, ev);
+      if (issue !== undefined) {
+        issues.push({
+          code: "INVALID_DOCUMENT",
+          path: `nodes[${nodeIdx}].evidence[${evIdx}]`,
+          message: formatGroundingIssue(issue),
+        });
+      }
+    });
+  });
+
+  doc.edges.forEach((edge, edgeIdx) => {
+    (edge.evidence ?? []).forEach((ev, evIdx) => {
+      const issue = groundEvidence(index, ev);
+      if (issue !== undefined) {
+        issues.push({
+          code: "INVALID_DOCUMENT",
+          path: `edges[${edgeIdx}].evidence[${evIdx}]`,
+          message: formatGroundingIssue(issue),
+        });
+      }
+    });
+  });
+
+  return issues;
+};
+
 export const extractGraph = async (
   options: {
     system: string;
@@ -121,15 +168,36 @@ export const extractGraph = async (
     }
 
     const parsed = safeParseGraphDoc(applyKnownFields(read.value, options.known));
-    if (parsed.ok) return { document: parsed.value, attempts: attempt };
+    if (!parsed.ok) {
+      if (last)
+        throw giveUp(
+          `the model produced a document that does not validate, twice [${parsed.error.code}]`,
+          parsed.error.message,
+        );
+      turns.push({ role: "model", text }, { role: "user", text: buildRepairPrompt(parsed.error) });
+      continue;
+    }
 
-    if (last)
-      throw giveUp(
-        `the model produced a document that does not validate, twice [${parsed.error.code}]`,
-        parsed.error.message,
-      );
+    // Grounding check: evidence must cite files and ranges actually in the diff.
+    if (options.known.diffPatch !== undefined) {
+      const groundingIssues = groundDocumentEvidence(parsed.value, options.known.diffPatch);
+      if (groundingIssues.length > 0) {
+        const groundingError = new PrLensSchemaError(
+          "INVALID_DOCUMENT",
+          `invalid graph document:\n${formatIssues(groundingIssues)}`,
+          groundingIssues,
+        );
+        if (last)
+          throw giveUp(
+            `the model produced evidence that is not grounded in the diff, twice`,
+            groundingError.message,
+          );
+        turns.push({ role: "model", text }, { role: "user", text: buildRepairPrompt(groundingError) });
+        continue;
+      }
+    }
 
-    turns.push({ role: "model", text }, { role: "user", text: buildRepairPrompt(parsed.error) });
+    return { document: parsed.value, attempts: attempt };
   }
 
   throw giveUp("extraction produced no document", "no attempt returned an answer");

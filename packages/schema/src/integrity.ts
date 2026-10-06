@@ -1,5 +1,6 @@
 import type { SchemaIssue } from "./errors.js";
 import type { GraphDoc, View } from "./graph.js";
+import type { DiffEvidence } from "./graph.js";
 import { FullSha, MAX_VIEWS, THEMES, type Delta } from "./primitives.js";
 import { assertNever } from "./utils.js";
 import { indexViews, stagedMessages } from "./walkthrough.js";
@@ -20,6 +21,38 @@ const flattenViews = (views: readonly View[], prefix: string): { view: View; pat
     return [{ view, path }, ...flattenViews(view.children, `${path}.children`)];
   });
 
+/** Canonical key for deduplication: same file and new-side range, order-independent. */
+const evidenceKey = (e: DiffEvidence): string =>
+  `${e.file}\x00${e.newStart}\x00${e.newEnd}`;
+
+/**
+ * Validates an evidence array attached to a node or edge.
+ * Checks for valid line ranges and canonical-equivalent duplicates.
+ * Sorted by key before dedup so the result is deterministic regardless of input order.
+ */
+const evidenceIssues = (
+  evidence: readonly DiffEvidence[],
+  parentPath: string,
+  invalid: (path: string, message: string) => void,
+): void => {
+  // Track seen canonical keys to reject duplicates.
+  const seenKeys = new Set<string>();
+  for (const [idx, ev] of evidence.entries()) {
+    const at = `${parentPath}.evidence[${idx}]`;
+    if (ev.newEnd < ev.newStart) {
+      invalid(`${at}.newEnd`, `newEnd (${ev.newEnd}) must be >= newStart (${ev.newStart})`);
+    }
+    if (ev.oldStart !== undefined && ev.oldEnd !== undefined && ev.oldEnd < ev.oldStart) {
+      invalid(`${at}.oldEnd`, `oldEnd (${ev.oldEnd}) must be >= oldStart (${ev.oldStart})`);
+    }
+    const key = evidenceKey(ev);
+    if (seenKeys.has(key)) {
+      invalid(at, `duplicate evidence entry: '${ev.file}' lines ${ev.newStart}–${ev.newEnd}`);
+    }
+    seenKeys.add(key);
+  }
+};
+
 /**
  * Structural validation says a field holds an id; these checks say the id
  * points at something. Extraction models routinely emit an edge to a node
@@ -31,6 +64,8 @@ export const graphIntegrityIssues = (doc: GraphDoc): SchemaIssue[] => {
     issues.push({ code: "BROKEN_REFERENCE", path, message });
   const duplicate = (path: string, message: string) =>
     issues.push({ code: "DUPLICATE_ID", path, message });
+  const invalid = (path: string, message: string) =>
+    issues.push({ code: "INVALID_DOCUMENT", path, message });
 
   const laneIds = new Set(doc.lanes.map((lane) => lane.id));
   const nodeIds = new Set(doc.nodes.map((node) => node.id));
@@ -50,6 +85,8 @@ export const graphIntegrityIssues = (doc: GraphDoc): SchemaIssue[] => {
   doc.nodes.forEach((node, index) => {
     if (!laneIds.has(node.lane))
       broken(`nodes[${index}].lane`, `node '${node.id}' references unknown lane '${node.lane}'`);
+    if (node.evidence && node.evidence.length > 0)
+      evidenceIssues(node.evidence, `nodes[${index}]`, invalid);
   });
 
   doc.edges.forEach((edge, index) => {
@@ -57,6 +94,8 @@ export const graphIntegrityIssues = (doc: GraphDoc): SchemaIssue[] => {
       broken(`edges[${index}].from`, `edge '${edge.id}' references unknown node '${edge.from}'`);
     if (!nodeIds.has(edge.to))
       broken(`edges[${index}].to`, `edge '${edge.id}' references unknown node '${edge.to}'`);
+    if (edge.evidence && edge.evidence.length > 0)
+      evidenceIssues(edge.evidence, `edges[${index}]`, invalid);
   });
 
   doc.flows.forEach((flow, flowIndex) => {

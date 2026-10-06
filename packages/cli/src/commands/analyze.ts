@@ -200,6 +200,7 @@ export const analyzeCommand = async (
           deletions: diff.deletions,
         },
         generatedAt: new Date().toISOString(),
+        diffPatch: diff.patch,
       },
       onAttempt: (attempt) => {
         if (attempt > 1) terminal.err(`the document did not validate — asking for a correction`);

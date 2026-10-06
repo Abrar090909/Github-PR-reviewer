@@ -129,7 +129,7 @@ export const DELTAS = Delta.options;
  * platform recognises, and no `..` segment. A path that breaks it cannot
  * produce a diff permalink, whatever else it might mean.
  */
-const REPOSITORY_PATH = /^(?!\/)(?![A-Za-z]:)(?!.*\\)(?!.*(?:^|\/)\.\.(?:\/|$)).+$/;
+export const REPOSITORY_PATH = /^(?!\/)(?![A-Za-z]:)(?!.*\\)(?!.*(?:^|\/)\.\.(?:\/|$)).+$/;
 
 /**
  * A pointer into the head tree, used to build diff permalinks. Line numbers

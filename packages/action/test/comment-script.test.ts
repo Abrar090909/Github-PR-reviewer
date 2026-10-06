@@ -6,7 +6,10 @@ import { promisify } from "node:util";
 import { expect, test } from "vitest";
 
 const run = promisify(execFile);
-const shellTest = spawnSync("bash", ["--version"], { stdio: "ignore" }).status === 0 ? test : test.skip;
+const shellTest =
+  process.platform !== "win32" && spawnSync("bash", ["--version"], { stdio: "ignore" }).status === 0
+    ? test
+    : test.skip;
 
 const SCRIPT = new URL("../scripts/comment.sh", import.meta.url).pathname;
 const MARKER = "<!-- contour -->";

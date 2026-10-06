@@ -13,6 +13,7 @@ export {
   Line,
   MAX_RENDER_ASSETS,
   MAX_VIEWS,
+  REPOSITORY_PATH,
   Theme,
   THEMES,
   SchemaVersionField,
@@ -21,6 +22,7 @@ export {
 } from "./primitives.js";
 
 export {
+  DiffEvidence,
   EdgeEmphasis,
   EdgeKind,
   Flow,

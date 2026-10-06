@@ -132,6 +132,19 @@ export const paintCard = (placed: PlacedNode): string => {
           truncate(node.subtitle, "mono", SUBTITLE_SIZE, textWidth),
         );
 
+  /** Small dot at top-right corner — present only when evidence is attached. */
+  const evidenceDot =
+    node.evidence && node.evidence.length > 0
+      ? tag("circle", {
+          class: "ev-dot",
+          cx: coord(box.x + box.width - 7),
+          cy: coord(box.y + 7),
+          r: 2.5,
+          fill: "currentColor",
+          opacity: "0.45",
+        })
+      : "";
+
   const groupClass =
     node.delta === "removed" ? "cardsh ghost" : node.delta === "unchanged" ? "cardsh context" : "cardsh";
 
@@ -151,6 +164,7 @@ export const paintCard = (placed: PlacedNode): string => {
       title,
       subtitle,
       paintBadges(placed),
+      evidenceDot,
     ]),
   );
 };
@@ -193,11 +207,25 @@ const paintEdge = (
     ? tag("path", { class: "glow", stroke: toneColour(palette, tone), d: path })
     : "";
 
+  const anchor = routed.labelAnchor ?? routed.curve.from;
+  const edgeEvidenceDot =
+    edge.evidence && edge.evidence.length > 0
+      ? tag("circle", {
+          class: "ev-dot",
+          cx: coord(anchor.x),
+          cy: coord(anchor.y),
+          r: 2,
+          fill: "currentColor",
+          opacity: "0.45",
+        })
+      : "";
+
   return {
     markup: lines([
       glow,
       tag("path", { class: classes.join(" "), d: path, "marker-end": markerFor(tone) }),
       pulses(edge, path, palette),
+      edgeEvidenceDot,
     ]),
     pill:
       label === undefined || edge.label === undefined

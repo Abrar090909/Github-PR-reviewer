@@ -7,6 +7,7 @@ import {
   Label,
   Lens,
   Line,
+  REPOSITORY_PATH,
   SchemaVersionField,
   Sha,
   Summary,
@@ -52,6 +53,49 @@ export const Lane = z
   .describe("A grouping band of the diagram. Every node belongs to exactly one lane.");
 export type Lane = z.infer<typeof Lane>;
 
+/**
+ * Machine-readable evidence that links an inferred architecture element back
+ * to an exact range inside the PR diff. New-side line numbers are required;
+ * old-side numbers are optional and only meaningful for removed elements.
+ */
+export const DiffEvidence = z
+  .strictObject({
+    file: z
+      .string()
+      .min(1)
+      .max(1024)
+      .regex(
+        REPOSITORY_PATH,
+        "must be a repository-relative POSIX path, without a drive letter, a backslash or a '..' segment",
+      )
+      .describe("Repository-relative POSIX path to the file that contains the evidence."),
+    newStart: z.int().min(1).describe("1-based first line on the new (head) side of the diff."),
+    newEnd: z.int().min(1).describe("1-based last line on the new (head) side of the diff, inclusive."),
+    oldStart: z.int().min(1).optional().describe("1-based first line on the old (base) side of the diff."),
+    oldEnd: z.int().min(1).optional().describe("1-based last line on the old (base) side of the diff, inclusive."),
+    symbol: z
+      .string()
+      .min(1)
+      .max(256)
+      .optional()
+      .describe("Optional symbol name (function, class, variable) found at this range."),
+    reason: z
+      .string()
+      .min(1)
+      .max(512)
+      .describe("Why this range is evidence for the element; one concise sentence."),
+  })
+  .refine((e) => e.newEnd >= e.newStart, {
+    message: "newEnd must be greater than or equal to newStart",
+    path: ["newEnd"],
+  })
+  .refine((e) => e.oldStart === undefined || e.oldEnd === undefined || e.oldEnd >= e.oldStart, {
+    message: "oldEnd must be greater than or equal to oldStart",
+    path: ["oldEnd"],
+  })
+  .describe("A single piece of diff evidence for an architecture element.");
+export type DiffEvidence = z.infer<typeof DiffEvidence>;
+
 export const GraphNode = z
   .strictObject({
     id: Id,
@@ -72,6 +116,11 @@ export const GraphNode = z
       .max(6)
       .default([])
       .describe("Extra chips on the card, beyond the delta badge the renderer adds."),
+    evidence: z
+      .array(DiffEvidence)
+      .max(32)
+      .optional()
+      .describe("Machine-readable evidence entries linking this node to PR diff hunks."),
   })
   .describe("A node in the architecture graph.");
 export type GraphNode = z.infer<typeof GraphNode>;
@@ -111,6 +160,11 @@ export const GraphEdge = z
       .describe("Render a travelling pulse along this edge in the architecture lens."),
     summary: Summary.optional(),
     files: z.array(FileRef).max(32).default([]),
+    evidence: z
+      .array(DiffEvidence)
+      .max(32)
+      .optional()
+      .describe("Machine-readable evidence entries linking this edge to PR diff hunks."),
   })
   .describe("A directed connection between two nodes.");
 export type GraphEdge = z.infer<typeof GraphEdge>;

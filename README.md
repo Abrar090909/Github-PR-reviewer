@@ -30,6 +30,12 @@ Contour reads your pull request diff and posts a visual dependency graph as a Gi
 
 ---
 
+## Evidence Trace
+
+Contour can bind architecture elements back to exact changed source ranges in the pull-request diff, making an inferred diagram auditable instead of merely descriptive. Each node or edge in the graph can carry machine-readable diff evidence — specifying repository-relative files, line numbers, symbols, and rationale — grounded directly against the actual diff hunks. Reviewers can inspect this trace using `contour explain <element-id> [graph-file]` to verify any architectural component directly against the code that motivated it.
+
+---
+
 ## Technical differentiation
 
 Contour is not a thin wrapper around an LLM or the GitHub API. The repository contains several custom systems that share one graph contract and deterministic execution model:

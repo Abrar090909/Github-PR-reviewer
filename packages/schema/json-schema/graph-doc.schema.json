@@ -368,6 +368,67 @@
               "maxLength": 120,
               "description": "Short display label."
             }
+          },
+          "evidence": {
+            "description": "Machine-readable evidence entries linking this node to PR diff hunks.",
+            "maxItems": 32,
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "file": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 1024,
+                  "pattern": "^(?!\\/)(?![A-Za-z]:)(?!.*\\\\)(?!.*(?:^|\\/)\\.\\.(?:\\/|$)).+$",
+                  "description": "Repository-relative POSIX path to the file that contains the evidence."
+                },
+                "newStart": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 9007199254740991,
+                  "description": "1-based first line on the new (head) side of the diff."
+                },
+                "newEnd": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 9007199254740991,
+                  "description": "1-based last line on the new (head) side of the diff, inclusive."
+                },
+                "oldStart": {
+                  "description": "1-based first line on the old (base) side of the diff.",
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 9007199254740991
+                },
+                "oldEnd": {
+                  "description": "1-based last line on the old (base) side of the diff, inclusive.",
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 9007199254740991
+                },
+                "symbol": {
+                  "description": "Optional symbol name (function, class, variable) found at this range.",
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 256
+                },
+                "reason": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 512,
+                  "description": "Why this range is evidence for the element; one concise sentence."
+                }
+              },
+              "required": [
+                "file",
+                "newStart",
+                "newEnd",
+                "reason"
+              ],
+              "additionalProperties": false,
+              "description": "A single piece of diff evidence for an architecture element."
+            }
           }
         },
         "required": [
@@ -504,6 +565,67 @@
                 ]
               },
               "description": "A file (and optional line range) backing an element."
+            }
+          },
+          "evidence": {
+            "description": "Machine-readable evidence entries linking this edge to PR diff hunks.",
+            "maxItems": 32,
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "file": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 1024,
+                  "pattern": "^(?!\\/)(?![A-Za-z]:)(?!.*\\\\)(?!.*(?:^|\\/)\\.\\.(?:\\/|$)).+$",
+                  "description": "Repository-relative POSIX path to the file that contains the evidence."
+                },
+                "newStart": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 9007199254740991,
+                  "description": "1-based first line on the new (head) side of the diff."
+                },
+                "newEnd": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 9007199254740991,
+                  "description": "1-based last line on the new (head) side of the diff, inclusive."
+                },
+                "oldStart": {
+                  "description": "1-based first line on the old (base) side of the diff.",
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 9007199254740991
+                },
+                "oldEnd": {
+                  "description": "1-based last line on the old (base) side of the diff, inclusive.",
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 9007199254740991
+                },
+                "symbol": {
+                  "description": "Optional symbol name (function, class, variable) found at this range.",
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 256
+                },
+                "reason": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 512,
+                  "description": "Why this range is evidence for the element; one concise sentence."
+                }
+              },
+              "required": [
+                "file",
+                "newStart",
+                "newEnd",
+                "reason"
+              ],
+              "additionalProperties": false,
+              "description": "A single piece of diff evidence for an architecture element."
             }
           }
         },

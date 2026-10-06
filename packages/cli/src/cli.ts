@@ -10,8 +10,9 @@ import { renderCommand, USAGE as RENDER_USAGE } from "./commands/render.js";
 import { analyzeCommand, USAGE as ANALYZE_USAGE } from "./commands/analyze.js";
 import { commentCommand, USAGE as COMMENT_USAGE } from "./commands/comment.js";
 import { USAGE as VALIDATE_USAGE, validateCommand } from "./commands/validate.js";
+import { explainCommand, USAGE as EXPLAIN_USAGE } from "./commands/explain.js";
 
-const COMMANDS = ["analyze", "render", "comment", "validate", "export", "canvas", "skill"] as const;
+const COMMANDS = ["analyze", "render", "comment", "validate", "export", "canvas", "skill", "explain"] as const;
 type CommandName = (typeof COMMANDS)[number];
 
 const isCommand = (value: string): value is CommandName =>
@@ -25,6 +26,7 @@ const HELP = `contour — review what actually matters
   contour validate  <file...>               any Contour document, checked against the contract
   contour export    <graph.json>            the merged state, as a map worth committing
   contour canvas    push | pull | rotate | delete    that document, kept on contour.dev as a page and an embed
+  contour explain   <element-id> [graph]    evidence trace for a node or edge
   contour skill                             diagram instructions for coding agents
 
   contour <command> --help                  what a command takes
@@ -48,6 +50,8 @@ const usageFor = (command: CommandName): string => {
       return CANVAS_USAGE;
     case "skill":
       return SKILL_USAGE;
+    case "explain":
+      return EXPLAIN_USAGE;
     default:
       return assertNever(command, "Unhandled command");
   }
@@ -74,6 +78,8 @@ const dispatch = (
       return canvasCommand(args, terminal, env);
     case "skill":
       return skillCommand(args, terminal);
+    case "explain":
+      return explainCommand(args, terminal);
     default:
       return assertNever(command, "Unhandled command");
   }
