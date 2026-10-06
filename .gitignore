@@ -34,6 +34,8 @@ coverage
 
 # Misc
 *.pem
+deploy.ps1
+scripts/vercel_check.ps1
 
 .vercel
 .env*
