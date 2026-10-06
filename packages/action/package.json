@@ -3,7 +3,13 @@
   "version": "0.3.1",
   "description": "The Contour GitHub Action: analyze a pull request with your own model key, publish the diagrams, post one static comment.",
   "license": "MIT",
-  "author": "Contour",
+  "author": "Abrar Ahmed",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Abrar090909/Github-PR-reviewer.git",
+    "directory": "packages/action"
+  },
+  "homepage": "https://github.com/Abrar090909/Github-PR-reviewer/tree/master/packages/action#readme",
   "keywords": [
     "contour",
     "code-review",

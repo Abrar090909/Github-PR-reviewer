@@ -3,7 +3,13 @@
   "version": "0.2.0",
   "description": "The Contour skill for coding agents: author a graph document from a diff, validate it, render it, and correct a repository's map.",
   "license": "MIT",
-  "author": "Contour",
+  "author": "Abrar Ahmed",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Abrar090909/Github-PR-reviewer.git",
+    "directory": "packages/agent-skill"
+  },
+  "homepage": "https://github.com/Abrar090909/Github-PR-reviewer/tree/master/packages/agent-skill#readme",
   "keywords": [
     "contour",
     "agent-skill",

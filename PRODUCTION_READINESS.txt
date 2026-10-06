@@ -1,7 +1,7 @@
 # Contour — Production Readiness Review
 
 **Repo:** `Abrar090909/Github-PR-reviewer` ("Contour")
-**Scope of this review:** GitHub App + Next.js dashboard + async worker + Supabase + Redis/QStash queue, built on top of the `coldteadotai/pr-lens` concept.
+**Scope of this review:** GitHub App + Next.js dashboard + async worker + Supabase + Redis/QStash queue, built for the Contour architecture visualization platform.
 **How this review was produced:** GitHub blocks automated directory crawling on this repo, so this is based on `contour-technical-documentation.txt` and `BACKEND_WORKING.txt` in the repo (which include real code excerpts for the webhook handler, token minting, and repo-fetcher) plus the `.env.example`/`.gitignore`. It is **not** a line-by-line audit of every file. Treat every item below as "verify this in the actual source," not as a confirmed finding — a few are already handled correctly per the docs and are called out as such.
 
 Legend: 🔴 blocker · 🟠 fix before real users · 🟡 hardening / nice-to-have

@@ -2,7 +2,7 @@
 
 The Contour contract. Extraction produces these documents, the renderer consumes them, and every other surface (CLI, GitHub Action, agent skill, hosted app) passes them around. If a document validates here, it is safe to render.
 
-MIT © Coldtea AI.
+MIT © Abrar Ahmed.
 
 ```bash
 pnpm add @contour/schema

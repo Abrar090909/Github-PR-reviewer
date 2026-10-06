@@ -1,6 +1,13 @@
 {
   "name": "@contour/web",
   "version": "0.1.0",
+  "author": "Abrar Ahmed",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Abrar090909/Github-PR-reviewer.git",
+    "directory": "apps/web"
+  },
   "private": true,
   "scripts": {
     "dev": "next dev",

@@ -3,7 +3,13 @@
   "version": "0.5.0",
   "description": "The Contour command line: turn a pull request diff into a schema-valid graph with your own model key, render it, and compose the comment.",
   "license": "MIT",
-  "author": "Contour",
+  "author": "Abrar Ahmed",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Abrar090909/Github-PR-reviewer.git",
+    "directory": "packages/cli"
+  },
+  "homepage": "https://github.com/Abrar090909/Github-PR-reviewer/tree/master/packages/cli#readme",
   "keywords": [
     "contour",
     "code-review",

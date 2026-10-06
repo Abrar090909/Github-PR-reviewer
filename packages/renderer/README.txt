@@ -2,7 +2,7 @@
 
 A schema-valid Contour graph document in, a self-contained animated SVG out. No network, no filesystem, no clock: the same document renders to the same bytes on any machine, which is what lets a diagram be addressed by the hash of itself.
 
-MIT © Coldtea AI.
+MIT © Abrar Ahmed.
 
 ```bash
 pnpm add @contour/renderer

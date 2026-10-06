@@ -2,7 +2,7 @@
 
 Contour on the command line. It reads a diff with your own model key, checks the result against the contract, and hands you the pull request comment.
 
-MIT © Coldtea AI.
+MIT © Abrar Ahmed.
 
 ```bash
 npx @contour/cli analyze --base origin/main

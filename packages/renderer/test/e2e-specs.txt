@@ -1,7 +1,7 @@
 # End-to-end regression specs — renderer congestion behavior
 
 Plain-language specifications for browser-level end-to-end tests, to be implemented
-with Coldtea's QA tooling. Each spec describes what a person (or QA agent) does in a
+with Contour's QA tooling. Each spec describes what a person (or QA agent) does in a
 real browser and what they must see. The unit/golden suite already covers these
 properties numerically; these specs exist to catch what only a rendered, zoomed,
 human-scale view can catch — a label that is technically non-overlapping but
