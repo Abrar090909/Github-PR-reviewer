@@ -1,5 +1,6 @@
 import { mkdir, readFile, rename, unlink, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
+import { setTimeout as sleep } from "node:timers/promises";
 import { PrLensCliError } from "./errors.js";
 
 const describe = (error: unknown): string =>
@@ -44,13 +45,42 @@ export const writeJsonFile = (path: string, value: unknown): Promise<string> =>
  */
 export const secretStagingPath = (path: string): string => `${resolve(path)}.${process.pid}.tmp`;
 
+/**
+ * Windows refuses to rename over a file anyone has open — another command
+ * reading the registry, an editor, a virus scanner, a sync client — and says
+ * EPERM, EACCES or EBUSY until they let go, which is usually milliseconds.
+ * Elsewhere those codes mean what they say, so only Windows waits.
+ */
+const RENAME_RETRY_CODES = new Set(["EPERM", "EACCES", "EBUSY"]);
+const RENAME_RETRY_DELAYS_MS = [10, 20, 40, 80, 160, 320, 640, 1000];
+
+const isBusyOnWindows = (error: unknown): boolean =>
+  process.platform === "win32" &&
+  typeof error === "object" &&
+  error !== null &&
+  "code" in error &&
+  typeof error.code === "string" &&
+  RENAME_RETRY_CODES.has(error.code);
+
+const replaceFile = async (from: string, to: string): Promise<void> => {
+  for (const delay of RENAME_RETRY_DELAYS_MS) {
+    try {
+      return await rename(from, to);
+    } catch (error) {
+      if (!isBusyOnWindows(error)) throw error;
+      await sleep(delay);
+    }
+  }
+  await rename(from, to);
+};
+
 export const writeSecretJsonFile = async (path: string, value: unknown): Promise<string> => {
   const absolute = resolve(path);
   const staging = secretStagingPath(path);
   try {
     await mkdir(dirname(absolute), { recursive: true });
     await writeFile(staging, `${JSON.stringify(value, null, 2)}\n`, { encoding: "utf8", mode: 0o600 });
-    await rename(staging, absolute);
+    await replaceFile(staging, absolute);
   } catch (error) {
     // Never leave a secret lying about under a temporary name.
     await unlink(staging).catch(() => undefined);

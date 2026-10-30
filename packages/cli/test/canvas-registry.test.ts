@@ -4,6 +4,7 @@ import { execFile } from "node:child_process";
 import {
   chmod,
   mkdir,
+  open,
   readFile,
   stat,
   symlink,
@@ -139,6 +140,23 @@ test("the registry is refused a home git would commit", async () => {
 
   const mode = (await stat(REGISTRY)).mode & 0o777;
   expect(mode.toString(8)).toBe("600");
+  await expect(stat(`${REGISTRY}.${process.pid}.tmp`)).rejects.toThrow();
+});
+
+test("a registry someone else has open is still replaced once they let go", async () => {
+  expect(await invoke("canvas", "push", "drawn.graph.json", "--api", API)).toBe(
+    0,
+  );
+
+  // Windows will not rename over an open file: another command reading the
+  // registry, an editor or a scanner holding it briefly must not cost the write.
+  const reader = await open(REGISTRY, "r");
+  const pushing = invoke("canvas", "push", "drawn.graph.json", "--api", API);
+  await new Promise((resolve) => setTimeout(resolve, 500));
+  await reader.close();
+
+  expect(await pushing).toBe(0);
+  expect((await registry())[FIRST]?.rev).toBe(2);
   await expect(stat(`${REGISTRY}.${process.pid}.tmp`)).rejects.toThrow();
 });
 
