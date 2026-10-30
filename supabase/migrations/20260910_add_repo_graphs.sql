@@ -1,5 +1,5 @@
 -- Migration: Add repo_graphs table for baseline graph caching
--- BACKEND_WORKING.md §2.5
+-- Stored repository graphs, keyed by repository.
 --
 -- Run this in your Supabase SQL editor or via the Supabase CLI:
 --   supabase db push

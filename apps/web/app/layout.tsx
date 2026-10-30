@@ -1,19 +1,27 @@
 import type { Metadata } from "next";
+import { GeistSans } from "geist/font/sans";
+import { GeistMono } from "geist/font/mono";
 import "./globals.css";
+
+const description =
+  "Contour draws every pull request as an architecture and data-flow diagram and posts it as a comment in GitHub, so reviewers see what a change touches before they read the diff.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "https://contour-wheat.vercel.app"),
   title: {
-    default: "Contour — AI PR Risk & Architecture Copilot",
+    default: "Contour — architecture diagrams for every pull request",
     template: "%s — Contour",
   },
-  description: "Risk-scored architecture maps for every pull request.",
+  description,
+  keywords: ["pull request", "code review", "GitHub App", "architecture diagram", "data flow"],
+  openGraph: { title: "Contour", description, type: "website", url: "/" },
+  twitter: { card: "summary_large_image", title: "Contour", description },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className="dark bg-black">
-      <body className="bg-black text-[#EDEDED] selection:bg-[#22C55E]/30 antialiased">{children}</body>
+    <html lang="en" className={`${GeistSans.variable} ${GeistMono.variable}`}>
+      <body>{children}</body>
     </html>
   );
 }

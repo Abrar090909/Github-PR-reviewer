@@ -1,160 +1,85 @@
 "use client";
 
 import { useState } from "react";
-import { GITHUB_APP_INSTALL_URL } from "@/lib/constants";
+import { Check, Copy } from "lucide-react";
+import { GITHUB_APP_INSTALL_URL, GITHUB_REPOSITORY_URL } from "@/lib/constants";
+import GitHubMark from "../../components/GitHubMark";
 
-/*
-  Install section — two real options with honest capability descriptions.
-  No 4-column-footer-style info layout.
-  No fake terminal window.
-  Arrows removed — install buttons describe themselves without a directional cue.
-*/
+const WORKFLOW = `on: pull_request
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  contour:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: Abrar090909/Github-PR-reviewer/packages/action@master
+        with:
+          api-key: \${{ secrets.GEMINI_API_KEY }}`;
 
 export default function InstallSection() {
   const [copied, setCopied] = useState(false);
 
-  function copy() {
-    navigator.clipboard.writeText("npx skills add contour");
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+  async function copy() {
+    try {
+      await navigator.clipboard.writeText(WORKFLOW);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // Clipboard access can be refused; the snippet stays selectable.
+    }
   }
 
   return (
-    <section id="install" style={{ padding: "80px 24px", borderTop: "1px solid var(--border)" }}>
-      <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+    <section id="install" className="section">
+      <div className="mx-auto max-w-6xl">
+        <p className="eyebrow">Install</p>
+        <h2 className="heading">Install once, and every pull request gets a diagram</h2>
 
-        <div style={{ marginBottom: 40 }}>
-          <p style={{ fontSize: 12, fontFamily: "'IBM Plex Mono', monospace", color: "var(--text-dim)", letterSpacing: "0.08em", marginBottom: 14 }}>
-            GET STARTED
-          </p>
-          <h2 style={{ fontSize: 28, fontWeight: 700, letterSpacing: "-0.025em", color: "var(--text-primary)", margin: "0 0 10px" }}>
-            Install once. Every PR is covered.
-          </h2>
-          <p style={{ fontSize: 15, color: "var(--text-secondary)", margin: 0 }}>
-            Choose the repositories. Contour handles the model, analysis, diagrams, and PR comments.
-          </p>
-        </div>
-
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24 }}>
-
-          {/* Option 1: Hosted GitHub App */}
-          <div style={{
-            background: "var(--bg-surface)",
-            border: "1px solid var(--border-muted)",
-            borderRadius: 6,
-            padding: 28,
-          }}>
-            <div style={{ fontSize: 13, fontWeight: 600, color: "var(--text-primary)", marginBottom: 6 }}>
-              GitHub App
-            </div>
-            <div style={{ fontSize: 11, fontFamily: "'IBM Plex Mono', monospace", color: "var(--text-dim)", marginBottom: 16 }}>
-              recommended
-            </div>
-            <p style={{ fontSize: 13, color: "var(--text-secondary)", lineHeight: 1.65, marginBottom: 24 }}>
-              Install Contour on the repositories you choose. Every pull request gets
-              an architecture comment that updates on each push. No workflow, local
-              install, or model key is required.
+        <div className="mt-12 grid gap-4 md:grid-cols-[2fr_3fr]">
+          <div className="flex flex-col rounded-2xl border border-line bg-ink-850 p-6">
+            <h3 className="text-[17px] font-medium">GitHub App</h3>
+            <p className="mt-1 font-mono text-[13px] text-fg-3">hosted · recommended</p>
+            <p className="mt-4 flex-1 text-[15px] leading-7 text-fg-2">
+              Choose the repositories and you are done. Contour runs the model, renders the diagrams and keeps the
+              comment current. No workflow file and no model key.
             </p>
-
-            <a
-              href={GITHUB_APP_INSTALL_URL}
-              id="install-github-app-cta"
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 8,
-                padding: "9px 18px",
-                background: "var(--accent)",
-                color: "#fff",
-                fontWeight: 600,
-                fontSize: 13,
-                borderRadius: 5,
-                textDecoration: "none",
-                transition: "opacity 160ms",
-              }}
-              onMouseEnter={e => (e.currentTarget.style.opacity = "0.85")}
-              onMouseLeave={e => (e.currentTarget.style.opacity = "1")}
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/>
-              </svg>
+            <a href={GITHUB_APP_INSTALL_URL} target="_blank" rel="noopener noreferrer" className="btn-primary mt-6 self-start">
+              <GitHubMark />
               Add to GitHub
             </a>
           </div>
 
-          {/* Option 2: AI agent skill */}
-          <div style={{
-            background: "var(--bg-surface)",
-            border: "1px solid var(--border)",
-            borderRadius: 6,
-            padding: 28,
-          }}>
-            <div style={{ fontSize: 13, fontWeight: 600, color: "var(--text-primary)", marginBottom: 6 }}>
-              AI agent skill
+          <div className="flex min-w-0 flex-col rounded-2xl border border-line bg-ink-850 p-6">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h3 className="text-[17px] font-medium">GitHub Action</h3>
+                <p className="mt-1 font-mono text-[13px] text-fg-3">self-hosted · your own model key</p>
+              </div>
+              <button type="button" onClick={copy} className="btn-secondary h-9 shrink-0 px-3 text-[13px]">
+                {copied ? <Check size={16} strokeWidth={1.5} /> : <Copy size={16} strokeWidth={1.5} />}
+                {copied ? "Copied" : "Copy"}
+              </button>
             </div>
-            <div style={{ fontSize: 11, fontFamily: "'IBM Plex Mono', monospace", color: "var(--text-dim)", marginBottom: 16 }}>
-              Cursor · Claude Code · Copilot
-            </div>
-            <p style={{ fontSize: 13, color: "var(--text-secondary)", lineHeight: 1.65, marginBottom: 24 }}>
-              Run Contour locally as part of your AI coding agent workflow. Analyzes
-              the current branch diff and outputs the diagram to your terminal or
-              attaches it to the PR you're about to open.
+            <p className="mt-4 text-[15px] leading-7 text-fg-2">
+              Add this to <code className="font-mono text-[13px] text-fg">.github/workflows/contour.yml</code> and a{" "}
+              <code className="font-mono text-[13px] text-fg">GEMINI_API_KEY</code> secret. OpenAI and any
+              /chat/completions endpoint work too, see the{" "}
+              <a href={`${GITHUB_REPOSITORY_URL}/blob/master/packages/action/README.txt`} className="text-accent hover:underline">
+                Action reference
+              </a>
+              .
             </p>
-
-            <button
-              onClick={copy}
-              id="copy-npx-command"
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                width: "100%",
-                padding: "9px 14px",
-                background: "var(--bg-base)",
-                border: "1px solid var(--border-muted)",
-                borderRadius: 5,
-                fontFamily: "'IBM Plex Mono', monospace",
-                fontSize: 13,
-                color: "var(--text-secondary)",
-                cursor: "pointer",
-                transition: "border-color 160ms",
-              }}
-              onMouseEnter={e => (e.currentTarget.style.borderColor = "var(--accent)")}
-              onMouseLeave={e => (e.currentTarget.style.borderColor = "var(--border-muted)")}
-            >
-              <span>$ npx skills add contour</span>
-              <span style={{ fontSize: 11, color: copied ? "var(--delta-new)" : "var(--text-dim)" }}>
-                {copied ? "copied" : "copy"}
-              </span>
-            </button>
+            <pre className="mt-4 overflow-x-auto rounded-xl border border-line bg-ink-950 p-4 font-mono text-[13px] leading-6 text-fg-2">
+              {WORKFLOW}
+            </pre>
           </div>
         </div>
-
-        {/* Security facts — not bullet-and-checkmark template */}
-        <div style={{
-          marginTop: 32,
-          padding: "16px 24px",
-          background: "var(--bg-surface)",
-          border: "1px solid var(--border)",
-          borderRadius: 6,
-          display: "flex",
-          gap: 40,
-          flexWrap: "wrap",
-        }}>
-          {[
-            "Free for public repos",
-            "No source code stored in the database",
-            "No API key or workflow required",
-            "Uninstall removes all stored data",
-          ].map((fact, i) => (
-            <span key={i} style={{ fontSize: 12, color: "var(--text-secondary)" }}>
-              {fact}
-            </span>
-          ))}
-        </div>
-
       </div>
     </section>
   );

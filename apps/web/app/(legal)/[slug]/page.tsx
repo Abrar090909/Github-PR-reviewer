@@ -16,7 +16,7 @@ const documents: Record<string, Document> = {
     title: "About Contour",
     intro: "Contour is a digital software service for reviewing GitHub pull requests.",
     sections: [
-      { heading: "What the service does", body: <p>After you install the Contour GitHub App on selected repositories, Contour reads pull request changes, produces an architecture and risk summary, and posts a diagram and explanation to the pull request. The local CLI can also create diagrams without installing the hosted app.</p> },
+      { heading: "What the service does", body: <p>After you install the Contour GitHub App on selected repositories, Contour reads pull request changes, draws its architecture and data flow, and posts the diagrams to the pull request as a comment. The local CLI can also create diagrams without installing the hosted app.</p> },
       { heading: "Who operates it", body: <p>Contour is currently an independent software project operated from India under the Contour name. For support and business enquiries, use the details on our <Link href="/contact">contact page</Link>.</p> },
       { heading: "How it is delivered", body: <p>Contour is delivered online through the GitHub App and CLI. No physical goods are shipped. See our <Link href="/delivery">delivery policy</Link> for access details.</p> },
     ],
@@ -102,20 +102,24 @@ export default async function LegalPage({ params }: { params: Promise<{ slug: st
   if (!document) notFound();
 
   return (
-    <main className="legal-shell">
-      <header className="legal-header">
-        <Link href="/" className="legal-brand"><ContourLogo size={38} /><span>Contour</span></Link>
-        <Link href="/">Back to site</Link>
+    <main className="min-h-screen">
+      <header className="mx-auto flex max-w-3xl items-center justify-between gap-4 px-6 py-6">
+        <Link href="/" className="inline-flex items-center gap-2 font-medium"><ContourLogo size={28} />Contour</Link>
+        <Link href="/" className="link text-sm">Back to site</Link>
       </header>
-      <article className="legal-content">
-        <p className="legal-eyebrow">CONTOUR / INFORMATION</p>
-        <h1>{document.title}</h1>
-        <p className="legal-intro">{document.intro}</p>
-        <p className="legal-date">Last updated {updated}</p>
-        {document.sections.map((section) => <section key={section.heading}><h2>{section.heading}</h2>{section.body}</section>)}
+      <article className="mx-auto max-w-3xl px-6 pb-20 pt-8 [&_a]:text-accent [&_a:hover]:underline">
+        <h1 className="text-4xl font-medium tracking-[-0.02em] md:text-5xl">{document.title}</h1>
+        <p className="mt-4 text-lg leading-relaxed text-fg-2">{document.intro}</p>
+        <p className="mt-2 font-mono text-xs text-fg-3">Last updated {updated}</p>
+        {document.sections.map((section) => (
+          <section key={section.heading} className="mt-8 border-t border-line pt-6 [&_p]:mb-3 [&_p]:text-[15px] [&_p]:leading-7 [&_p]:text-fg-2">
+            <h2 className="mb-3 text-lg font-medium">{section.heading}</h2>
+            {section.body}
+          </section>
+        ))}
       </article>
-      <footer className="legal-footer">
-        {Object.entries(documents).map(([path, item]) => <Link key={path} href={`/${path}`}>{item.title}</Link>)}
+      <footer className="mx-auto flex max-w-3xl flex-wrap gap-x-5 gap-y-2 border-t border-line px-6 py-6 text-[13px]">
+        {Object.entries(documents).map(([path, item]) => <Link key={path} href={`/${path}`} className="link">{item.title}</Link>)}
       </footer>
     </main>
   );

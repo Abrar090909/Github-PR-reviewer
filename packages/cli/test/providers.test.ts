@@ -13,7 +13,7 @@ test("the key is read from the environment, and named in the error when it is mi
 test("--api-key-env points at another variable", () => {
   const provider = resolveProvider({ ...options, apiKeyEnv: "WORK_KEY" }, { WORK_KEY: "k" });
   expect(provider).toMatchObject({ id: "gemini", apiKey: "k" });
-  expect(provider.model).toBe("gemini-3.7-flash");
+  expect(provider.model).toBe("gemini-3.8-flash");
 });
 
 test("a trailing slash on --base-url does not become a double slash in the request", () => {

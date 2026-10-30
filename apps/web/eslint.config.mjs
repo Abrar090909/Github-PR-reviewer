@@ -6,7 +6,7 @@ const root = dirname(fileURLToPath(import.meta.url));
 const compat = new FlatCompat({ baseDirectory: root });
 
 const config = [
-  { ignores: [".next/**", ".vercel/**", "next-env.d.ts", "create_demo_pr.js"] },
+  { ignores: [".next/**", ".vercel/**", "next-env.d.ts"] },
   ...compat.extends("next/core-web-vitals", "next/typescript"),
   {
     rules: {

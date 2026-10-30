@@ -39,3 +39,4 @@ scripts/vercel_check.ps1
 
 .vercel
 .env*
+!.env.example

@@ -4,7 +4,6 @@ import {
   BADGE_GAP,
   BADGE_HEIGHT,
   BADGE_RADIUS,
-  BADGE_RISE,
   CARD_PADDING_X,
   CARD_RADIUS,
   HERO_PULSE_COUNT,
@@ -23,7 +22,6 @@ import { coord, type Box } from "../geometry.js";
 import {
   badgeRow,
   badgeWidth,
-  cardBadges,
   cardTextWidth,
   deltaBadgeText,
   laneHeaderText,

@@ -62,16 +62,6 @@ export const parseDiffIndex = (patch: string): DiffIndex => {
 };
 
 /**
- * Returns true if `line` falls inside at least one changed hunk for `file`
- * according to the diff index.
- */
-export const isLineInDiff = (index: DiffIndex, file: string, line: number): boolean => {
-  const hunks = index.get(file);
-  if (hunks === undefined) return false;
-  return hunks.some((hunk) => line >= hunk.newStart && line <= hunk.newEnd);
-};
-
-/**
  * Returns true if the range [start, end] overlaps at least one changed hunk.
  * Partial overlap counts: evidence starting in a changed block is valid.
  */
