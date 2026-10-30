@@ -1,191 +1,88 @@
-"use client";
-
-import { useState } from "react";
 import { GITHUB_APP_INSTALL_URL } from "@/lib/constants";
 
-/*
-  Pricing — 3 real tiers (Free / Team / Enterprise) because the product
-  genuinely has three distinct customer groups. Team is highlighted because
-  it's the tier that funds the company, not because "middle tier is always best".
-  No "Most Popular" capsule badge. No three-column mirror-image layout.
-  Annual toggle reduces price — the actual discount is shown.
-*/
+const CONTACT = "mailto:abrar.dev26@gmail.com";
 
 const PLANS = [
   {
-    id: "free",
     name: "Free",
-    price: { monthly: "$0", annually: "$0" },
-    for: "Public open-source repos",
-    features: [
-      "Public repo analyses (fair-use limits apply)",
-      "Architecture + coverage lenses",
-      "Behavior delta descriptions",
-      "Gemini as the LLM (default)",
-    ],
-    cta: "Install free",
+    status: "available now",
+    price: "$0",
+    per: null,
+    for: "Public repositories",
+    features: ["Architecture and data-flow diagrams", "Walkthrough and diff evidence", "One comment per PR, kept current", "Fair-use limits apply"],
+    cta: "Add to GitHub",
     href: GITHUB_APP_INSTALL_URL,
-    highlight: false,
+    primary: true,
   },
   {
-    id: "team",
-    name: "Team (planned)",
-    price: { monthly: "$16", annually: "$13" },
-    per: "/ dev / month",
-    for: "Planned paid tier for private repos",
-    features: [
-      "Everything in Free",
-      "Private repository analysis",
-      "Team billing and administration",
-      "Additional model options under development",
-    ],
+    name: "Team",
+    status: "planned",
+    price: "$16",
+    per: "per developer / month",
+    for: "Private repositories",
+    features: ["Everything in Free", "Private repository analysis", "Team billing and administration"],
     cta: "Ask about Team",
-    href: "mailto:abrar.dev26@gmail.com?subject=Contour%20Team%20plan",
-    highlight: true,
-    highlightReason: "Planned pricing; subscriptions are not available yet.",
+    href: `${CONTACT}?subject=Contour%20Team%20plan`,
+    primary: false,
   },
   {
-    id: "enterprise",
-    name: "Enterprise (planned)",
-    price: { monthly: "Custom", annually: "Custom" },
-    for: "Discuss requirements with us",
-    features: [
-      "Everything in Team",
-      "Custom plan discussion",
-      "Requirements and availability confirmed before purchase",
-    ],
+    name: "Enterprise",
+    status: "planned",
+    price: "Custom",
+    per: null,
+    for: "Requirements discussed first",
+    features: ["Everything in Team", "Terms agreed before purchase"],
     cta: "Contact us",
-    href: "mailto:abrar.dev26@gmail.com?subject=Contour%20Enterprise",
-    highlight: false,
+    href: `${CONTACT}?subject=Contour%20Enterprise`,
+    primary: false,
   },
 ];
 
 export default function Pricing() {
-  const [billing, setBilling] = useState<"monthly" | "annually">("monthly");
-
   return (
-    <section id="pricing" style={{ padding: "80px 24px", borderTop: "1px solid var(--border)" }}>
-      <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+    <section id="pricing" className="section">
+      <div className="mx-auto max-w-6xl">
+        <p className="eyebrow">Pricing</p>
+        <h2 className="heading">Free for public repositories</h2>
+        <p className="mt-4 max-w-2xl text-[15px] leading-7 text-fg-2">
+          Paid plans are planned and not on sale yet. Installing Contour never asks for payment.
+        </p>
 
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 40 }}>
-          <div>
-            <p style={{ fontSize: 12, fontFamily: "'IBM Plex Mono', monospace", color: "var(--text-dim)", letterSpacing: "0.08em", marginBottom: 14 }}>
-              PRICING
-            </p>
-            <h2 style={{ fontSize: 28, fontWeight: 700, letterSpacing: "-0.025em", color: "var(--text-primary)", margin: 0 }}>
-              Free for open source. Paid plans are in development.
-            </h2>
-          </div>
-
-          {/* Billing toggle */}
-          <div style={{ display: "flex", gap: 2, background: "var(--bg-surface)", border: "1px solid var(--border)", borderRadius: 6, padding: 3 }}>
-            {(["monthly", "annually"] as const).map(opt => (
-              <button
-                key={opt}
-                id={`billing-${opt}`}
-                onClick={() => setBilling(opt)}
-                style={{
-                  fontSize: 13,
-                  padding: "5px 14px",
-                  borderRadius: 4,
-                  border: "none",
-                  background: billing === opt ? "var(--bg-raised)" : "transparent",
-                  color: billing === opt ? "var(--text-primary)" : "var(--text-dim)",
-                  cursor: "pointer",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 6,
-                  transition: "all 160ms",
-                }}
-              >
-                {opt.charAt(0).toUpperCase() + opt.slice(1)}
-                {opt === "annually" && billing === opt && (
-                  <span style={{ fontSize: 11, color: "var(--delta-new)", fontFamily: "'IBM Plex Mono', monospace" }}>
-                    −20%
-                  </span>
-                )}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16, alignItems: "start" }}>
-          {PLANS.map(plan => (
+        <div className="mt-12 grid gap-4 md:grid-cols-3">
+          {PLANS.map((plan) => (
             <div
-              key={plan.id}
-              id={`plan-${plan.id}`}
-              style={{
-                background: plan.highlight ? "var(--bg-raised)" : "var(--bg-surface)",
-                border: `1px solid ${plan.highlight ? "var(--border-muted)" : "var(--border)"}`,
-                borderRadius: 6,
-                padding: 24,
-                display: "flex",
-                flexDirection: "column",
-              }}
+              key={plan.name}
+              className={`flex flex-col rounded-2xl border p-6 ${
+                plan.primary ? "border-fg/15 bg-ink-800 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]" : "border-line bg-ink-850"
+              }`}
             >
-              <div style={{ marginBottom: 20 }}>
-                <div style={{ fontSize: 14, fontWeight: 600, color: "var(--text-primary)", marginBottom: 4 }}>
-                  {plan.name}
-                </div>
-                <div style={{ fontSize: 11, color: "var(--text-dim)", fontFamily: "'IBM Plex Mono', monospace", marginBottom: 16 }}>
-                  {plan.for}
-                </div>
-                <div style={{ display: "flex", alignItems: "baseline", gap: 4 }}>
-                  <span style={{
-                    fontSize: 32,
-                    fontWeight: 700,
-                    color: "var(--text-primary)",
-                    fontVariantNumeric: "tabular-nums",
-                    fontFamily: "'IBM Plex Mono', monospace",
-                    letterSpacing: "-0.02em",
-                  }}>
-                    {billing === "annually" ? plan.price.annually : plan.price.monthly}
-                  </span>
-                  {plan.per && (
-                    <span style={{ fontSize: 12, color: "var(--text-dim)" }}>{plan.per}</span>
-                  )}
-                </div>
+              <div className="flex items-baseline justify-between gap-2">
+                <h3 className="text-[17px] font-medium">{plan.name}</h3>
+                <span className={`font-mono text-xs ${plan.primary ? "text-accent" : "text-fg-3"}`}>{plan.status}</span>
               </div>
-
-              <ul style={{ margin: "0 0 24px", padding: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: 10, flex: 1 }}>
-                {plan.features.map(f => (
-                  <li key={f} style={{ fontSize: 13, color: "var(--text-secondary)", display: "flex", gap: 8, lineHeight: 1.5 }}>
-                    <span style={{ color: "var(--border-muted)", flexShrink: 0, marginTop: 2 }}>—</span>
-                    {f}
+              <p className="mt-1 text-sm text-fg-2">{plan.for}</p>
+              <p className="mt-6 flex items-baseline gap-2">
+                <span className="text-[32px] font-medium leading-none tabular-nums">{plan.price}</span>
+                {plan.per && <span className="text-sm text-fg-3">{plan.per}</span>}
+              </p>
+              <ul className="mt-6 flex-1 space-y-2">
+                {plan.features.map((feature) => (
+                  <li key={feature} className="text-sm leading-6 text-fg-2">
+                    {feature}
                   </li>
                 ))}
               </ul>
-
               <a
                 href={plan.href}
                 target={plan.href.startsWith("http") ? "_blank" : undefined}
                 rel="noopener noreferrer"
-                style={{
-                  display: "block",
-                  padding: "9px 16px",
-                  borderRadius: 5,
-                  textAlign: "center",
-                  fontSize: 13,
-                  fontWeight: 600,
-                  textDecoration: "none",
-                  background: plan.highlight ? "var(--accent)" : "transparent",
-                  color: plan.highlight ? "#fff" : "var(--text-secondary)",
-                  border: `1px solid ${plan.highlight ? "var(--accent)" : "var(--border-muted)"}`,
-                  transition: "opacity 160ms",
-                }}
-                onMouseEnter={e => (e.currentTarget.style.opacity = "0.8")}
-                onMouseLeave={e => (e.currentTarget.style.opacity = "1")}
+                className={`${plan.primary ? "btn-primary" : "btn-secondary"} mt-8 w-full`}
               >
                 {plan.cta}
               </a>
             </div>
           ))}
         </div>
-
-        <p style={{ fontSize: 12, color: "var(--text-dim)", textAlign: "center", marginTop: 24 }}>
-          Paid subscriptions and trials are not available yet. No payment is collected when you install Contour.
-        </p>
-
       </div>
     </section>
   );

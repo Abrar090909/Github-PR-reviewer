@@ -9,7 +9,6 @@ import { PrLensCliError } from "./errors.js";
  */
 export const COMMENT_MARKER = "<!-- contour -->";
 
-const PROJECT_URL = "https://contour.dev";
 const CONTOUR_URL = "https://contour.dev";
 
 export type CommentOptions = {

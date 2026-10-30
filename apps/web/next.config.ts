@@ -4,7 +4,6 @@ import path from "node:path";
 const nextConfig: NextConfig = {
   poweredByHeader: false,
   transpilePackages: ["@contour/schema", "@contour/renderer"],
-  serverExternalPackages: ["pino"],
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "avatars.githubusercontent.com" },

@@ -1,74 +1,43 @@
+const STATES = [
+  { mark: "+", label: "Added", color: "text-added", detail: "New routes, services, functions and stores" },
+  { mark: "~", label: "Modified", color: "text-modified", detail: "Parts whose code the diff changed" },
+  { mark: "−", label: "Removed", color: "text-removed", detail: "Parts the change retires, drawn dashed" },
+  { mark: "·", label: "Unchanged", color: "text-fg-3", detail: "Neighbours the change touches, so the blast radius is visible" },
+];
+
 export default function ProblemFraming() {
   return (
-    <section style={{ padding: "80px 24px", borderTop: "1px solid var(--border)" }}>
-      <div style={{ maxWidth: 1100, margin: "0 auto", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 80, alignItems: "start" }} className="grid-cols-1 md:grid-cols-2">
-
-        {/* Left: argument */}
+    <section className="section">
+      <div className="mx-auto grid max-w-6xl gap-12 md:grid-cols-2 md:gap-20">
         <div>
-          <p style={{ fontSize: 12, fontFamily: "'Geist Mono', monospace", color: "var(--text-dim)", letterSpacing: "0.08em", marginBottom: 20 }}>
-            WHY REVIEWS ARE HARD TODAY
-          </p>
-          <h2 style={{ fontSize: 32, fontWeight: 700, lineHeight: 1.22, letterSpacing: "-0.025em", color: "var(--text-primary)", marginBottom: 20 }}>
-            Code is fast to write.
-            <br />
-            Reviewing it is still painful.
-          </h2>
-          <p style={{ fontSize: 15, color: "var(--text-secondary)", lineHeight: 1.75, marginBottom: 16 }}>
-            Whether code is written by ChatGPT, Cursor, or your coworkers, Pull Requests
-            are getting larger and harder to follow. Reading 500 lines across 15 separate files
-            makes it nearly impossible to spot breaking changes.
-          </p>
-          <p style={{ fontSize: 15, color: "var(--text-secondary)", lineHeight: 1.75 }}>
-            Saying "Looks good to me" shouldn't be a shot in the dark.
-            Contour gives you a high-level visual map so you immediately know what parts
-            are safe and what parts need careful testing.
-          </p>
+          <p className="eyebrow">Why review is slow</p>
+          <h2 className="heading">A diff shows lines. A reviewer needs the shape of the change</h2>
+          <div className="mt-6 space-y-4 text-base leading-7 text-fg-2">
+            <p>
+              A pull request that touches fifteen files arrives as fifteen separate lists of lines. Working out which
+              service calls which, and what stopped being called, happens in the reviewer&apos;s head.
+            </p>
+            <p>
+              Contour does that part first. It reads the diff, draws the parts it touches in the lanes they run in,
+              and marks every part against the base branch.
+            </p>
+          </div>
         </div>
 
-        {/* Right: three plain-English stats */}
-        <div style={{ paddingTop: 20 }}>
-          {[
-            {
-              figure: "68%",
-              text: "of developers say modern AI-assisted PRs are much harder to review thoroughly",
-              color: "var(--risk-high)",
-            },
-            {
-              figure: "4.7×",
-              text: "higher chance of missing a silent bug when reviewing large multi-file diffs",
-              color: "var(--risk-mid)",
-            },
-            {
-              figure: "0 sec",
-              text: "time required to understand how changed files connect with Contour's automatic map",
-              color: "var(--risk-low)",
-            },
-          ].map((item, i) => (
-            <div key={i} style={{
-              display: "flex",
-              gap: 20,
-              paddingBottom: 28,
-              marginBottom: 28,
-              borderBottom: i < 2 ? "1px solid var(--border)" : "none",
-            }}>
-              <div style={{
-                fontFamily: "'Geist Mono', monospace",
-                fontSize: 30,
-                fontWeight: 700,
-                color: item.color,
-                minWidth: 80,
-                lineHeight: 1.1,
-                letterSpacing: "-0.02em",
-              }}>
-                {item.figure}
-              </div>
-              <p style={{ fontSize: 14, color: "var(--text-secondary)", lineHeight: 1.65, margin: 0, paddingTop: 4 }}>
-                {item.text}
-              </p>
-            </div>
-          ))}
+        <div className="md:pt-10">
+          <p className="mb-4 text-sm text-fg-2">Every part of a diagram carries one of four marks</p>
+          <ul className="divide-y divide-line border-y border-line">
+            {STATES.map((state) => (
+              <li key={state.label} className="grid grid-cols-[24px_96px_1fr] items-baseline gap-2 py-4">
+                <span className={`font-mono text-lg leading-none ${state.color}`} aria-hidden="true">
+                  {state.mark}
+                </span>
+                <span className="text-[15px]">{state.label}</span>
+                <span className="text-sm leading-6 text-fg-2">{state.detail}</span>
+              </li>
+            ))}
+          </ul>
         </div>
-
       </div>
     </section>
   );

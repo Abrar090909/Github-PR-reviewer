@@ -46,7 +46,7 @@ export const providerDefaults = (id: ProviderId): ProviderDefaults => {
       return {
         apiKeyEnv: "GEMINI_API_KEY",
         baseUrl: "https://generativelanguage.googleapis.com/v1beta",
-        model: "gemini-3.7-flash",
+        model: "gemini-3.8-flash",
       };
     case "openai":
       return {
