@@ -1,6 +1,6 @@
 export default function ContourLogo({ size = 32 }: { size?: number }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 110 90" fill="none" aria-hidden="true" focusable="false" style={{ flexShrink: 0 }}>
+    <svg width={size} height={size} viewBox="16 4 77 77" fill="none" aria-hidden="true" focusable="false" style={{ flexShrink: 0 }}>
       <g stroke="#52a191" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
         <path d="M20 50 C20 20 40 10 50 10 C70 10 90 20 90 40 C90 60 80 70 65 70 C40 70 30 50 30 40 C30 30 40 25 50 25 C60 25 70 30 70 40 C70 50 60 60 50 60 L50 50" />
         <path d="M65 70 C70 70 72.5 65 80 65 M65 70 C70 70 72.5 75 80 75" />
