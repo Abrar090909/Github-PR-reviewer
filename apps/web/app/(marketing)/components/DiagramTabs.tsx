@@ -1,10 +1,10 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { Maximize2 } from "lucide-react";
 import type { Diagram } from "@/lib/showcase";
+import ThemedDiagram from "../../components/ThemedDiagram";
 
 type Tab = { label: string; diagram: Diagram; href: string };
 
@@ -43,16 +43,16 @@ export default function DiagramTabs({ tabs }: { tabs: Tab[] }) {
         href={current.href}
         role="tabpanel"
         aria-label={`${current.diagram.alt}. Open it on the interactive map`}
-        className="group relative mt-4 block overflow-x-auto border-t border-line bg-[#0d1117] p-2 sm:p-4"
+        className="group relative mt-4 block overflow-x-auto border-t border-line bg-canvas p-2 sm:p-4"
       >
-        <Image
+        <ThemedDiagram
           key={current.diagram.src}
           src={current.diagram.src}
+          srcLight={current.diagram.srcLight}
           width={current.diagram.width}
           height={current.diagram.height}
           alt={current.diagram.alt}
           priority
-          unoptimized
           className="mx-auto h-auto w-full min-w-[640px] max-w-[1040px]"
         />
         <span className="pointer-events-none absolute right-4 top-4 inline-flex items-center gap-1.5 rounded-lg border border-line bg-ink-850/95 px-3 py-1.5 text-[13px] text-fg opacity-90 transition-opacity duration-150 group-hover:opacity-100">

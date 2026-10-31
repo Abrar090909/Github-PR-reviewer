@@ -22,7 +22,9 @@ import {
 import type { Box } from "@contour/renderer";
 import type { MapModel, Part } from "@/lib/hosted/map";
 import type { Finding } from "@/lib/hosted/review";
+import { playClick } from "@/lib/click-sound";
 import ContourLogo from "../../components/ContourLogo";
+import { THEME_KEY } from "../../components/ThemeToggle";
 
 type Camera = { x: number; y: number; k: number };
 type Tab = "overview" | "review" | "part";
@@ -273,7 +275,7 @@ export default function Viewer({ model }: { model: MapModel }) {
   useEffect(() => {
     if (isNarrow()) setPanelOpen(false);
     try {
-      const saved = window.localStorage.getItem("contour-map-theme");
+      const saved = window.localStorage.getItem(THEME_KEY);
       if (saved === "light" || saved === "dark") setTheme(saved);
     } catch {
       // Storage can be unavailable; dark is fine.
@@ -281,10 +283,11 @@ export default function Viewer({ model }: { model: MapModel }) {
   }, []);
 
   const toggleTheme = useCallback(() => {
+    playClick();
     setTheme((current) => {
       const next = current === "dark" ? "light" : "dark";
       try {
-        window.localStorage.setItem("contour-map-theme", next);
+        window.localStorage.setItem(THEME_KEY, next);
       } catch {
         // Not remembered, still switched.
       }

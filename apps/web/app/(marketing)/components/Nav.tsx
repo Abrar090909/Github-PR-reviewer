@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
 import ContourLogo from "../../components/ContourLogo";
+import ThemeToggle from "../../components/ThemeToggle";
 import { GITHUB_APP_INSTALL_URL, GITHUB_REPOSITORY_URL } from "@/lib/constants";
 
 const LINKS = [
@@ -43,7 +44,8 @@ export default function Nav() {
           ))}
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3 sm:gap-4">
+          <ThemeToggle />
           <a href={GITHUB_REPOSITORY_URL} target="_blank" rel="noopener noreferrer" className="link hidden text-sm sm:inline">
             Source
           </a>

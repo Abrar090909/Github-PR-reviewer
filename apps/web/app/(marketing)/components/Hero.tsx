@@ -30,7 +30,7 @@ export default function Hero() {
         <p className="mt-5 text-sm text-fg-2">Free for public repositories · no workflow file or API key · read-only access to code</p>
 
         {/* A PR comment as Contour posts it. The diagram is real renderer output. */}
-        <figure className="mt-14 overflow-hidden rounded-2xl border border-fg/15 bg-ink-850 shadow-[0_24px_64px_rgba(0,0,0,0.45)] md:mt-20">
+        <figure className="mt-14 overflow-hidden rounded-2xl border border-fg/15 bg-ink-850 shadow-[0_24px_64px_rgb(var(--shadow))] md:mt-20">
           <div className="flex flex-wrap items-center gap-x-2 gap-y-1 border-b border-line bg-ink-800 px-4 py-3 text-sm sm:px-6">
             <ContourLogo size={20} />
             <span className="font-medium">contour</span>

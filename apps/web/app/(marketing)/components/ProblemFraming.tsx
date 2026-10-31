@@ -1,7 +1,7 @@
 import Link from "next/link";
-import Image from "next/image";
 import { FileCode2 } from "lucide-react";
 import { example } from "@/lib/showcase";
+import ThemedDiagram from "../../components/ThemedDiagram";
 
 const STATES = [
   { chip: "chip-added", label: "NEW", detail: "Routes, services, functions and stores the pull request adds" },
@@ -45,14 +45,13 @@ export default function ProblemFraming() {
           <div className="flex flex-col rounded-2xl border border-accent/40 bg-ink-850 p-5">
             <p className="text-sm font-medium">What Contour shows</p>
             <p className="mt-1 text-sm text-fg-2">The same change, in the lanes it runs in, marked against the base branch</p>
-            <Link href="/r/example#architecture" className="mt-4 block flex-1 overflow-hidden rounded-xl border border-line bg-[#0d1117]">
-              <Image
+            <Link href="/r/example#architecture" className="mt-4 block flex-1 overflow-hidden rounded-xl border border-line bg-canvas">
+              <ThemedDiagram
                 src={example.architecture.src}
+                srcLight={example.architecture.srcLight}
                 width={example.architecture.width}
                 height={example.architecture.height}
                 alt={`${example.architecture.alt}. Open it on the interactive map`}
-                unoptimized
-                loading="lazy"
                 className="h-auto w-full"
               />
             </Link>

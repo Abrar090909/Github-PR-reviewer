@@ -1,11 +1,11 @@
 import Link from "next/link";
-import Image from "next/image";
 import { postmarkRefactorGraph } from "@contour/schema/examples";
 import { GITHUB_APP_INSTALL_URL } from "@/lib/constants";
 import { readFirst } from "@/lib/hosted/focus";
 import { example } from "@/lib/showcase";
 import ContourLogo from "../../components/ContourLogo";
 import GitHubMark from "../../components/GitHubMark";
+import ThemedDiagram from "../../components/ThemedDiagram";
 
 const STEPS = [
   {
@@ -63,7 +63,7 @@ export default function HowItWorks() {
         {/* What step four looks like on the pull request, from the example's real output. */}
         <figure className="self-start lg:sticky lg:top-24">
           <figcaption className="mb-3 text-sm text-fg-2">What lands on the pull request</figcaption>
-          <div className="overflow-hidden rounded-2xl border border-fg/15 bg-ink-850 text-sm shadow-[0_16px_48px_rgba(0,0,0,0.35)]">
+          <div className="overflow-hidden rounded-2xl border border-fg/15 bg-ink-850 text-sm shadow-[0_16px_48px_rgb(var(--shadow))]">
             <div className="flex items-center gap-2 border-b border-line bg-ink-800 px-4 py-3">
               <ContourLogo size={18} />
               <span className="font-medium">contour</span>
@@ -79,14 +79,13 @@ export default function HowItWorks() {
                   <span className="rounded-md bg-fg/10 px-1.5 py-0.5 text-removed">−{stats?.deletions}</span>
                 </p>
               </div>
-              <Link href="/r/example#architecture" className="block overflow-hidden rounded-lg border border-line bg-[#0d1117]">
-                <Image
+              <Link href="/r/example#architecture" className="block overflow-hidden rounded-lg border border-line bg-canvas">
+                <ThemedDiagram
                   src={example.architecture.src}
+                  srcLight={example.architecture.srcLight}
                   width={example.architecture.width}
                   height={example.architecture.height}
                   alt={`${example.architecture.alt}, as it appears in the comment`}
-                  unoptimized
-                  loading="lazy"
                   className="h-auto w-full"
                 />
               </Link>

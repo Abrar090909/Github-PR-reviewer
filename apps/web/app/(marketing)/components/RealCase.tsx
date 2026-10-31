@@ -1,6 +1,6 @@
-import Image from "next/image";
 import { ExternalLink } from "lucide-react";
 import { GITHUB_REPOSITORY_URL } from "@/lib/constants";
+import ThemedDiagram from "../../components/ThemedDiagram";
 
 // Contour's own diagram of its own pull request, as published by the Action on
 // this repository. Checked into public/cases so the page never depends on it
@@ -11,7 +11,12 @@ const CASE = {
   files: 22,
   additions: 1827,
   deletions: 104,
-  image: { src: "/cases/contour-pr-4-architecture.svg", width: 1390, height: 596 },
+  image: {
+    src: "/cases/contour-pr-4-architecture.svg",
+    srcLight: "/cases/contour-pr-4-architecture-light.svg",
+    width: 1390,
+    height: 596,
+  },
   comment: `${GITHUB_REPOSITORY_URL}/pull/4#issuecomment-6536943489`,
 };
 
@@ -39,16 +44,15 @@ export default function RealCase() {
           href={CASE.comment}
           target="_blank"
           rel="noopener noreferrer"
-          className="group mt-10 block overflow-hidden rounded-2xl border border-fg/15 bg-[#0d1117] shadow-[0_24px_64px_rgba(0,0,0,0.4)]"
+          className="group mt-10 block overflow-hidden rounded-2xl border border-fg/15 bg-canvas shadow-[0_24px_64px_rgb(var(--shadow))]"
         >
           <div className="overflow-x-auto">
-            <Image
+            <ThemedDiagram
               src={CASE.image.src}
+              srcLight={CASE.image.srcLight}
               width={CASE.image.width}
               height={CASE.image.height}
               alt={`Architecture of pull request ${CASE.number}: the map viewer, review engine and graph analysis in Next.js, connected to Supabase and the Gemini API`}
-              unoptimized
-              loading="lazy"
               className="h-auto w-full min-w-[720px]"
             />
           </div>
