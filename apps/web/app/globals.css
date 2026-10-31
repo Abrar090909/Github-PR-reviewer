@@ -3,9 +3,32 @@
 @tailwind utilities;
 
 @layer base {
-  html {
-    background: #0d1117;
+  :root {
+    --ink-950: 9 12 16;
+    --ink-900: 13 17 23;
+    --ink-850: 17 22 29;
+    --ink-800: 22 27 34;
+    --ink-700: 31 37 46;
+    --fg: 230 237 243;
+    --fg-2: 145 152 161;
+    --fg-3: 125 133 144;
     color-scheme: dark;
+  }
+
+  [data-theme="light"] {
+    --ink-950: 246 248 250;
+    --ink-900: 255 255 255;
+    --ink-850: 246 248 250;
+    --ink-800: 246 248 250;
+    --ink-700: 234 238 242;
+    --fg: 31 35 40;
+    --fg-2: 89 99 110;
+    --fg-3: 101 109 118;
+    color-scheme: light;
+  }
+
+  html {
+    background: rgb(var(--ink-900));
     scroll-behavior: smooth;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -49,7 +72,7 @@
   }
 
   .btn-primary {
-    @apply btn bg-fg text-ink-900 hover:bg-white;
+    @apply btn bg-fg text-ink-900 hover:bg-fg/85;
   }
 
   .btn-secondary {

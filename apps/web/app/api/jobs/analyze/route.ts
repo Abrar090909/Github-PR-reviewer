@@ -6,6 +6,7 @@ import { db } from "@/lib/db";
 import { createInstallationOctokit } from "@/lib/github";
 import { analyzePullRequest, fetchPullRequestDiff } from "@/lib/hosted/analysis";
 import { COMMENT_MARKER, composeHostedComment } from "@/lib/hosted/comment";
+import { finishReview, postReview, requestFindings, type Finding, type Review } from "@/lib/hosted/review";
 import {
   appBaseUrl,
   verifyQStashRequest,
@@ -93,6 +94,25 @@ async function previousCommentId(
     per_page: 100,
   });
   return comments.find((comment) => comment.user?.type === "Bot" && comment.body?.includes(COMMENT_MARKER))?.id;
+}
+
+/** Findings already posted on this pull request, so a later push links them instead of repeating them. */
+async function previousFindings(job: AnalysisJob, analysisId: string): Promise<Finding[]> {
+  const { data, error } = await db
+    .from("pr_analyses")
+    .select("review")
+    .eq("installation_id", job.installationId)
+    .eq("repository_id", job.repositoryId)
+    .eq("pr_number", job.prNumber)
+    .neq("id", analysisId)
+    .not("review", "is", null)
+    .order("created_at", { ascending: false })
+    .limit(5);
+  if (error) return [];
+  return (data ?? []).flatMap((row) => {
+    const review = row.review as Review | null;
+    return review?.status === "complete" ? review.findings : [];
+  });
 }
 
 async function createProcessingAnalysis(job: AnalysisJob): Promise<string> {
@@ -193,15 +213,32 @@ async function processJob(job: AnalysisJob): Promise<{ status: string; analysisI
 
     const diff = await fetchPullRequestDiff(octokit, job);
     if (diff.files.length === 0) throw new Error("pull request has no changed files");
-    const graph = await analyzePullRequest(job, diff);
+    // The review does not need the diagram, so both model calls run at once.
+    const [graph, requested] = await Promise.all([analyzePullRequest(job, diff), requestFindings(job, diff)]);
     const stored = await storeAssets(analysisId, graph);
+    const mapUrl = `${appBaseUrl()}/r/${analysisId}?t=${encodeURIComponent(stored.token)}`;
+    let review: Review = finishReview(job, diff, graph, requested);
     const { error: preparedError } = await db.from("pr_analyses").update({
       graph_document: graph,
       asset_token_hash: tokenHash(stored.token),
       updated_at: new Date().toISOString(),
     }).eq("id", analysisId);
     if (preparedError) throw preparedError;
-    const body = composeHostedComment(graph, stored.manifest);
+    if (review.status === "complete") {
+      try {
+        review = await postReview(octokit, job, review, await previousFindings(job, analysisId), (finding) =>
+          `${mapUrl}#finding=${finding.fingerprint}`);
+      } catch {
+        // Inline comments are a bonus; the summary still lists every finding.
+      }
+    }
+    const body = composeHostedComment(graph, stored.manifest, {
+      repoFullName: job.repoFullName,
+      prNumber: job.prNumber,
+      headSha: job.headSha,
+      mapUrl,
+      review,
+    });
 
     const latest = await octokit.rest.pulls.get({ owner, repo, pull_number: job.prNumber });
     if (latest.data.head.sha !== job.headSha) {
@@ -224,6 +261,9 @@ async function processJob(job: AnalysisJob): Promise<{ status: string; analysisI
       updated_at: new Date().toISOString(),
     }).eq("id", analysisId);
     if (completeError) throw completeError;
+    // Stored on its own so a database without the review column (migration not
+    // yet applied) still completes the analysis; only the review page misses it.
+    await db.from("pr_analyses").update({ review }).eq("id", analysisId);
     return { status: "complete", analysisId };
   } catch {
     if (analysisId) await db.from("pr_analyses").update({

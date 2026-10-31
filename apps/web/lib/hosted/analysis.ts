@@ -3,14 +3,17 @@ import "server-only";
 import { safeParseGraphDoc, SCHEMA_VERSION, type GraphDoc, type GraphDocInput, type Lens } from "@contour/schema";
 import graphSchema from "@contour/schema/json-schema/graph-doc.schema.json";
 import type { Octokit } from "octokit";
+import { numberPatch, readPatch } from "./diff-lines";
 import type { AnalysisJob } from "./queue";
 
 type ChangedFile = { path: string; additions?: number; deletions?: number };
-type HostedDiff = {
+export type HostedDiff = {
   files: ChangedFile[];
   additions: number;
   deletions: number;
   patch: string;
+  /** Each file's own patch, as GitHub returned it, for grounding review comments. */
+  patches: Record<string, string>;
   truncatedAt?: number;
 };
 
@@ -28,6 +31,13 @@ const SYSTEM_PROMPT = [
   "Use three or four meaningful runtime or system-boundary lanes where possible.",
   "Prefer one useful data flow over several speculative flows.",
   "Give the document a concise title and a short explanation of what the change does.",
+  "Write a walkthrough of 3 to 6 steps in the order a reviewer needs them. Each step is one change: something added,",
+  "removed, replaced or moved. heading: up to 48 characters, built from change words (added, removed, now, moved).",
+  "body: one line up to 140 characters on what happens now that did not before. stage names the view or flow to show;",
+  "focus selects the 2 or 3 nodes, edges or flow messages the step is about. The first step is the headline change;",
+  "the last step may be an overview of everything touched.",
+  "For every added, modified or removed node, add evidence: the file and the head-side line range, read from the",
+  "numbers printed in the diff, with one sentence on why those lines are this node. Removed lines have no number.",
   "Answer with one JSON object and no markdown fence.",
 ].join("\n");
 
@@ -71,6 +81,7 @@ export async function fetchPullRequestDiff(
     additions: selected.reduce((sum, file) => sum + file.additions, 0),
     deletions: selected.reduce((sum, file) => sum + file.deletions, 0),
     patch: bounded.text,
+    patches: Object.fromEntries(selected.flatMap((file) => (file.patch ? [[file.filename, file.patch]] : []))),
     truncatedAt: bounded.truncated || allFiles.length > selected.length ? maxBytes : undefined,
   };
 }
@@ -80,6 +91,44 @@ const fileList = (diff: HostedDiff): string => diff.files.map((file) => {
   const deletions = file.deletions === undefined ? "" : ` -${file.deletions}`;
   return `  ${file.path} (${additions}${deletions})`;
 }).join("\n");
+
+/** Each file's patch with head-side numbers, within the same byte budget as the raw diff. */
+function numberedDiff(diff: HostedDiff): string {
+  const budget = Number(process.env.MAX_DIFF_BYTES_PER_CALL || 400_000);
+  const sections: string[] = [];
+  let bytes = 0;
+  for (const [path, patch] of Object.entries(diff.patches)) {
+    const section = `=== ${path}\n${numberPatch(patch)}`;
+    bytes += Buffer.byteLength(section);
+    if (bytes > budget) break;
+    sections.push(section);
+  }
+  return sections.join("\n");
+}
+
+/**
+ * Evidence the model wrote for lines the diff does not show is dropped, the
+ * same rule review findings follow, so "changed lines" on the map are real.
+ */
+function groundEvidence(body: Record<string, unknown>, diff: HostedDiff): Record<string, unknown> {
+  if (!Array.isArray(body.nodes)) return body;
+  const shown = Object.fromEntries(Object.entries(diff.patches).map(([path, patch]) => [path, readPatch(patch).visible]));
+  const nodes = body.nodes.map((node: unknown) => {
+    if (typeof node !== "object" || node === null || !Array.isArray((node as { evidence?: unknown }).evidence)) return node;
+    const evidence = ((node as { evidence: unknown[] }).evidence).filter((entry) => {
+      if (typeof entry !== "object" || entry === null) return false;
+      const { file, newStart, newEnd } = entry as { file?: unknown; newStart?: unknown; newEnd?: unknown };
+      const lines = typeof file === "string" ? shown[file] : undefined;
+      if (!lines || typeof newStart !== "number" || typeof newEnd !== "number" || newEnd < newStart) return false;
+      for (let line = newStart; line <= newEnd; line += 1) if (lines.has(line)) return true;
+      return false;
+    });
+    const rest = { ...(node as Record<string, unknown>) };
+    delete rest.evidence;
+    return evidence.length ? { ...rest, evidence } : rest;
+  });
+  return { ...body, nodes };
+}
 
 function extractionPrompt(job: AnalysisJob, diff: HostedDiff): string {
   return [
@@ -97,32 +146,49 @@ function extractionPrompt(job: AnalysisJob, diff: HostedDiff): string {
     JSON.stringify(graphSchema),
     "",
     diff.truncatedAt === undefined
-      ? "Diff:"
-      : `Diff (truncated at ${diff.truncatedAt} bytes; do not invent missing content):`,
-    diff.patch,
+      ? "Diff, with head-side line numbers:"
+      : `Diff, with head-side line numbers (truncated at ${diff.truncatedAt} bytes; do not invent missing content):`,
+    numberedDiff(diff),
   ].join("\n");
 }
 
-type Turn = { role: "user" | "model"; text: string };
+export type Turn = { role: "user" | "model"; text: string };
 
-async function completeGemini(turns: Turn[]): Promise<string> {
+// Gemini sheds load with 429 and 5xx ("the model is experiencing high demand"),
+// which usually clears within seconds; a pull request should not lose its
+// diagram to that.
+const RETRY_STATUSES = new Set([429, 500, 502, 503, 504]);
+const RETRY_DELAYS_MS = [2_000, 5_000, 10_000];
+
+export async function completeGemini(
+  turns: Turn[],
+  systemPrompt: string = SYSTEM_PROMPT,
+  maxOutputTokens: number = MAX_OUTPUT_TOKENS,
+): Promise<string> {
   const apiKey = process.env.GEMINI_API_KEY;
   const model = process.env.GEMINI_MODEL;
   if (!apiKey || !model) throw new Error("GEMINI_API_KEY and GEMINI_MODEL are required");
 
-  const response = await fetch(
+  const send = () => fetch(
     `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`,
     {
       method: "POST",
       headers: { "content-type": "application/json", "x-goog-api-key": apiKey },
       body: JSON.stringify({
-        systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
+        systemInstruction: { parts: [{ text: systemPrompt }] },
         contents: turns.map((turn) => ({ role: turn.role, parts: [{ text: turn.text }] })),
-        generationConfig: { responseMimeType: "application/json", temperature: 0, maxOutputTokens: MAX_OUTPUT_TOKENS },
+        generationConfig: { responseMimeType: "application/json", temperature: 0, maxOutputTokens },
       }),
-      signal: AbortSignal.timeout(300_000),
+      signal: AbortSignal.timeout(240_000),
     },
   );
+  let response = await send();
+  for (const delay of RETRY_DELAYS_MS) {
+    if (!RETRY_STATUSES.has(response.status)) break;
+    await response.body?.cancel();
+    await new Promise((resolve) => setTimeout(resolve, delay));
+    response = await send();
+  }
   const body = await response.text();
   if (!response.ok) throw new Error(`Gemini failed (${response.status}): ${body.slice(0, 500)}`);
 
@@ -138,7 +204,7 @@ async function completeGemini(turns: Turn[]): Promise<string> {
   return text;
 }
 
-const readObject = (text: string): Record<string, unknown> => {
+export const readObject = (text: string): Record<string, unknown> => {
   const start = text.indexOf("{");
   const end = text.lastIndexOf("}");
   if (start < 0 || end <= start) throw new Error("model response contained no JSON object");
@@ -187,7 +253,7 @@ export async function analyzePullRequest(job: AnalysisJob, diff: HostedDiff): Pr
   for (let attempt = 1; attempt <= 2; attempt += 1) {
     const answer = await completeGemini(turns);
     try {
-      const parsed = safeParseGraphDoc(stampDocument(readObject(answer), job, diff, model));
+      const parsed = safeParseGraphDoc(stampDocument(groundEvidence(readObject(answer), diff), job, diff, model));
       if (parsed.ok) return parsed.value;
       if (attempt === 2) throw new Error(parsed.error.message);
       turns.push(
