@@ -21,8 +21,8 @@ const config: Config = {
           3: "rgb(var(--fg-3) / <alpha-value>)",
         },
         line: "rgb(var(--fg) / 0.1)",
-        // The coil in the logo; used for the few things that matter.
-        accent: "#52a191",
+        // The green the diagrams draw live connections in: the brand accent everywhere.
+        accent: "#3fb950",
         // The renderer's delta palette. Meaning only, never decoration.
         added: "#3fb950",
         modified: "#d29922",

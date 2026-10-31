@@ -51,7 +51,7 @@ function YamlLine({ line }: { line: string }) {
   return (
     <>
       {indent}
-      <span className="text-[#7ee2b8]">{key}</span>
+      <span className="text-[#7ee787]">{key}</span>
       <span className="text-fg-3">{colon}</span>
       {value}
     </>

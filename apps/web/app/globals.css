@@ -40,12 +40,12 @@
   }
 
   ::selection {
-    background: rgb(82 161 145 / 0.3);
+    background: rgb(63 185 80 / 0.3);
   }
 
   /* Visible on any surface: the teal ring, with a page-coloured gap inside it. */
   :focus-visible {
-    outline: 2px solid #52a191;
+    outline: 2px solid #3fb950;
     outline-offset: 3px;
     border-radius: 6px;
   }
@@ -76,9 +76,9 @@
     @apply inline-flex h-11 items-center justify-center gap-2 rounded-lg px-5 text-sm font-medium transition-[background-color,border-color,color,transform] duration-150 ease-out active:scale-[0.98];
   }
 
-  /* The brand teal, with dark text that keeps 6:1 contrast in either theme. */
+  /* The brand green, with dark text that keeps 7:1 contrast in either theme. */
   .btn-primary {
-    @apply btn bg-accent text-[#0b0f14] hover:bg-[#63b3a2];
+    @apply btn bg-accent text-[#0b0f14] hover:bg-[#56d364];
   }
 
   .btn-secondary {

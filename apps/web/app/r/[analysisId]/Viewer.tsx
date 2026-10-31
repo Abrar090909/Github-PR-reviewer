@@ -496,7 +496,7 @@ export default function Viewer({ model }: { model: MapModel }) {
                     fill={theme === "dark" ? "#0d1117" : "#f4f5f7"} opacity={spotlight.length > 0 ? 0.72 : 0.6} />
                   {spotlight.map((box, index) => (
                     <rect key={index} x={box.x - 10} y={box.y - 10} width={box.width + 20} height={box.height + 20} rx={14}
-                      fill="none" stroke="#52a191" strokeWidth={2} vectorEffect="non-scaling-stroke" className="pointer-events-none" />
+                      fill="none" stroke="#3fb950" strokeWidth={2} vectorEffect="non-scaling-stroke" className="pointer-events-none" />
                   ))}
                 </>
               )}
@@ -506,7 +506,7 @@ export default function Viewer({ model }: { model: MapModel }) {
                 return (
                   <g key={id}>
                     <rect x={box.x - 3} y={box.y - 3} width={box.width + 6} height={box.height + 6} rx={11}
-                      fill="transparent" stroke={isSelected ? "#52a191" : "transparent"} strokeWidth={2}
+                      fill="transparent" stroke={isSelected ? "#3fb950" : "transparent"} strokeWidth={2}
                       vectorEffect="non-scaling-stroke" role="button" tabIndex={0}
                       aria-label={`${model.parts[id]?.label ?? id}${flagged ? ", has review findings" : ""}`}
                       className="cursor-pointer outline-none transition-[stroke] duration-150 hover:stroke-fg/40 focus-visible:stroke-accent"
