@@ -45,13 +45,13 @@ function YamlLine({ line }: { line: string }) {
     part.startsWith("${{") ? (
       <span key={index} className="text-modified">{part}</span>
     ) : (
-      <span key={index} className="text-[#a5d6ff]">{part}</span>
+      <span key={index} className="text-[rgb(var(--code-value))]">{part}</span>
     ),
   );
   return (
     <>
       {indent}
-      <span className="text-[#7ee2b8]">{key}</span>
+      <span className="text-[rgb(var(--code-key))]">{key}</span>
       <span className="text-fg-3">{colon}</span>
       {value}
     </>

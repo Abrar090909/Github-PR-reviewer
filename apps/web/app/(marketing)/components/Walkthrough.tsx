@@ -1,9 +1,9 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import type { Diagram } from "@/lib/showcase";
+import ThemedDiagram from "../../components/ThemedDiagram";
 
 type Step = { id: string; heading: string; body: string; diagram: Diagram };
 
@@ -42,16 +42,15 @@ export default function Walkthrough({ steps }: { steps: Step[] }) {
       <Link
         href={`/r/example#step=${active + 1}`}
         aria-label={`${current.diagram.alt}. Open step ${active + 1} on the interactive map`}
-        className="block overflow-x-auto rounded-2xl border border-fg/15 bg-[#0d1117] p-2 shadow-[0_16px_48px_rgba(0,0,0,0.35)] sm:p-4"
+        className="block overflow-x-auto rounded-2xl border border-fg/15 bg-canvas p-2 shadow-[0_16px_48px_rgb(var(--shadow))] sm:p-4"
       >
-        <Image
+        <ThemedDiagram
           key={current.diagram.src}
           src={current.diagram.src}
+          srcLight={current.diagram.srcLight}
           width={current.diagram.width}
           height={current.diagram.height}
           alt={current.diagram.alt}
-          unoptimized
-          loading="lazy"
           className="mx-auto h-auto w-full min-w-[640px]"
         />
       </Link>

@@ -62,7 +62,7 @@ export default function Pricing() {
               key={plan.name}
               className={`flex flex-col rounded-2xl border p-6 ${
                 plan.primary
-                  ? "border-accent/50 bg-ink-800 p-7 shadow-[0_16px_48px_rgba(0,0,0,0.35)]"
+                  ? "border-accent/50 bg-ink-800 p-7 shadow-[0_16px_48px_rgb(var(--shadow))]"
                   : "border-line bg-ink-850"
               }`}
             >

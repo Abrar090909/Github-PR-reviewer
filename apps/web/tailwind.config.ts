@@ -21,12 +21,14 @@ const config: Config = {
           3: "rgb(var(--fg-3) / <alpha-value>)",
         },
         line: "rgb(var(--fg) / 0.1)",
-        // The coil in the logo; used for the few things that matter.
-        accent: "#52a191",
-        // The renderer's delta palette. Meaning only, never decoration.
-        added: "#3fb950",
-        modified: "#d29922",
-        removed: "#f85149",
+        // The green the diagrams draw live connections in: the brand accent everywhere.
+        accent: "rgb(var(--accent) / <alpha-value>)",
+        // The renderer's delta palette, darker in light mode so text stays readable.
+        added: "rgb(var(--added) / <alpha-value>)",
+        modified: "rgb(var(--modified) / <alpha-value>)",
+        removed: "rgb(var(--removed) / <alpha-value>)",
+        // The diagrams' own background, so a framed diagram never sits on a different shade.
+        canvas: "rgb(var(--canvas) / <alpha-value>)",
       },
       fontFamily: {
         sans: ["var(--font-geist-sans)", "system-ui", "sans-serif"],

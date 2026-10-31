@@ -12,6 +12,8 @@ import { postmarkRefactorGraph as graph } from "@contour/schema/examples";
 
 export type Diagram = {
   src: string;
+  /** The same diagram in the renderer's light theme. */
+  srcLight: string;
   width: number;
   height: number;
   alt: string;
@@ -26,14 +28,14 @@ const SOURCES = {
 export type DiagramName = keyof typeof SOURCES;
 export const DIAGRAM_NAMES = Object.keys(SOURCES) as DiagramName[];
 
-export const renderDiagram = (name: DiagramName) => {
+export const renderDiagram = (name: DiagramName, theme: "dark" | "light" = "dark") => {
   const { lens, view } = SOURCES[name];
-  return render(graph, { lens, view, theme: "dark" });
+  return render(graph, { lens, view, theme });
 };
 
 const diagram = (name: DiagramName): Diagram => {
   const { width, height } = renderDiagram(name);
-  return { src: `/diagrams/${name}.svg`, width, height, alt: SOURCES[name].alt };
+  return { src: `/diagrams/${name}.svg`, srcLight: `/diagrams/${name}-light.svg`, width, height, alt: SOURCES[name].alt };
 };
 
 const views: Record<string, Diagram> = {
