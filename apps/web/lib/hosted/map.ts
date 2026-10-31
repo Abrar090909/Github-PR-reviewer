@@ -3,6 +3,7 @@ import "server-only";
 import { render, type Box, type RenderAtlas } from "@contour/renderer";
 import type { GraphDoc, Lens, View } from "@contour/schema";
 import { diffLink, readFirst, type FocusFile } from "./focus";
+import { withMotion } from "./motion";
 import type { Finding, Review } from "./review";
 
 /** One diagram the page can show: a drill-down view, or a whole lens when there are none. */
@@ -17,6 +18,8 @@ export type Stage = {
   light: string;
   /** Clickable parts, in the stage's own coordinates. */
   parts: { id: string; box: Box }[];
+  /** Connections and flow messages with their endpoints, so a selected part can light up its links. */
+  links: { from: string; to: string; box: Box }[];
 };
 
 export type Step = { heading: string; body: string; stage: number; boxes: Box[] };
@@ -34,6 +37,8 @@ export type Part = {
   connections: { direction: "in" | "out"; other: string; label?: string }[];
   lines: PartLink[];
   findings: string[];
+  /** Every stage this part is drawn on, so it can be followed into its flow or a drill-down. */
+  appearsIn: { stage: number; title: string; lens: Lens }[];
 };
 
 export type MapModel = {
@@ -68,6 +73,17 @@ const union = (boxes: Box[]): Box | undefined => {
 function drawStage(graph: GraphDoc, key: string, title: string, lens: Lens, view?: string, summary?: string) {
   const dark = render(graph, { lens, theme: "dark", view });
   const light = render(graph, { lens, theme: "light", view });
+  const links =
+    lens === "architecture"
+      ? graph.edges.flatMap((edge) => {
+        const box = dark.atlas.edges[edge.id];
+        return box ? [{ from: edge.from, to: edge.to, box }] : [];
+      })
+      : graph.flows.flatMap((flow) =>
+        flow.messages.flatMap((message) => {
+          const box = dark.atlas.messages[flow.id]?.[message.id];
+          return box ? [{ from: message.from, to: message.to, box }] : [];
+        }));
   return {
     stage: {
       key,
@@ -79,16 +95,18 @@ function drawStage(graph: GraphDoc, key: string, title: string, lens: Lens, view
       dark: dataUri(dark.svg),
       light: dataUri(light.svg),
       parts: Object.entries(dark.atlas.nodes).map(([id, box]) => ({ id, box })),
+      links,
     } satisfies Stage,
     atlas: dark.atlas,
   };
 }
 
 export function buildMap(
-  graph: GraphDoc,
+  document: GraphDoc,
   review: Review | null,
   meta: { repo: string; prNumber: number; headSha: string },
 ): MapModel {
+  const graph = withMotion(document);
   const drawn: { stage: Stage; atlas: RenderAtlas; view?: string }[] = [];
   const views = flatten(graph.views);
   for (const view of views) {
@@ -107,6 +125,8 @@ export function buildMap(
       // Same as above.
     }
   }
+
+  drawn.sort((a, b) => (a.stage.lens === b.stage.lens ? 0 : a.stage.lens === "architecture" ? -1 : 1));
 
   const stageForFlow = (flow: string) => {
     const index = drawn.findIndex((entry) => entry.atlas.messages[flow] !== undefined);
@@ -175,6 +195,10 @@ export function buildMap(
           })),
         lines,
         findings: findings.filter((finding) => finding.nodes.includes(node.id)).map((finding) => finding.fingerprint),
+        appearsIn: drawn.flatMap((entry, stage) =>
+          entry.stage.parts.some((part) => part.id === node.id)
+            ? [{ stage, title: entry.stage.title, lens: entry.stage.lens }]
+            : []),
       };
       return [node.id, part];
     }),

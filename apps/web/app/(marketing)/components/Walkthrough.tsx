@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useState } from "react";
 import type { Diagram } from "@/lib/showcase";
 
@@ -22,7 +23,7 @@ export default function Walkthrough({ steps }: { steps: Step[] }) {
               onClick={() => setActive(index)}
               className={`grid w-full grid-cols-[28px_1fr] gap-2 rounded-xl border px-4 py-3 text-left transition-colors duration-150 ease-out ${
                 index === active
-                  ? "border-line bg-ink-800 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]"
+                  ? "border-accent/40 bg-ink-800 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]"
                   : "border-transparent hover:bg-ink-850"
               }`}
             >
@@ -30,24 +31,30 @@ export default function Walkthrough({ steps }: { steps: Step[] }) {
                 {index + 1}
               </span>
               <span>
-                <span className={`block text-[15px] ${index === active ? "text-fg" : "text-fg-2"}`}>{step.heading}</span>
-                {index === active && <span className="mt-1 block text-sm leading-6 text-fg-2">{step.body}</span>}
+                <span className={`block text-base ${index === active ? "text-fg" : "text-fg-2"}`}>{step.heading}</span>
+                {index === active && <span className="mt-1 block text-[15px] leading-6 text-fg-2">{step.body}</span>}
               </span>
             </button>
           </li>
         ))}
       </ol>
 
-      <div className="overflow-x-auto rounded-2xl border border-line bg-ink-900 p-2 sm:p-4">
+      <Link
+        href={`/r/example#step=${active + 1}`}
+        aria-label={`${current.diagram.alt}. Open step ${active + 1} on the interactive map`}
+        className="block overflow-x-auto rounded-2xl border border-fg/15 bg-[#0d1117] p-2 shadow-[0_16px_48px_rgba(0,0,0,0.35)] sm:p-4"
+      >
         <Image
-          key={current.diagram.alt}
+          key={current.diagram.src}
           src={current.diagram.src}
           width={current.diagram.width}
           height={current.diagram.height}
           alt={current.diagram.alt}
+          unoptimized
+          loading="lazy"
           className="mx-auto h-auto w-full min-w-[640px]"
         />
-      </div>
+      </Link>
     </div>
   );
 }

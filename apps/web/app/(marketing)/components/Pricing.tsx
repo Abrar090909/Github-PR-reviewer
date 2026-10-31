@@ -1,3 +1,4 @@
+import { Check } from "lucide-react";
 import { GITHUB_APP_INSTALL_URL } from "@/lib/constants";
 
 const CONTACT = "mailto:abrar.dev26@gmail.com";
@@ -5,21 +6,29 @@ const CONTACT = "mailto:abrar.dev26@gmail.com";
 const PLANS = [
   {
     name: "Free",
-    status: "available now",
+    status: "Available now",
     price: "$0",
     per: null,
     for: "Public repositories",
-    features: ["Architecture and data-flow diagrams", "Walkthrough and diff evidence", "One comment per PR, kept current", "Fair-use limits apply"],
+    covers: null,
+    features: [
+      "Architecture and data-flow diagrams",
+      "Code review with inline comments",
+      "Walkthrough and the interactive map",
+      "One comment per PR, kept current",
+      "Fair-use limits apply",
+    ],
     cta: "Add to GitHub",
     href: GITHUB_APP_INSTALL_URL,
     primary: true,
   },
   {
     name: "Team",
-    status: "planned",
+    status: "Planned · not on sale",
     price: "$16",
     per: "per developer / month",
     for: "Private repositories",
+    covers: "Everything in Free, on private repositories, plus team billing and administration.",
     features: ["Everything in Free", "Private repository analysis", "Team billing and administration"],
     cta: "Ask about Team",
     href: `${CONTACT}?subject=Contour%20Team%20plan`,
@@ -27,10 +36,11 @@ const PLANS = [
   },
   {
     name: "Enterprise",
-    status: "planned",
+    status: "Planned · not on sale",
     price: "Custom",
     per: null,
     for: "Requirements discussed first",
+    covers: null,
     features: ["Everything in Team", "Terms agreed before purchase"],
     cta: "Contact us",
     href: `${CONTACT}?subject=Contour%20Enterprise`,
@@ -44,30 +54,32 @@ export default function Pricing() {
       <div className="mx-auto max-w-6xl">
         <p className="eyebrow">Pricing</p>
         <h2 className="heading">Free for public repositories</h2>
-        <p className="mt-4 max-w-2xl text-[15px] leading-7 text-fg-2">
-          Paid plans are planned and not on sale yet. Installing Contour never asks for payment.
-        </p>
+        <p className="lede">Paid plans are planned and not on sale yet. Installing Contour never asks for payment.</p>
 
-        <div className="mt-12 grid gap-4 md:grid-cols-3">
+        <div className="mt-12 grid grid-cols-[minmax(0,1fr)] items-start gap-4 lg:grid-cols-[1.25fr_1fr_1fr]">
           {PLANS.map((plan) => (
             <div
               key={plan.name}
               className={`flex flex-col rounded-2xl border p-6 ${
-                plan.primary ? "border-fg/15 bg-ink-800 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]" : "border-line bg-ink-850"
+                plan.primary
+                  ? "border-accent/50 bg-ink-800 p-7 shadow-[0_16px_48px_rgba(0,0,0,0.35)]"
+                  : "border-line bg-ink-850"
               }`}
             >
-              <div className="flex items-baseline justify-between gap-2">
-                <h3 className="text-[17px] font-medium">{plan.name}</h3>
-                <span className={`font-mono text-xs ${plan.primary ? "text-accent" : "text-fg-3"}`}>{plan.status}</span>
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <h3 className={`${plan.primary ? "text-xl" : "text-lg"} font-medium`}>{plan.name}</h3>
+                <span className={plan.primary ? "chip border-accent/40 bg-accent/15 text-accent" : "chip-unchanged"}>{plan.status}</span>
               </div>
-              <p className="mt-1 text-sm text-fg-2">{plan.for}</p>
+              <p className="mt-1 text-[15px] text-fg-2">{plan.for}</p>
               <p className="mt-6 flex items-baseline gap-2">
-                <span className="text-[32px] font-medium leading-none tabular-nums">{plan.price}</span>
-                {plan.per && <span className="text-sm text-fg-3">{plan.per}</span>}
+                <span className={`${plan.primary ? "text-5xl" : "text-[32px]"} font-medium leading-none tabular-nums`}>{plan.price}</span>
+                {plan.per && <span className="text-sm text-fg-2">{plan.per}</span>}
               </p>
-              <ul className="mt-6 flex-1 space-y-2">
+              {plan.covers && <p className="mt-3 text-[13px] leading-5 text-fg-3">{plan.covers}</p>}
+              <ul className="mt-6 flex-1 space-y-2.5">
                 {plan.features.map((feature) => (
-                  <li key={feature} className="text-sm leading-6 text-fg-2">
+                  <li key={feature} className="flex gap-2 text-[15px] leading-6 text-fg-2">
+                    <Check size={16} strokeWidth={2} className={`mt-1 shrink-0 ${plan.primary ? "text-accent" : "text-fg-3"}`} aria-hidden="true" />
                     {feature}
                   </li>
                 ))}

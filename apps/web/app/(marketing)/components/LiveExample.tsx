@@ -1,5 +1,7 @@
 import Link from "next/link";
+import { GITHUB_APP_INSTALL_URL } from "@/lib/constants";
 import { example } from "@/lib/showcase";
+import GitHubMark from "../../components/GitHubMark";
 import Walkthrough from "./Walkthrough";
 
 export default function LiveExample() {
@@ -7,18 +9,23 @@ export default function LiveExample() {
     <section id="live-example" className="section">
       <div className="mx-auto max-w-6xl">
         <div className="mb-10 max-w-2xl">
-          <p className="eyebrow">Example walkthrough</p>
-          <h2 className="heading">{example.pullRequest?.title ?? example.title}</h2>
-          <p className="mt-4 text-[15px] leading-7 text-fg-2">
-            Fourteen files change to move a broadcast email sender from one Postmark call per recipient to batches of
-            500. This is the walkthrough from the example document that ships with Contour, each step shown on the
-            diagram it explains, drawn by the same renderer that posts PR comments.
+          <p className="eyebrow">Try the walkthrough</p>
+          <h2 className="heading">Step through a change the way a reviewer would</h2>
+          <p className="lede">
+            This is the example document that ships with Contour: a broadcast email sender moving from one Postmark call
+            per recipient to batches of 500. Each step is shown on the diagram it explains.
           </p>
         </div>
         <Walkthrough steps={example.steps} />
-        <Link href="/r/example#walkthrough" className="btn-secondary mt-6">
-          Open it on the interactive map
-        </Link>
+        <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+          <Link href="/r/example#walkthrough" className="btn-primary">
+            Play it on the interactive map
+          </Link>
+          <a href={GITHUB_APP_INSTALL_URL} target="_blank" rel="noopener noreferrer" className="btn-secondary">
+            <GitHubMark />
+            Add to GitHub
+          </a>
+        </div>
       </div>
     </section>
   );
