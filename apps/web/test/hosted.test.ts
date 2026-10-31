@@ -146,3 +146,44 @@ test("the map model draws every view, resolves each walkthrough step to boxes, a
   expect(bulk.connections.length).toBeGreaterThan(0);
   expect(model.reviewStatus).toBe("none");
 });
+
+test("an architecture the model left still gets moving connections, except the removed ones", async () => {
+  const { withMotion } = await import("@/lib/hosted/motion");
+  const still = { ...graph, edges: graph.edges.map((edge) => ({ ...edge, animated: false })) };
+  const moving = withMotion(still);
+  expect(moving.edges.filter((edge) => edge.animated).length).toBe(still.edges.filter((edge) => edge.delta !== "removed").length);
+  expect(moving.edges.filter((edge) => edge.delta === "removed").every((edge) => !edge.animated)).toBe(true);
+  // A document that chose its pulses keeps them.
+  expect(withMotion(graph)).toBe(graph);
+});
+
+test("the map opens on architecture, and a part knows the flow it can be followed into", () => {
+  const model = buildMap(graph, null, { repo: "o/r", prNumber: 4, headSha: "0".repeat(40) });
+  expect(model.stages[0]!.lens).toBe("architecture");
+  const bulk = model.parts["send-broadcast-bulk"]!;
+  expect(bulk.appearsIn.some((appearance) => appearance.lens === "data-flow")).toBe(true);
+  expect(model.stages.find((stage) => stage.lens === "architecture")!.links.length).toBeGreaterThan(0);
+});
+
+test("every top-level diagram shows in the comment without a click", () => {
+  const twoRoots = {
+    ...graph,
+    views: graph.views.map((view) => ({ ...view, defaultOpen: false })),
+  };
+  const root = twoRoots.views[0]!;
+  const child = root.children[0]!;
+  const byView: RenderManifest = {
+    ...manifest,
+    assets: [
+      { id: "root-dark", lens: "architecture", theme: "dark", view: root.id, width: 800, height: 400, url: "https://img.test/root.svg" },
+      { id: "child-dark", lens: "architecture", theme: "dark", view: child.id, width: 800, height: 400, url: "https://img.test/child.svg" },
+    ] as RenderManifest["assets"],
+  };
+  const body = composeHostedComment(twoRoots, byView, {
+    repoFullName: "o/r", prNumber: 4, headSha: "0".repeat(40), mapUrl: "https://contour.test/r/id?t=tok",
+    review: { status: "failed", headSha: "0".repeat(40) },
+  });
+  // The top-level view is shown outright; only its drill-down folds away.
+  expect(body).not.toContain(`<summary><b>${root.title}</b></summary>`);
+  expect(body).toContain(`<summary><b>${child.title}</b></summary>`);
+});

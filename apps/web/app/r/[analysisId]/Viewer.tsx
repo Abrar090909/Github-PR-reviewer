@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import {
+  ArrowLeft,
+  ArrowRight,
   Check,
   ChevronLeft,
   ChevronRight,
@@ -87,6 +89,9 @@ export default function Viewer({ model }: { model: MapModel }) {
   const [tab, setTab] = useState<Tab>("overview");
   const [panelOpen, setPanelOpen] = useState(true);
   const [copied, setCopied] = useState(false);
+  /** Where "Back" returns to after following a part into another diagram. */
+  const [trail, setTrail] = useState<{ stage: number; selected: string | null }[]>([]);
+  const [hinted, setHinted] = useState(false);
 
   const viewport = useRef<HTMLDivElement>(null);
   const pointers = useRef(new Map<number, { x: number; y: number }>());
@@ -184,21 +189,50 @@ export default function Viewer({ model }: { model: MapModel }) {
 
   /* ── Selection ──────────────────────────────────────────────────────── */
 
-  const selectPart = useCallback((id: string) => {
+  /** Selects a part and frames it with everything it connects to on that stage. */
+  const selectPart = useCallback((id: string, stageOverride?: number) => {
     const onStage = live.current.stage?.parts.some((part) => part.id === id);
-    const index = onStage
+    const index = stageOverride ?? (onStage
       ? live.current.stageIndex
-      : model.stages.findIndex((candidate) => candidate.parts.some((part) => part.id === id));
-    if (index < 0) return;
+      : model.stages.findIndex((candidate) => candidate.parts.some((part) => part.id === id)));
+    const target = model.stages[index];
+    const box = target?.parts.find((part) => part.id === id)?.box;
+    if (!target || !box) return;
     live.current.step = null;
     live.current.selected = id;
     setStep(null);
     setSelected(id);
+    setHinted(true);
     setTab("part");
-    setPanelOpen(true);
-    const box = model.stages[index]!.parts.find((part) => part.id === id)!.box;
-    show(index, { x: box.x - 160, y: box.y - 120, width: box.width + 320, height: box.height + 240 });
+    if (!isNarrow()) setPanelOpen(true);
+    const links = target.links.filter((link) => link.from === id || link.to === id);
+    const neighbours = new Set(links.flatMap((link) => [link.from, link.to]));
+    const near = [
+      box,
+      ...links.map((link) => link.box),
+      ...target.parts.filter((part) => neighbours.has(part.id)).map((part) => part.box),
+    ];
+    const area = unionBox(near)!;
+    show(index, { x: area.x - 48, y: area.y - 48, width: area.width + 96, height: area.height + 96 });
   }, [model.stages, show]);
+
+  /** Follows a part into the data flow it takes part in, keeping the way back. */
+  const followFlow = useCallback((id: string) => {
+    const destination = model.parts[id]?.appearsIn.find(
+      (appearance) => appearance.lens === "data-flow" && appearance.stage !== live.current.stageIndex,
+    );
+    if (!destination) return;
+    setTrail((current) => [...current, { stage: live.current.stageIndex, selected: id }]);
+    selectPart(id, destination.stage);
+  }, [model.parts, selectPart]);
+
+  const goBack = useCallback(() => {
+    const previous = trail[trail.length - 1];
+    if (!previous) return;
+    setTrail(trail.slice(0, -1));
+    if (previous.selected) selectPart(previous.selected, previous.stage);
+    else show(previous.stage, undefined);
+  }, [selectPart, show, trail]);
 
   const openFinding = useCallback((finding: Finding) => {
     setActiveFinding(finding.fingerprint);
@@ -357,8 +391,29 @@ export default function Viewer({ model }: { model: MapModel }) {
 
   const selectedPart: Part | undefined = selected ? model.parts[selected] : undefined;
   const spotlight = useMemo(() => mergeBoxes(walking?.boxes ?? []), [walking]);
+  // A selected part lights up with its live connections and neighbours; the rest dims.
+  const neighbourhood = useMemo(() => {
+    if (walking || !selected || !stage) return [];
+    const links = stage.links.filter((link) => link.from === selected || link.to === selected);
+    const others = new Set(links.flatMap((link) => [link.from, link.to]));
+    others.add(selected);
+    return [
+      ...stage.parts.filter((part) => others.has(part.id)).map((part) => part.box),
+      ...links.map((link) => link.box),
+    ];
+  }, [walking, selected, stage]);
+  const holes = spotlight.length > 0 ? spotlight : neighbourhood;
+  const followable = selected
+    ? model.parts[selected]?.appearsIn.find((appearance) => appearance.lens === "data-flow" && appearance.stage !== stageIndex)
+    : undefined;
   const findingCount = model.findings.length;
   const stats = useMemo(() => model.stats, [model.stats]);
+
+  const partHint = (id: string) => {
+    const part = model.parts[id];
+    const flows = part?.appearsIn.some((appearance) => appearance.lens === "data-flow");
+    return `${part?.label ?? id}: click to light up its connections${flows ? ", double-click to follow its flow" : ""}`;
+  };
 
   if (!stage) {
     return (
@@ -427,18 +482,18 @@ export default function Viewer({ model }: { model: MapModel }) {
             <img src={theme === "dark" ? stage.dark : stage.light} width={stage.width} height={stage.height}
               alt={stage.title} draggable={false} className="pointer-events-none block select-none" />
             <svg className="absolute inset-0" width={stage.width} height={stage.height} viewBox={`0 0 ${stage.width} ${stage.height}`}>
-              {spotlight.length > 0 && (
+              {holes.length > 0 && (
                 <>
                   <defs>
                     <mask id="spotlight">
                       <rect width={stage.width} height={stage.height} fill="white" />
-                      {spotlight.map((box, index) => (
+                      {holes.map((box, index) => (
                         <rect key={index} x={box.x - 10} y={box.y - 10} width={box.width + 20} height={box.height + 20} rx={14} fill="black" />
                       ))}
                     </mask>
                   </defs>
                   <rect width={stage.width} height={stage.height} mask="url(#spotlight)" className="pointer-events-none"
-                    fill={theme === "dark" ? "#0d1117" : "#f4f5f7"} opacity={0.72} />
+                    fill={theme === "dark" ? "#0d1117" : "#f4f5f7"} opacity={spotlight.length > 0 ? 0.72 : 0.6} />
                   {spotlight.map((box, index) => (
                     <rect key={index} x={box.x - 10} y={box.y - 10} width={box.width + 20} height={box.height + 20} rx={14}
                       fill="none" stroke="#52a191" strokeWidth={2} vectorEffect="non-scaling-stroke" className="pointer-events-none" />
@@ -456,7 +511,10 @@ export default function Viewer({ model }: { model: MapModel }) {
                       aria-label={`${model.parts[id]?.label ?? id}${flagged ? ", has review findings" : ""}`}
                       className="cursor-pointer outline-none transition-[stroke] duration-150 hover:stroke-fg/40 focus-visible:stroke-accent"
                       onClick={() => { if (moved.current < 6) selectPart(id); }}
-                      onKeyDown={(event) => { if (event.key === "Enter") selectPart(id); }} />
+                      onDoubleClick={() => followFlow(id)}
+                      onKeyDown={(event) => { if (event.key === "Enter") selectPart(id); }}>
+                      <title>{partHint(id)}</title>
+                    </rect>
                     {flagged && (
                       <circle cx={box.x + box.width - 4} cy={box.y + 4} r={5} fill="#f85149" stroke={theme === "dark" ? "#0d1117" : "#ffffff"}
                         strokeWidth={2} vectorEffect="non-scaling-stroke" className="pointer-events-none" />
@@ -466,6 +524,31 @@ export default function Viewer({ model }: { model: MapModel }) {
               })}
             </svg>
           </div>
+
+          {/* Way back after following a part into its flow */}
+          {trail.length > 0 && (
+            <button type="button" onClick={goBack}
+              className="absolute left-4 top-4 inline-flex h-9 items-center gap-2 rounded-xl border border-line bg-ink-850/95 px-3 text-sm text-fg backdrop-blur hover:bg-ink-700">
+              <ArrowLeft size={16} strokeWidth={1.5} />
+              Back to {model.stages[trail[trail.length - 1]!.stage]?.title}
+            </button>
+          )}
+
+          {/* Selected part: follow it into its flow straight from the canvas */}
+          {followable && selected && step === null && (
+            <button type="button" onClick={() => followFlow(selected)}
+              className="btn-primary absolute right-4 top-4 h-9 max-w-[calc(100%-2rem)] px-3 text-[13px]">
+              <span className="truncate">Follow {model.parts[selected]?.label} into the data flow</span>
+              <ArrowRight size={16} strokeWidth={1.5} className="shrink-0" />
+            </button>
+          )}
+
+          {/* First-visit hint, so nobody has to discover that parts are live */}
+          {!hinted && step === null && stage.parts.length > 0 && (
+            <p className="pointer-events-none absolute bottom-4 right-4 hidden rounded-xl border border-line bg-ink-850/95 px-3 py-2 text-[13px] text-fg-2 backdrop-blur sm:block">
+              Click a part to light up its connections · double-click to follow its flow · <kbd className="font-mono text-fg">W</kbd> plays the walkthrough
+            </p>
+          )}
 
           {/* Zoom controls */}
           <div className="absolute bottom-4 left-4 flex items-center gap-1 rounded-xl border border-line bg-ink-850/90 p-1 backdrop-blur">
@@ -619,6 +702,29 @@ export default function Viewer({ model }: { model: MapModel }) {
                           <li key={line.label + line.href}>
                             <a href={line.href} target="_blank" rel="noopener noreferrer" className="break-all font-mono text-[13px] text-fg hover:text-accent">{line.label}</a>
                             {line.detail && <p className="text-xs leading-5 text-fg-3">{line.detail}</p>}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  {selectedPart.appearsIn.length > 1 && (
+                    <div>
+                      <p className="mb-2 font-medium">Drawn in</p>
+                      <ul className="space-y-1.5">
+                        {selectedPart.appearsIn.map((appearance) => (
+                          <li key={appearance.stage}>
+                            <button type="button" disabled={appearance.stage === stageIndex}
+                              onClick={() => {
+                                setTrail((current) => [...current, { stage: stageIndex, selected: selectedPart.id }]);
+                                selectPart(selectedPart.id, appearance.stage);
+                              }}
+                              className="inline-flex items-center gap-1.5 text-left text-accent hover:underline disabled:text-fg-3 disabled:no-underline">
+                              {appearance.title}
+                              <span className="text-xs text-fg-3">
+                                {appearance.lens === "data-flow" ? "flow" : "architecture"}
+                                {appearance.stage === stageIndex ? " · showing" : ""}
+                              </span>
+                            </button>
                           </li>
                         ))}
                       </ul>

@@ -114,22 +114,26 @@ export function groundFindings(
   return { findings, dropped: candidates.length - findings.length };
 }
 
-type Requested = { ok: true; candidates: z.infer<typeof ModelFinding>[] } | { ok: false };
+type Requested = { ok: true; candidates: z.infer<typeof ModelFinding>[] } | { ok: false; reason: string };
 
 /** Asks the model for findings. Runs alongside the diagram analysis, which it does not need. */
 export async function requestFindings(job: AnalysisJob, diff: HostedDiff): Promise<Requested> {
   try {
     const answer = await completeGemini([{ role: "user", text: reviewPrompt(job, diff) }], SYSTEM_PROMPT, 8_192);
     const parsed = ModelReview.safeParse(readObject(answer));
-    return parsed.success ? { ok: true, candidates: parsed.data.findings } : { ok: false };
-  } catch {
+    if (parsed.success) return { ok: true, candidates: parsed.data.findings };
+    return { ok: false, reason: `findings did not match the schema: ${parsed.error.message.slice(0, 600)}` };
+  } catch (error) {
     // A review that fails must not cost the pull request its diagrams.
-    return { ok: false };
+    return { ok: false, reason: error instanceof Error ? error.message.slice(0, 600) : String(error) };
   }
 }
 
 export function finishReview(job: AnalysisJob, diff: HostedDiff, graph: GraphDoc, requested: Requested): Review {
-  if (!requested.ok) return { status: "failed", headSha: job.headSha };
+  if (!requested.ok) {
+    console.error(`contour review failed for ${job.repoFullName}#${job.prNumber}: ${requested.reason}`);
+    return { status: "failed", headSha: job.headSha };
+  }
   const lines = Object.fromEntries(Object.entries(diff.patches).map(([path, patch]) => [path, readPatch(patch)]));
   return { status: "complete", headSha: job.headSha, ...groundFindings(requested.candidates, lines, graph) };
 }

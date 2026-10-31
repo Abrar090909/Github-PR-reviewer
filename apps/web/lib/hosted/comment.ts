@@ -60,6 +60,7 @@ const TIPS = [
 
 export function composeHostedComment(graph: GraphDoc, manifest: RenderManifest, context: CommentContext): string {
   const views = new Map(flattenViews(graph.views).map((view) => [view.id, view]));
+  const rootViews = new Set(graph.views.map((view) => view.id));
   const groups = new Map<string, { label: string; lens: string; anchor: string; pair: Pair; expanded: boolean }>();
   for (const asset of manifest.assets) {
     const key = asset.view ?? asset.lens;
@@ -69,7 +70,8 @@ export function composeHostedComment(graph: GraphDoc, manifest: RenderManifest, 
       lens: asset.lens,
       anchor: asset.view ? `view=${encodeURIComponent(asset.view)}` : asset.lens,
       pair: {},
-      expanded: asset.view === undefined || view?.defaultOpen === true,
+      // Every top-level diagram shows directly; only deeper drill-downs fold away.
+      expanded: asset.view === undefined || view?.defaultOpen === true || rootViews.has(asset.view),
     };
     current.pair[asset.theme] = asset;
     groups.set(key, current);

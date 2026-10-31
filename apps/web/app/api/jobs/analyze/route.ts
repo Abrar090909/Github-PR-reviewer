@@ -6,6 +6,7 @@ import { db } from "@/lib/db";
 import { createInstallationOctokit } from "@/lib/github";
 import { analyzePullRequest, fetchPullRequestDiff } from "@/lib/hosted/analysis";
 import { COMMENT_MARKER, composeHostedComment } from "@/lib/hosted/comment";
+import { withMotion } from "@/lib/hosted/motion";
 import { finishReview, postReview, requestFindings, type Finding, type Review } from "@/lib/hosted/review";
 import {
   appBaseUrl,
@@ -135,7 +136,7 @@ async function storeAssets(
   analysisId: string,
   graph: GraphDoc,
 ): Promise<{ manifest: RenderManifest; token: string }> {
-  const rendered = renderAll(graph);
+  const rendered = renderAll(withMotion(graph));
   const token = randomBytes(32).toString("base64url");
   const base = appBaseUrl();
 
