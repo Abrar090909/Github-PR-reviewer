@@ -10,8 +10,8 @@
     --ink-800: 22 27 34;
     --ink-700: 31 37 46;
     --fg: 230 237 243;
-    --fg-2: 145 152 161;
-    --fg-3: 125 133 144;
+    --fg-2: 175 183 192;
+    --fg-3: 139 148 158;
     color-scheme: dark;
   }
 
@@ -43,10 +43,11 @@
     background: rgb(82 161 145 / 0.3);
   }
 
+  /* Visible on any surface: the teal ring, with a page-coloured gap inside it. */
   :focus-visible {
     outline: 2px solid #52a191;
-    outline-offset: 2px;
-    border-radius: 4px;
+    outline-offset: 3px;
+    border-radius: 6px;
   }
 
   [id] {
@@ -56,23 +57,28 @@
 
 @layer components {
   .section {
-    @apply border-t border-line px-4 py-20 sm:px-6 md:py-28;
+    @apply border-t border-line px-4 py-16 sm:px-6 md:py-24;
   }
 
   .eyebrow {
-    @apply mb-4 font-mono text-[13px] text-fg-3;
+    @apply mb-3 font-mono text-sm text-accent;
   }
 
   .heading {
-    @apply text-[28px] font-medium leading-tight tracking-[-0.02em] text-fg md:text-4xl;
+    @apply text-[30px] font-medium leading-[1.15] tracking-[-0.02em] text-fg md:text-[40px];
+  }
+
+  .lede {
+    @apply mt-5 max-w-2xl text-[17px] leading-[1.7] text-fg-2;
   }
 
   .btn {
     @apply inline-flex h-11 items-center justify-center gap-2 rounded-lg px-5 text-sm font-medium transition-[background-color,border-color,color,transform] duration-150 ease-out active:scale-[0.98];
   }
 
+  /* The brand teal, with dark text that keeps 6:1 contrast in either theme. */
   .btn-primary {
-    @apply btn bg-fg text-ink-900 hover:bg-fg/85;
+    @apply btn bg-accent text-[#0b0f14] hover:bg-[#63b3a2];
   }
 
   .btn-secondary {
@@ -81,6 +87,27 @@
 
   .link {
     @apply text-fg-2 transition-colors duration-150 ease-out hover:text-fg;
+  }
+
+  .text-link {
+    @apply text-accent underline-offset-4 transition-colors duration-150 ease-out hover:underline;
+  }
+
+  /* Delta chips, drawn like the renderer's badges so the legend reads as the diagram. */
+  .chip {
+    @apply inline-flex h-6 items-center rounded-md border px-2 font-mono text-xs font-medium;
+  }
+  .chip-added {
+    @apply chip border-added/40 bg-added/15 text-added;
+  }
+  .chip-modified {
+    @apply chip border-modified/40 bg-modified/15 text-modified;
+  }
+  .chip-removed {
+    @apply chip border-removed/40 bg-removed/10 text-removed;
+  }
+  .chip-unchanged {
+    @apply chip border-line bg-fg/5 text-fg-2;
   }
 }
 

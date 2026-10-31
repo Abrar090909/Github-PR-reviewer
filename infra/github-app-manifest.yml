@@ -8,7 +8,7 @@ hook_attributes:
 redirect_url: https://contour-wheat.vercel.app/setup
 setup_url: https://contour-wheat.vercel.app/setup
 setup_on_update: true
-description: Risk-scored architecture diagrams for every pull request. See what changed, what could break, and what's untested — directly inside GitHub.
+description: Architecture and data-flow diagrams, a walkthrough and a code review for every pull request, posted as one comment and kept current on every push.
 public: true
 default_events:
   - pull_request
