@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { example } from "@/lib/showcase";
 import Walkthrough from "./Walkthrough";
 
@@ -15,6 +16,9 @@ export default function LiveExample() {
           </p>
         </div>
         <Walkthrough steps={example.steps} />
+        <Link href="/r/example#walkthrough" className="btn-secondary mt-6">
+          Open it on the interactive map
+        </Link>
       </div>
     </section>
   );

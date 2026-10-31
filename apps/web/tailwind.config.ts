@@ -7,19 +7,20 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
+        // Channels live in globals.css so a page can switch themes with one attribute.
         ink: {
-          950: "#090c10",
-          900: "#0d1117",
-          850: "#11161d",
-          800: "#161b22",
-          700: "#1f252e",
+          950: "rgb(var(--ink-950) / <alpha-value>)",
+          900: "rgb(var(--ink-900) / <alpha-value>)",
+          850: "rgb(var(--ink-850) / <alpha-value>)",
+          800: "rgb(var(--ink-800) / <alpha-value>)",
+          700: "rgb(var(--ink-700) / <alpha-value>)",
         },
         fg: {
-          DEFAULT: "#e6edf3",
-          2: "#9198a1",
-          3: "#7d8590",
+          DEFAULT: "rgb(var(--fg) / <alpha-value>)",
+          2: "rgb(var(--fg-2) / <alpha-value>)",
+          3: "rgb(var(--fg-3) / <alpha-value>)",
         },
-        line: "rgb(230 237 243 / 0.08)",
+        line: "rgb(var(--fg) / 0.1)",
         // The coil in the logo; used for the few things that matter.
         accent: "#52a191",
         // The renderer's delta palette. Meaning only, never decoration.
