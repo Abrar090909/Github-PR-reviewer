@@ -80,4 +80,4 @@ A pull request from a fork gets no secrets, so there is no key for the action to
 
 ---
 
-Part of [Contour](https://contour.dev). Review what actually matters.
+Part of [Contour](https://contourapp.online). Review what actually matters.

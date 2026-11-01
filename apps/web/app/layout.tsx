@@ -10,7 +10,7 @@ const description =
   "Contour draws every pull request as an architecture and data-flow diagram and posts it as a comment in GitHub, so reviewers see what a change touches before they read the diff.";
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "https://contour-wheat.vercel.app"),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "https://contourapp.online"),
   title: {
     default: "Contour — architecture diagrams for every pull request",
     template: "%s — Contour",
