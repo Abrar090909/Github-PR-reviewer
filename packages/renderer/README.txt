@@ -106,4 +106,4 @@ Labels, subtitles and titles come from a model. They are escaped for XML at the 
 
 ---
 
-Part of [Contour](https://contour.dev). Review what actually matters.
+Part of [Contour](https://contourapp.online). Review what actually matters.

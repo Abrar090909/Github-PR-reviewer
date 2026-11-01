@@ -42,4 +42,4 @@ A coding agent that opens a pull request is asking a person to review code the p
 
 ---
 
-Part of [Contour](https://contour.dev). Review what actually matters.
+Part of [Contour](https://contourapp.online). Review what actually matters.
