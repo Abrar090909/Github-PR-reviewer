@@ -348,7 +348,8 @@ export default function Viewer({ model }: { model: MapModel }) {
   }, [zoomBy]);
 
   const onPointerDown = (event: React.PointerEvent) => {
-    (event.currentTarget as HTMLElement).setPointerCapture(event.pointerId);
+    // The controls floating over the canvas (walkthrough card, zoom, back, follow) are not part of the drag.
+    if ((event.target as Element).closest("button, a, [data-no-pan]")) return;
     pointers.current.set(event.pointerId, { x: event.clientX, y: event.clientY });
     moved.current = 0;
     pinch.current = null;
@@ -359,6 +360,10 @@ export default function Viewer({ model }: { model: MapModel }) {
     if (!previous) return;
     const next = { x: event.clientX, y: event.clientY };
     pointers.current.set(event.pointerId, next);
+    // Capture only once this is a drag: capturing on press sends a mouse click to the canvas
+    // instead of the part or button under it, so nothing over the map could be clicked.
+    const element = event.currentTarget as HTMLElement;
+    if (moved.current >= 6 && !element.hasPointerCapture(event.pointerId)) element.setPointerCapture(event.pointerId);
     setGliding(false);
     if (pointers.current.size === 2) {
       const [a, b] = [...pointers.current.values()] as [{ x: number; y: number }, { x: number; y: number }];
@@ -563,7 +568,7 @@ export default function Viewer({ model }: { model: MapModel }) {
 
           {/* Walkthrough card */}
           {walking && step !== null && (
-            <div className="absolute inset-x-3 bottom-4 mx-auto max-w-xl rounded-2xl border border-line bg-ink-850/95 p-4 shadow-[0_8px_24px_rgba(0,0,0,0.25)] backdrop-blur sm:inset-x-auto sm:left-1/2 sm:w-[560px] sm:-translate-x-1/2">
+            <div data-no-pan className="absolute inset-x-3 bottom-4 mx-auto max-w-xl rounded-2xl border border-line bg-ink-850/95 p-4 shadow-[0_8px_24px_rgba(0,0,0,0.25)] backdrop-blur sm:inset-x-auto sm:left-1/2 sm:w-[560px] sm:-translate-x-1/2">
               <div className="mb-3 flex gap-1" aria-hidden="true">
                 {model.steps.map((_, index) => (
                   <span key={index} className={`h-1 flex-1 rounded-full ${index <= step ? "bg-accent" : "bg-fg/10"}`} />
