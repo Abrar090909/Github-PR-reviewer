@@ -1,0 +1,85 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1866 451" width="1866" height="451" role="img" aria-label="Finding Parsing Sequence">
+<title>Finding Parsing Sequence</title>
+<desc>Step-by-step sequence of LLM response handling, recovery, and grounding.</desc>
+<style>text{font-family:-apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif}.lanebox{fill:rgba(255,255,255,.55)}.lanelabel{font-size:10px;font-weight:700;letter-spacing:.12em;fill:#59636e}.card{fill:#ffffff;stroke:#d1d9e0;stroke-width:1}.card-added{stroke:#1f883d;stroke-opacity:.55}.card-modified{stroke:#bf8700;stroke-opacity:.5}.ghost{opacity:.55}.ghost .card{stroke:#cf222e;stroke-dasharray:4 3;stroke-opacity:.6}.context{opacity:.82}.ntitle{font-weight:600;fill:#1f2328}.strike{text-decoration:line-through}.nsub{font-size:9.5px;fill:#59636e;font-family:ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace}.chip{fill:#f1f3f5}.glyph{fill:#59636e}.glyph-stroke{stroke:#59636e;stroke-width:1.4;fill:none}.bdg text{font-size:8.5px;font-weight:700;letter-spacing:.06em}.bdg rect{stroke-width:1}.bdg-added rect{fill:#b9f0c4;stroke:rgba(31,136,61,.55)}.bdg-added text{fill:#116329}.bdg-modified rect{fill:#fae17d;stroke:rgba(154,103,0,.55)}.bdg-modified text{fill:#7d4e00}.bdg-removed rect{fill:#ffcecb;stroke:rgba(207,34,46,.5)}.bdg-removed text{fill:#a40e26}.bdg-neutral rect{fill:#f1f3f5;stroke:#d1d9e0}.bdg-neutral text{fill:#59636e}.edge{fill:none;stroke-width:1.5}.edge-added{stroke:#1f883d}.edge-modified{stroke:#bf8700}.edge-removed{stroke:#cf222e;stroke-dasharray:5 4;opacity:.7}.edge-neutral{stroke:#8c959f}.hero{stroke-width:2.25}.faded{opacity:.45}.glow{fill:none;stroke-width:7;opacity:.14}.msg-self{font-size:11px;fill:#1f2328}.lpill{fill:#ffffff;stroke:#d8dee4;stroke-width:1}.ltext{font-size:9.5px;font-weight:600;fill:#59636e}.ltext-added{fill:#116329}.ltext-modified{fill:#7d4e00}.ltext-removed{fill:#a40e26}.cardsh{filter:drop-shadow(0 1px 2px rgba(31,35,40,.14))}.lifeline{stroke:#d1d9e0;stroke-width:1;stroke-dasharray:3 4}.actbar{fill:#b9f0c4;stroke:rgba(31,136,61,.55)}.msg{fill:none;stroke-width:1.5}.msg-return{stroke-dasharray:4 3;opacity:.8}.msg-strong{stroke-width:2.25}</style>
+<defs><pattern id="dots" width="18" height="18" patternUnits="userSpaceOnUse"><circle cx="1.5" cy="1.5" r="1" fill="rgba(140,149,159,.5)"/></pattern><marker id="mk-added" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#1f883d"/></marker><marker id="mko-added" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M2,1 L10,5 L2,9" fill="none" stroke="#1f883d" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></marker><marker id="mk-modified" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#bf8700"/></marker><marker id="mko-modified" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M2,1 L10,5 L2,9" fill="none" stroke="#bf8700" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></marker><marker id="mk-removed" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#cf222e"/></marker><marker id="mko-removed" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M2,1 L10,5 L2,9" fill="none" stroke="#cf222e" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></marker><marker id="mk-neutral" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#8c959f"/></marker><marker id="mko-neutral" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M2,1 L10,5 L2,9" fill="none" stroke="#8c959f" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+<rect x="0" y="0" width="1866" height="451" rx="12" fill="#f4f5f7"/>
+<rect x="0" y="0" width="1866" height="451" rx="12" fill="url(#dots)"/>
+<g transform="translate(12,10)"><g><rect class="lanebox" x="4" y="6" width="259" height="419" rx="12"/>
+<rect class="lanebox" x="319" y="6" width="259" height="419" rx="12"/>
+<rect class="lanebox" x="634" y="6" width="259" height="419" rx="12"/>
+<rect class="lanebox" x="949" y="6" width="259" height="419" rx="12"/>
+<rect class="lanebox" x="1264" y="6" width="259" height="419" rx="12"/>
+<rect class="lanebox" x="1579" y="6" width="259" height="419" rx="12"/></g>
+<g><line class="lifeline" x1="133.5" y1="82" x2="133.5" y2="413"/>
+<line class="lifeline" x1="448.5" y1="82" x2="448.5" y2="413"/>
+<rect class="actbar" x="442.5" y="123" width="12" height="240.67" rx="4"/>
+<line class="lifeline" x1="763.5" y1="82" x2="763.5" y2="413"/>
+<rect class="actbar" x="757.5" y="161" width="12" height="38" rx="4"/>
+<line class="lifeline" x1="1078.5" y1="82" x2="1078.5" y2="413"/>
+<rect class="actbar" x="1072.5" y="237" width="12" height="114" rx="4"/>
+<line class="lifeline" x1="1393.5" y1="82" x2="1393.5" y2="413"/>
+<rect class="actbar" x="1387.5" y="275" width="12" height="38" rx="4"/>
+<line class="lifeline" x1="1708.5" y1="82" x2="1708.5" y2="413"/>
+<rect class="actbar" x="1702.5" y="389" width="12" height="12.67" rx="4"/></g>
+<g><g class="cardsh"><rect class="card card-modified" x="16" y="18" width="235" height="62" rx="10"/>
+<rect class="chip" x="30" y="36" width="26" height="26" rx="7"/><g><text class="glyph" x="43" y="53.5" text-anchor="middle" style="font-size:14px;font-style:italic;font-family:Georgia,serif">ƒ</text></g>
+<text class="ntitle" x="66" y="45" font-size="13">finishReview</text>
+<text class="nsub" x="66" y="63">Orchestrator entrypoint</text>
+<g class="bdg bdg-modified"><rect x="177.38" y="10" width="66.62" height="16" rx="8"/><text x="210.69" y="21" text-anchor="middle">CHANGED</text></g>
+<circle class="ev-dot" cx="244" cy="25" r="2.5" fill="currentColor" opacity="0.45"/></g>
+<g class="cardsh"><rect class="card card-modified" x="331" y="18" width="235" height="62" rx="10"/>
+<rect class="chip" x="345" y="36" width="26" height="26" rx="7"/><g><text class="glyph" x="358" y="53.5" text-anchor="middle" style="font-size:14px;font-style:italic;font-family:Georgia,serif">ƒ</text></g>
+<text class="ntitle" x="381" y="45" font-size="13">requestFindings</text>
+<text class="nsub" x="381" y="63">LLM review caller</text>
+<g class="bdg bdg-modified"><rect x="492.38" y="10" width="66.62" height="16" rx="8"/><text x="525.69" y="21" text-anchor="middle">CHANGED</text></g>
+<circle class="ev-dot" cx="559" cy="25" r="2.5" fill="currentColor" opacity="0.45"/></g>
+<g class="cardsh context"><rect class="card" x="646" y="18" width="235" height="62" rx="10"/>
+<rect class="chip" x="660" y="36" width="26" height="26" rx="7"/><g><rect class="glyph-stroke" x="665" y="43" width="16" height="12" rx="2"/>
+<path class="glyph-stroke" d="M665,45 l8,6 8,-6"/></g>
+<text class="ntitle" x="696" y="45" font-size="13">Gemini API</text>
+<text class="nsub" x="696" y="63">Gemini 1.5 Pro / Flash</text></g>
+<g class="cardsh"><rect class="card card-added" x="961" y="18" width="235" height="62" rx="10"/>
+<rect class="chip" x="975" y="36" width="26" height="26" rx="7"/><g><text class="glyph" x="988" y="53.5" text-anchor="middle" style="font-size:14px;font-style:italic;font-family:Georgia,serif">ƒ</text></g>
+<text class="ntitle" x="1011" y="45" font-size="13">readFindings</text>
+<text class="nsub" x="1011" y="63">JSON extraction &amp; array reader</text>
+<g class="bdg bdg-added"><rect x="1148.45" y="10" width="40.55" height="16" rx="8"/><text x="1168.73" y="21" text-anchor="middle">NEW</text></g>
+<circle class="ev-dot" cx="1189" cy="25" r="2.5" fill="currentColor" opacity="0.45"/></g>
+<g class="cardsh"><rect class="card card-added" x="1276" y="18" width="235" height="62" rx="10"/>
+<rect class="chip" x="1290" y="36" width="26" height="26" rx="7"/><g><text class="glyph" x="1303" y="53.5" text-anchor="middle" style="font-size:14px;font-style:italic;font-family:Georgia,serif">ƒ</text></g>
+<text class="ntitle" x="1326" y="45" font-size="13">normalizeFinding</text>
+<text class="nsub" x="1326" y="63">Field alias &amp; enum mapper</text>
+<g class="bdg bdg-added"><rect x="1463.45" y="10" width="40.55" height="16" rx="8"/><text x="1483.73" y="21" text-anchor="middle">NEW</text></g>
+<circle class="ev-dot" cx="1504" cy="25" r="2.5" fill="currentColor" opacity="0.45"/></g>
+<g class="cardsh"><rect class="card card-modified" x="1591" y="18" width="235" height="62" rx="10"/>
+<rect class="chip" x="1605" y="36" width="26" height="26" rx="7"/><g><text class="glyph" x="1618" y="53.5" text-anchor="middle" style="font-size:14px;font-style:italic;font-family:Georgia,serif">ƒ</text></g>
+<text class="ntitle" x="1641" y="45" font-size="13">groundFindings</text>
+<text class="nsub" x="1641" y="63">Line range and node linker</text>
+<g class="bdg bdg-modified"><rect x="1752.38" y="10" width="66.62" height="16" rx="8"/><text x="1785.69" y="21" text-anchor="middle">CHANGED</text></g></g></g>
+<g><path class="msg edge-neutral" d="M133.5,123 L437.5,123" marker-end="url(#mk-neutral)"/>
+<circle r="2.6" fill="#8c959f" opacity="0"><animateMotion dur="14s" repeatCount="indefinite" keyPoints="0;0;1;1" keyTimes="0;0;0.1;1" calcMode="linear" path="M133.5,123 L437.5,123"/><animate attributeName="opacity" dur="14s" repeatCount="indefinite" values="0;0;1;1;0;0" keyTimes="0;0;0.008;0.092;0.1;1"/></circle>
+<path class="msg edge-modified" d="M454.5,161 L752.5,161" marker-end="url(#mk-modified)"/>
+<circle r="2.6" fill="#bf8700" opacity="0"><animateMotion dur="14s" repeatCount="indefinite" keyPoints="0;0;1;1" keyTimes="0;0.1;0.2;1" calcMode="linear" path="M454.5,161 L752.5,161"/><animate attributeName="opacity" dur="14s" repeatCount="indefinite" values="0;0;1;1;0;0" keyTimes="0;0.1;0.108;0.192;0.2;1"/></circle>
+<path class="msg edge-neutral msg-return" d="M757.5,199 L459.5,199" marker-end="url(#mk-neutral)"/>
+<circle r="2.6" fill="#8c959f" opacity="0"><animateMotion dur="14s" repeatCount="indefinite" keyPoints="0;0;1;1" keyTimes="0;0.2;0.3;1" calcMode="linear" path="M757.5,199 L459.5,199"/><animate attributeName="opacity" dur="14s" repeatCount="indefinite" values="0;0;1;1;0;0" keyTimes="0;0.2;0.208;0.292;0.3;1"/></circle>
+<path class="msg edge-added msg-strong" d="M454.5,237 L1067.5,237" marker-end="url(#mk-added)"/>
+<circle r="2.6" fill="#1f883d" opacity="0"><animateMotion dur="14s" repeatCount="indefinite" keyPoints="0;0;1;1" keyTimes="0;0.3;0.4;1" calcMode="linear" path="M454.5,237 L1067.5,237"/><animate attributeName="opacity" dur="14s" repeatCount="indefinite" values="0;0;1;1;0;0" keyTimes="0;0.3;0.308;0.392;0.4;1"/></circle>
+<path class="msg edge-added msg-strong" d="M1084.5,275 L1382.5,275" marker-end="url(#mk-added)"/>
+<circle r="3" fill="#1f883d" opacity="0"><animateMotion dur="14s" repeatCount="indefinite" keyPoints="0;0;1;1" keyTimes="0;0.4;0.5;1" calcMode="linear" path="M1084.5,275 L1382.5,275"/><animate attributeName="opacity" dur="14s" repeatCount="indefinite" values="0;0;1;1;0;0" keyTimes="0;0.4;0.408;0.492;0.5;1"/></circle>
+<circle r="3" fill="#1f883d" opacity="0"><animateMotion dur="14s" repeatCount="indefinite" keyPoints="0;0;1;1" keyTimes="0;0.5;0.6;1" calcMode="linear" path="M1084.5,275 L1382.5,275"/><animate attributeName="opacity" dur="14s" repeatCount="indefinite" values="0;0;1;1;0;0" keyTimes="0;0.5;0.508;0.592;0.6;1"/></circle>
+<circle r="3" fill="#1f883d" opacity="0"><animateMotion dur="14s" repeatCount="indefinite" keyPoints="0;0;1;1" keyTimes="0;0.6;0.7;1" calcMode="linear" path="M1084.5,275 L1382.5,275"/><animate attributeName="opacity" dur="14s" repeatCount="indefinite" values="0;0;1;1;0;0" keyTimes="0;0.6;0.608;0.692;0.7;1"/></circle>
+<path class="msg edge-added msg-return msg-strong" d="M1387.5,313 L1089.5,313" marker-end="url(#mk-added)"/>
+<circle r="2.6" fill="#1f883d" opacity="0"><animateMotion dur="14s" repeatCount="indefinite" keyPoints="0;0;1;1" keyTimes="0;0.7;0.8;1" calcMode="linear" path="M1387.5,313 L1089.5,313"/><animate attributeName="opacity" dur="14s" repeatCount="indefinite" values="0;0;1;1;0;0" keyTimes="0;0.7;0.708;0.792;0.8;1"/></circle>
+<path class="msg edge-added msg-return msg-strong" d="M1072.5,351 L459.5,351" marker-end="url(#mk-added)"/>
+<circle r="2.6" fill="#1f883d" opacity="0"><animateMotion dur="14s" repeatCount="indefinite" keyPoints="0;0;1;1" keyTimes="0;0.8;0.9;1" calcMode="linear" path="M1072.5,351 L459.5,351"/><animate attributeName="opacity" dur="14s" repeatCount="indefinite" values="0;0;1;1;0;0" keyTimes="0;0.8;0.808;0.892;0.9;1"/></circle>
+<path class="msg edge-modified" d="M133.5,389 L1697.5,389" marker-end="url(#mk-modified)"/>
+<circle r="2.6" fill="#bf8700" opacity="0"><animateMotion dur="14s" repeatCount="indefinite" keyPoints="0;0;1;1" keyTimes="0;0.9;1;1" calcMode="linear" path="M133.5,389 L1697.5,389"/><animate attributeName="opacity" dur="14s" repeatCount="indefinite" values="0;0;1;1;0;0" keyTimes="0;0.9;0.908;0.992;1;1"/></circle></g>
+<g><g><rect class="lpill" x="208.11" y="115.5" width="154.78" height="15" rx="7.5"/><text class="ltext" x="285.5" y="126.5" text-anchor="middle">Prompt LLM for review findings</text></g>
+<g><rect class="lpill" x="490.02" y="153.5" width="226.96" height="15" rx="7.5"/><text class="ltext ltext-modified" x="603.5" y="164.5" text-anchor="middle">POST completeGemini(prompt, systemPrompt)</text></g>
+<g><rect class="lpill" x="543.69" y="191.5" width="129.61" height="15" rx="7.5"/><text class="ltext" x="608.5" y="202.5" text-anchor="middle">Raw model text response</text></g>
+<g><rect class="lpill" x="695.65" y="229.5" width="130.71" height="15" rx="7.5"/><text class="ltext ltext-added" x="761" y="240.5" text-anchor="middle">readFindings(rawAnswer)</text></g>
+<g><rect class="lpill" x="1155.89" y="267.5" width="155.22" height="15" rx="7.5"/><text class="ltext ltext-added" x="1233.5" y="278.5" text-anchor="middle">normalizeFinding(rawItem) ×20</text></g>
+<g><rect class="lpill" x="1170.89" y="305.5" width="135.22" height="15" rx="7.5"/><text class="ltext ltext-added" x="1238.5" y="316.5" text-anchor="middle">ModelFinding or undefined</text></g>
+<g><rect class="lpill" x="699.5" y="343.5" width="133" height="15" rx="7.5"/><text class="ltext ltext-added" x="766" y="354.5" text-anchor="middle">{ candidates, unreadable }</text></g>
+<g><rect class="lpill" x="816.27" y="381.5" width="198.46" height="15" rx="7.5"/><text class="ltext ltext-modified" x="915.5" y="392.5" text-anchor="middle">groundFindings(candidates, lines, graph)</text></g></g></g>
+</svg>
