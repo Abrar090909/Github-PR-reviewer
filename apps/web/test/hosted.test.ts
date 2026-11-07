@@ -148,7 +148,7 @@ test("the map model draws every view, resolves each walkthrough step to boxes, a
 });
 
 test("an architecture the model left still gets moving connections, except the removed ones", async () => {
-  const { withMotion } = await import("@/lib/hosted/motion");
+  const { withMotion } = await import("@contour/renderer");
   const still = { ...graph, edges: graph.edges.map((edge) => ({ ...edge, animated: false })) };
   const moving = withMotion(still);
   expect(moving.edges.filter((edge) => edge.animated).length).toBe(still.edges.filter((edge) => edge.delta !== "removed").length);

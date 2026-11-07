@@ -33,4 +33,6 @@ export {
 
 export { applyCorrections } from "./corrections.js";
 
+export { withMotion } from "./motion.js";
+
 export { findView, flattenViews, resolveScope, type ScopedGraph } from "./scope.js";

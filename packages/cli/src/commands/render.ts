@@ -1,4 +1,4 @@
-import { applyCorrections, PrLensRenderError, renderAll, THEMES, type Theme } from "@contour/renderer";
+import { applyCorrections, PrLensRenderError, renderAll, THEMES, withMotion, type Theme } from "@contour/renderer";
 import { safeParseGraphDoc, type Config, type GraphDoc } from "@contour/schema";
 import { join } from "node:path";
 import { expectOne, parseOptions, readBoolean, readString } from "../args.js";
@@ -83,7 +83,9 @@ export const renderCommand = async (args: readonly string[], terminal: Terminal)
 
   const themes = readThemes(values.theme);
 
-  const drawn = (() => {
+  // The same rule the hosted app draws with: when the document chose no pulses, every live
+  // connection moves, so the comment's diagram shows data flowing rather than a still picture.
+  const drawn = withMotion((() => {
     if (configured === undefined) return graph;
 
     for (const warning of unmatchedCorrections(graph, configured.config))
@@ -99,7 +101,7 @@ export const renderCommand = async (args: readonly string[], terminal: Terminal)
       );
 
     return parsed.value;
-  })();
+  })());
 
   const rendered = (() => {
     try {

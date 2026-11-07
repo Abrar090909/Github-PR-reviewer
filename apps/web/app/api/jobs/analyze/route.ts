@@ -1,12 +1,11 @@
 import { createHash, randomBytes } from "node:crypto";
-import { renderAll } from "@contour/renderer";
+import { renderAll, withMotion } from "@contour/renderer";
 import type { GraphDoc, RenderManifest } from "@contour/schema";
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { createInstallationOctokit } from "@/lib/github";
 import { analyzePullRequest, fetchPullRequestDiff } from "@/lib/hosted/analysis";
 import { COMMENT_MARKER, composeHostedComment } from "@/lib/hosted/comment";
-import { withMotion } from "@/lib/hosted/motion";
 import { finishReview, postReview, requestFindings, type Finding, type Review } from "@/lib/hosted/review";
 import {
   appBaseUrl,

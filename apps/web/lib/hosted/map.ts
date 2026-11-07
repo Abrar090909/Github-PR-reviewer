@@ -1,9 +1,8 @@
 import "server-only";
 
-import { render, type Box, type RenderAtlas } from "@contour/renderer";
+import { render, withMotion, type Box, type RenderAtlas } from "@contour/renderer";
 import type { GraphDoc, Lens, View } from "@contour/schema";
 import { diffLink, readFirst, type FocusFile } from "./focus";
-import { withMotion } from "./motion";
 import type { Finding, Review } from "./review";
 
 /** One diagram the page can show: a drill-down view, or a whole lens when there are none. */
