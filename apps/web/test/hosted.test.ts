@@ -187,3 +187,27 @@ test("every top-level diagram shows in the comment without a click", () => {
   expect(body).not.toContain(`<summary><b>${root.title}</b></summary>`);
   expect(body).toContain(`<summary><b>${child.title}</b></summary>`);
 });
+
+test("a finding written with other key names and labels is mapped onto the contract", async () => {
+  const { normalizeFinding } = await import("@/lib/hosted/review");
+  expect(normalizeFinding({
+    severity: "Critical", category: "Error handling", path: "src/a.ts", start_line: "12", title: "`x` is never awaited", description: "The write races the response.",
+  })).toEqual({
+    severity: "high", category: "reliability", file: "src/a.ts", startLine: 12, endLine: 12, title: "`x` is never awaited", body: "The write races the response.", suggestion: undefined,
+  });
+  expect(normalizeFinding({ severity: "low", category: "bug", file: "a.ts", line: 3, title: "t", body: "b" })?.category).toBe("correctness");
+  // Without a line there is nowhere to put it.
+  expect(normalizeFinding({ severity: "high", category: "security", file: "a.ts", title: "t", body: "b" })).toBeUndefined();
+});
+
+test("one unreadable finding costs only itself, not the whole review", async () => {
+  const { readFindings } = await import("@/lib/hosted/review");
+  const answer = JSON.stringify({ findings: [
+    { severity: "medium", category: "correctness", file: "a.ts", startLine: 2, endLine: 2, title: "Off by one", body: "Skips the last item." },
+    { severity: "medium", category: "correctness", file: "a.ts", title: "No line", body: "Cannot be placed." },
+  ] });
+  const { candidates, unreadable } = readFindings(`Here you go:\n${answer}`);
+  expect(candidates.map((finding) => finding.title)).toEqual(["Off by one"]);
+  expect(unreadable).toBe(1);
+  expect(readFindings("[]")).toEqual({ candidates: [], unreadable: 0 });
+});

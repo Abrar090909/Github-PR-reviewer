@@ -4,7 +4,7 @@ import { createHash } from "node:crypto";
 import { z } from "zod";
 import type { GraphDoc } from "@contour/schema";
 import type { Octokit } from "octokit";
-import { completeGemini, readObject, type HostedDiff } from "./analysis";
+import { completeGemini, type HostedDiff } from "./analysis";
 import { commentable, numberPatch, readPatch, type FileLines } from "./diff-lines";
 import type { AnalysisJob } from "./queue";
 
@@ -24,7 +24,7 @@ const ModelFinding = z.object({
   body: z.string().min(1).max(1500),
   suggestion: z.string().max(4000).optional(),
 });
-const ModelReview = z.object({ findings: z.array(ModelFinding).max(20) });
+type ModelFinding = z.infer<typeof ModelFinding>;
 
 export type Finding = z.infer<typeof ModelFinding> & {
   /** Stable across pushes, so a finding already posted is not posted again. */
@@ -43,6 +43,8 @@ const SYSTEM_PROMPT = [
   "You are a senior engineer reviewing a pull request. Report only real defects the diff introduces or exposes:",
   "wrong behaviour, security holes, data loss, races, broken error handling, resource leaks, performance traps,",
   "and risky logic shipped without tests. Never report style, naming, formatting or praise.",
+  "Never claim a library function, type or option does not exist: you cannot see the installed version, and APIs",
+  "change between versions. Report only what the diff itself shows to be wrong.",
   `Report at most ${MAX_FINDINGS} findings, most severe first. When nothing is wrong, answer {"findings": []}.`,
   "Every finding names one file and head-side line numbers exactly as printed in the numbered diff.",
   "Removed lines have no number and cannot be pointed at.",
@@ -51,7 +53,11 @@ const SYSTEM_PROMPT = [
   "suggestion: optional. The exact replacement text for lines startLine to endLine, only when the fix is local,",
   "complete and certain. Leave it out otherwise.",
   "high: breaks users, loses data or opens a hole. medium: a real bug in a less common path. low: worth fixing soon.",
-  'Answer with one JSON object of the form {"findings": [...]} and no markdown fence.',
+  "Answer with one JSON object and no markdown fence, using exactly these keys:",
+  '{"findings": [{"severity": "high" | "medium" | "low",',
+  ` "category": ${CATEGORIES.map((category) => `"${category}"`).join(" | ")},`,
+  ' "file": "<path as printed after ===>", "startLine": <number>, "endLine": <number>,',
+  ' "title": "<one line>", "body": "<one to three sentences>", "suggestion": "<optional replacement text>"}]}',
 ].join("\n");
 
 function reviewPrompt(job: AnalysisJob, diff: HostedDiff): string {
@@ -89,7 +95,7 @@ const nodesForFile = (graph: GraphDoc, file: string): string[] =>
  * is dropped rather than posted somewhere it does not belong.
  */
 export function groundFindings(
-  candidates: z.infer<typeof ModelFinding>[],
+  candidates: ModelFinding[],
   lines: Record<string, FileLines>,
   graph: GraphDoc,
 ): { findings: Finding[]; dropped: number } {
@@ -114,18 +120,115 @@ export function groundFindings(
   return { findings, dropped: candidates.length - findings.length };
 }
 
-type Requested = { ok: true; candidates: z.infer<typeof ModelFinding>[] } | { ok: false; reason: string };
+// Models drift from the requested keys and labels ("start_line", "critical",
+// "error handling"). Each finding is read on its own and mapped onto the
+// contract, so one off-format finding costs only itself, not the review.
+const KEYS: Record<keyof ModelFinding, string[]> = {
+  severity: ["severity", "level", "priority"],
+  category: ["category", "type", "kind"],
+  file: ["file", "path", "filename", "file_path", "filePath"],
+  startLine: ["startLine", "start_line", "lineStart", "line_start", "line", "start"],
+  endLine: ["endLine", "end_line", "lineEnd", "line_end", "end"],
+  title: ["title", "headline", "summary"],
+  body: ["body", "description", "details", "explanation", "message"],
+  suggestion: ["suggestion", "fix", "suggested_fix", "suggestedFix", "replacement"],
+};
+
+const SEVERITY_WORDS: [RegExp, ModelFinding["severity"]][] = [
+  [/high|critical|blocker|major|severe/, "high"],
+  [/medium|moderate|warn/, "medium"],
+  [/low|minor|info|nit|trivial/, "low"],
+];
+
+const CATEGORY_WORDS: [RegExp, ModelFinding["category"]][] = [
+  [/secur|vulnerab|inject|auth|xss|secret/, "security"],
+  [/perform|perf|slow|latenc|memory|n\+1/, "performance"],
+  [/test/, "tests"],
+  [/reliab|error|exception|race|concurren|leak|timeout|retry|resilien/, "reliability"],
+  [/maintain|readab|duplicat|complex|design/, "maintainability"],
+  [/correct|bug|logic|wrong|incorrect|off.by|regress/, "correctness"],
+];
+
+const pick = (raw: Record<string, unknown>, key: keyof ModelFinding): unknown => {
+  for (const name of KEYS[key]) if (raw[name] !== undefined && raw[name] !== null) return raw[name];
+  return undefined;
+};
+
+const asLine = (value: unknown): number | undefined => {
+  const line = typeof value === "string" ? Number.parseInt(value, 10) : value;
+  return typeof line === "number" && Number.isInteger(line) && line >= 1 ? line : undefined;
+};
+
+/** Maps one finding as the model wrote it onto the contract, or undefined when it cannot be placed. */
+export function normalizeFinding(value: unknown): ModelFinding | undefined {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) return undefined;
+  const raw = value as Record<string, unknown>;
+  const severityText = String(pick(raw, "severity") ?? "").toLowerCase();
+  const categoryText = String(pick(raw, "category") ?? "").toLowerCase();
+  const startLine = asLine(pick(raw, "startLine"));
+  const suggestion = pick(raw, "suggestion");
+  const parsed = ModelFinding.safeParse({
+    severity: SEVERITY_WORDS.find(([pattern]) => pattern.test(severityText))?.[1] ?? "medium",
+    category:
+      CATEGORIES.find((category) => category === categoryText) ??
+      CATEGORY_WORDS.find(([pattern]) => pattern.test(categoryText))?.[1] ??
+      "correctness",
+    file: pick(raw, "file"),
+    startLine,
+    endLine: asLine(pick(raw, "endLine")) ?? startLine,
+    title: pick(raw, "title"),
+    body: pick(raw, "body"),
+    suggestion: typeof suggestion === "string" && suggestion.trim() ? suggestion : undefined,
+  });
+  return parsed.success ? parsed.data : undefined;
+}
+
+/** The JSON in a model answer: the whole text, a fenced block, or the outermost object or array. */
+function parseAnswer(answer: string): unknown {
+  const attempts = [
+    answer.trim(),
+    answer.match(/```(?:json)?\s*([\s\S]*?)```/)?.[1]?.trim(),
+    answer.slice(answer.indexOf("{"), answer.lastIndexOf("}") + 1),
+    answer.slice(answer.indexOf("["), answer.lastIndexOf("]") + 1),
+  ];
+  for (const text of attempts) {
+    if (!text) continue;
+    try {
+      return JSON.parse(text);
+    } catch {
+      // Try the next reading.
+    }
+  }
+  throw new Error("the answer was not JSON");
+}
+
+/** The findings in a model answer, read one by one; an object, an array, or {"findings": [...]}. */
+export function readFindings(answer: string): { candidates: ModelFinding[]; unreadable: number } {
+  const value = parseAnswer(answer);
+  const list = Array.isArray(value)
+    ? value
+    : value && typeof value === "object" && Array.isArray((value as { findings?: unknown }).findings)
+      ? (value as { findings: unknown[] }).findings
+      : undefined;
+  if (!list) throw new Error("the answer held no findings list");
+  const candidates = list.slice(0, 20).map(normalizeFinding).filter((finding): finding is ModelFinding => finding !== undefined);
+  return { candidates, unreadable: Math.min(list.length, 20) - candidates.length };
+}
+
+type Requested = { ok: true; candidates: ModelFinding[]; unreadable: number } | { ok: false; reason: string };
 
 /** Asks the model for findings. Runs alongside the diagram analysis, which it does not need. */
 export async function requestFindings(job: AnalysisJob, diff: HostedDiff): Promise<Requested> {
+  let answer = "";
   try {
-    const answer = await completeGemini([{ role: "user", text: reviewPrompt(job, diff) }], SYSTEM_PROMPT, 8_192);
-    const parsed = ModelReview.safeParse(readObject(answer));
-    if (parsed.success) return { ok: true, candidates: parsed.data.findings };
-    return { ok: false, reason: `findings did not match the schema: ${parsed.error.message.slice(0, 600)}` };
+    answer = await completeGemini([{ role: "user", text: reviewPrompt(job, diff) }], SYSTEM_PROMPT, 8_192);
+    return { ok: true, ...readFindings(answer) };
   } catch (error) {
-    // A review that fails must not cost the pull request its diagrams.
-    return { ok: false, reason: error instanceof Error ? error.message.slice(0, 600) : String(error) };
+    // A review that fails must not cost the pull request its diagrams. The answer's
+    // opening goes into the log, so the next format surprise can be read, not guessed.
+    const message = error instanceof Error ? error.message : String(error);
+    const opening = answer ? `; the answer began: ${JSON.stringify(answer.slice(0, 240))}` : "";
+    return { ok: false, reason: `${message}${opening}`.slice(0, 900) };
   }
 }
 
@@ -135,7 +238,8 @@ export function finishReview(job: AnalysisJob, diff: HostedDiff, graph: GraphDoc
     return { status: "failed", headSha: job.headSha };
   }
   const lines = Object.fromEntries(Object.entries(diff.patches).map(([path, patch]) => [path, readPatch(patch)]));
-  return { status: "complete", headSha: job.headSha, ...groundFindings(requested.candidates, lines, graph) };
+  const grounded = groundFindings(requested.candidates, lines, graph);
+  return { status: "complete", headSha: job.headSha, findings: grounded.findings, dropped: grounded.dropped + requested.unreadable };
 }
 
 export const SEVERITY_LABEL: Record<Finding["severity"], string> = { high: "High", medium: "Medium", low: "Low" };
