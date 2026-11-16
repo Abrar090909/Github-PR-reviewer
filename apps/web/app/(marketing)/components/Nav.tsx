@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
 import ContourLogo from "../../components/ContourLogo";
 import ThemeToggle from "../../components/ThemeToggle";
+import GitHubMark from "../../components/GitHubMark";
 import { GITHUB_APP_INSTALL_URL, GITHUB_REPOSITORY_URL } from "@/lib/constants";
 
 const LINKS = [
@@ -50,6 +51,7 @@ export default function Nav() {
             Source
           </a>
           <a href={GITHUB_APP_INSTALL_URL} target="_blank" rel="noopener noreferrer" className="btn-primary hidden h-9 px-4 sm:inline-flex">
+            <GitHubMark />
             Add to GitHub
           </a>
           <button
@@ -78,6 +80,7 @@ export default function Nav() {
             </a>
           ))}
           <a href={GITHUB_APP_INSTALL_URL} target="_blank" rel="noopener noreferrer" className="btn-primary mt-2 w-full sm:hidden">
+            <GitHubMark />
             Add to GitHub
           </a>
         </div>

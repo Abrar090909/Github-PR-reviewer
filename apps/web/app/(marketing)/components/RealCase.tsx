@@ -59,7 +59,7 @@ export default function RealCase() {
           <span className="flex items-center justify-between gap-3 border-t border-line px-5 py-3 text-sm">
             <span className="text-fg-2">{CASE.title}</span>
             <span className="inline-flex shrink-0 items-center gap-1.5 text-accent group-hover:underline">
-              See the comment on GitHub <ExternalLink size={14} strokeWidth={1.5} />
+              See the comment on GitHub <ExternalLink size={14} strokeWidth={1.5} className="transition-transform duration-150 ease-out group-hover:-translate-y-px group-hover:translate-x-px" />
             </span>
           </span>
         </a>
