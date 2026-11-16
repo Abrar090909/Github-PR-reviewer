@@ -22,6 +22,10 @@
     --shadow: 0 0 0 / 0.4;
     --code-key: 126 231 135;
     --code-value: 165 214 255;
+    /* GitHub's syntax colours, for code drawn on the page. */
+    --syn-key: 255 123 114;
+    --syn-fn: 210 168 255;
+    --syn-num: 121 192 255;
     color-scheme: dark;
   }
 
@@ -44,6 +48,9 @@
     --shadow: 31 35 40 / 0.1;
     --code-key: 17 99 41;
     --code-value: 10 48 105;
+    --syn-key: 207 34 46;
+    --syn-fn: 130 80 223;
+    --syn-num: 5 80 174;
     color-scheme: light;
   }
 
@@ -148,5 +155,100 @@
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+}
+
+/* Feature bento: each tile plays one beat, once, when it scrolls in (data-on). */
+@layer components {
+  .bento-await {
+    @apply inline-block overflow-hidden whitespace-pre align-bottom;
+    max-width: 0;
+    transition: max-width 320ms cubic-bezier(0.22, 1, 0.36, 1) 140ms;
+  }
+  .bento-await[data-on] {
+    max-width: 6ch;
+  }
+  .bento-flash {
+    animation: bento-flash 900ms ease-out 140ms both;
+  }
+
+  /* A button presses, then its label rolls to the result on the same button. */
+  .bento-commit,
+  .bento-press {
+    transition: transform 120ms ease-out;
+  }
+  .bento-commit[data-on],
+  .bento-press[data-on] {
+    animation: bento-press 220ms ease-out both;
+  }
+  .bento-commit-label {
+    @apply grid h-8 leading-8;
+  }
+  .bento-commit-label > span {
+    grid-area: 1 / 1;
+    transition: transform 320ms cubic-bezier(0.22, 1, 0.36, 1) 160ms, opacity 200ms ease-out 160ms;
+  }
+  .bento-commit-label > span:last-child {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  .bento-commit[data-on] .bento-commit-label > span:first-child {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  .bento-commit[data-on] .bento-commit-label > span:last-child {
+    transform: none;
+    opacity: 1;
+  }
+
+  /* Step 1 slides up and out as step 2 arrives under it. */
+  .bento-swap > div {
+    transition: transform 420ms cubic-bezier(0.22, 1, 0.36, 1) 180ms;
+  }
+  .bento-swap > div:last-child {
+    margin-top: 2px;
+  }
+  .bento-swap[data-on] > div {
+    transform: translateY(calc(-100% - 2px));
+  }
+
+  /* Connections draw in from their source. */
+  .bento-edge {
+    fill: none;
+    stroke-width: 1.5;
+    stroke-dasharray: 160;
+    stroke-dashoffset: 160;
+    transition: stroke-dashoffset 600ms cubic-bezier(0.65, 0, 0.35, 1) var(--d, 0ms);
+  }
+  .bento-edge-main {
+    stroke-width: 2.25;
+  }
+  [data-on] .bento-edge {
+    stroke-dashoffset: 0;
+  }
+  /* A removed connection is dashed, so it fades in rather than drawing. */
+  .bento-fade {
+    fill: none;
+    stroke-width: 1.5;
+    opacity: 0;
+    transition: opacity 500ms ease-out var(--d, 0ms);
+  }
+  [data-on] .bento-fade {
+    opacity: 0.8;
+  }
+}
+
+@keyframes bento-press {
+  45% {
+    transform: scale(0.94);
+  }
+}
+
+@keyframes bento-flash {
+  from {
+    background-color: rgb(var(--added) / 0.35);
+  }
+  to {
+    background-color: rgb(var(--added) / 0.1);
   }
 }

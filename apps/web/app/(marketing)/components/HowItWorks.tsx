@@ -41,7 +41,7 @@ export default function HowItWorks() {
             {STEPS.map((step, index) => (
               <li key={step.title} className="grid grid-cols-[36px_1fr] gap-4 pb-8 last:pb-0">
                 <span className="relative flex flex-col items-center">
-                  <span className="flex h-9 w-9 items-center justify-center rounded-xl border border-accent/40 bg-accent/10 font-mono text-sm tabular-nums text-accent">
+                  <span className="flex h-9 w-9 items-center justify-center rounded-full border border-line bg-ink-900 font-mono text-sm tabular-nums text-fg-2">
                     {index + 1}
                   </span>
                   {index < STEPS.length - 1 && <span className="mt-2 w-px flex-1 bg-line" />}
