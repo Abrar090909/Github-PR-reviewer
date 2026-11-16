@@ -9,7 +9,7 @@ import { PrLensCliError } from "./errors.js";
  */
 export const COMMENT_MARKER = "<!-- contour -->";
 
-const CONTOUR_URL = "https://contour.dev";
+const CONTOUR_URL = "https://contourapp.online";
 
 export type CommentOptions = {
   graph: GraphDoc;

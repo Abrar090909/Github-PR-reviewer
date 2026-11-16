@@ -165,4 +165,4 @@ Every failure carries a code, so a script can branch on it: `USAGE`, `UNREADABLE
 
 ---
 
-Part of [Contour](https://contour.dev). Review what actually matters.
+Part of [Contour](https://contourapp.online). Review what actually matters.
