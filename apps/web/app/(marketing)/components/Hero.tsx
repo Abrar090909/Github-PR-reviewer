@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 import { GITHUB_APP_INSTALL_URL } from "@/lib/constants";
 import { example } from "@/lib/showcase";
 import ContourLogo from "../../components/ContourLogo";
@@ -25,6 +26,7 @@ export default function Hero() {
           </a>
           <Link href="/r/example#walkthrough" className="btn-secondary h-12">
             Try the interactive map
+            <ArrowRight size={16} strokeWidth={1.5} className="btn-nudge" aria-hidden="true" />
           </Link>
         </div>
         <p className="mt-5 text-sm text-fg-2">Free for public repositories · no workflow file or API key · read-only access to code</p>

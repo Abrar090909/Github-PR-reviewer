@@ -53,10 +53,10 @@ export default function DiagramTabs({ tabs }: { tabs: Tab[] }) {
           height={current.diagram.height}
           alt={current.diagram.alt}
           priority
-          className="mx-auto h-auto w-full min-w-[640px] max-w-[1040px]"
+          className="fade-in mx-auto h-auto w-full min-w-[640px] max-w-[1040px]"
         />
-        <span className="pointer-events-none absolute right-4 top-4 inline-flex items-center gap-1.5 rounded-lg border border-line bg-ink-850/95 px-3 py-1.5 text-[13px] text-fg opacity-90 transition-opacity duration-150 group-hover:opacity-100">
-          <Maximize2 size={14} strokeWidth={1.5} />
+        <span className="pointer-events-none absolute right-4 top-4 inline-flex items-center gap-1.5 rounded-lg border border-line bg-ink-850/95 px-3 py-1.5 text-[13px] text-fg opacity-90 transition-[opacity,border-color] duration-150 group-hover:border-fg/20 group-hover:opacity-100">
+          <Maximize2 size={14} strokeWidth={1.5} className="transition-transform duration-150 ease-out group-hover:scale-110" />
           Open the interactive map
         </span>
       </Link>

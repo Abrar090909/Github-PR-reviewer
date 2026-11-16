@@ -78,7 +78,7 @@ export default function InstallSection() {
         <h2 className="heading">Install once, and every pull request gets a diagram</h2>
 
         <div className="mt-12 grid grid-cols-[minmax(0,1fr)] gap-4 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
-          <div className="flex flex-col rounded-2xl border border-accent/40 bg-ink-850 p-6">
+          <div className="flex flex-col rounded-2xl border border-line bg-ink-800 p-6 shadow-[0_16px_48px_rgb(var(--shadow))]">
             <h3 className="text-lg font-medium">GitHub App</h3>
             <p className="mt-1 font-mono text-[13px] text-accent">hosted · recommended</p>
             <p className="mt-4 text-[15px] leading-7 text-fg-2">

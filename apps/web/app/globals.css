@@ -118,6 +118,21 @@
     @apply btn border border-line bg-ink-800 text-fg hover:border-fg/20 hover:bg-ink-700;
   }
 
+  /* An arrow at the end of a button moves the way the button goes. */
+  .btn-nudge {
+    @apply shrink-0 transition-transform duration-150 ease-out;
+  }
+  .btn:hover .btn-nudge,
+  .btn-primary:hover .btn-nudge,
+  .btn-secondary:hover .btn-nudge {
+    transform: translateX(2px);
+  }
+
+  /* New content arrives instead of appearing: a diagram on a new tab or step, a step's description. */
+  .fade-in {
+    animation: fade-in 260ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
   .link {
     @apply text-fg-2 transition-colors duration-150 ease-out hover:text-fg;
   }
@@ -235,6 +250,13 @@
   }
   [data-on] .bento-fade {
     opacity: 0.8;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
   }
 }
 

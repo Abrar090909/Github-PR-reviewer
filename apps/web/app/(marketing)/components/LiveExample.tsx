@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 import { GITHUB_APP_INSTALL_URL } from "@/lib/constants";
 import { example } from "@/lib/showcase";
 import GitHubMark from "../../components/GitHubMark";
@@ -20,6 +21,7 @@ export default function LiveExample() {
         <div className="mt-8 flex flex-col gap-3 sm:flex-row">
           <Link href="/r/example#walkthrough" className="btn-primary">
             Play it on the interactive map
+            <ArrowRight size={16} strokeWidth={1.5} className="btn-nudge" aria-hidden="true" />
           </Link>
           <a href={GITHUB_APP_INSTALL_URL} target="_blank" rel="noopener noreferrer" className="btn-secondary">
             <GitHubMark />

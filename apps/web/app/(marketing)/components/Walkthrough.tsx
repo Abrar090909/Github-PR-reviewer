@@ -32,7 +32,7 @@ export default function Walkthrough({ steps }: { steps: Step[] }) {
               </span>
               <span>
                 <span className={`block text-base ${index === active ? "text-fg" : "text-fg-2"}`}>{step.heading}</span>
-                {index === active && <span className="mt-1 block text-[15px] leading-6 text-fg-2">{step.body}</span>}
+                {index === active && <span className="fade-in mt-1 block text-[15px] leading-6 text-fg-2">{step.body}</span>}
               </span>
             </button>
           </li>
@@ -51,7 +51,7 @@ export default function Walkthrough({ steps }: { steps: Step[] }) {
           width={current.diagram.width}
           height={current.diagram.height}
           alt={current.diagram.alt}
-          className="mx-auto h-auto w-full min-w-[640px]"
+          className="fade-in mx-auto h-auto w-full min-w-[640px]"
         />
       </Link>
     </div>

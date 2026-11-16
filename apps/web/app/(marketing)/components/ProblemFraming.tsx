@@ -42,10 +42,10 @@ export default function ProblemFraming() {
             </ul>
           </div>
 
-          <div className="flex flex-col rounded-2xl border border-accent/40 bg-ink-850 p-5">
-            <p className="text-sm font-medium">What Contour shows</p>
+          <div className="flex flex-col rounded-2xl border border-line bg-ink-800 p-5 shadow-[0_16px_48px_rgb(var(--shadow))]">
+            <p className="text-sm font-medium text-accent">What Contour shows</p>
             <p className="mt-1 text-sm text-fg-2">The same change, in the lanes it runs in, marked against the base branch</p>
-            <Link href="/r/example#architecture" className="mt-4 block flex-1 overflow-hidden rounded-xl border border-line bg-canvas">
+            <Link href="/r/example#architecture" className="mt-4 block flex-1 overflow-hidden rounded-xl border border-line bg-canvas transition-[border-color] duration-150 ease-out hover:border-fg/25">
               <ThemedDiagram
                 src={example.architecture.src}
                 srcLight={example.architecture.srcLight}
